@@ -18,7 +18,6 @@
 #include "Core/Constants.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
-#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 
@@ -29,14 +28,23 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
         case 1:
             health = 1024.0f;
             speed = RandomUtils::generateInRange(128.0f, 256.0f);
+            bulletspeed = speed * 3.2f;
             current_shot_gap = RandomUtils::generateInRange(0.8f, 1.6f);
-            damage = 256.0f;
+            damage = 128.0f;
             break;
         case 2:
             health = 2048.0f;
             speed = RandomUtils::generateInRange(64.0f, 256.0f);
+            bulletspeed = speed * 4.0f;
             current_shot_gap = RandomUtils::generateInRange(0.6f, 1.2f);
-            damage = 512.0f;
+            damage = 256.0f;
+            break;
+        case 3:
+            health = RandomUtils::generateInRange(24000.0f, 32000.0f);
+            speed = RandomUtils::generateInRange(8.0f, 32.0f);
+            bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
+            current_shot_gap = RandomUtils::generateInRange(0.08f, 0.4f);
+            damage = 1024.0f;
             break;
         default: __builtin_unreachable(); break;
     }
@@ -86,9 +94,12 @@ void Enemy::shoot(std::vector<Bullet> &bullet_pool) {
     if (current_shot_gap > 0.0f && !lastShotTimer.hasElapsed(current_shot_gap))
         return;
 
-    bullet_pool.emplace_back(sprite.getPosition() + sf::Vector2f(32.0f, 8.0f),
-                             sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_BULLET_ID, false,
-                             std::min(625.0f, speed * 3.0f), damage);
+    const sf::FloatRect bounds = sprite.getGlobalBounds();
+    sf::Vector2f spawnPosition(bounds.left + bounds.width / 2.0f,
+                               bounds.top + bounds.height + 8.0f);
+    bullet_pool.emplace_back(spawnPosition, sf::Vector2f(0.0f, 1.0f),
+                             Constants::ENEMY_BULLET_ID, false, bulletspeed,
+                             damage);
 
     lastShotTimer.restart();
 }
@@ -142,3 +153,27 @@ void Enemy2::move(float deltaTime) {
 }
 
 void Enemy2::collide() { takeDamage(health * 0.8f); }
+
+/* Enemy3 Implementation */
+
+Enemy3::Enemy3(sf::Vector2f position) : Enemy(3, position) {
+    verticalAmplitude = RandomUtils::generateInRange(128.0f, 256.0f);
+    verticalFrequency = RandomUtils::generateInRange(0.032f, 0.16f);
+    verticalCenter = position.x;
+    timer.restart();
+}
+
+void Enemy3::move(float deltaTime) {
+    if (!avail)
+        return;
+
+    float verticalOffset =
+        std::sin(timer.getElapsedTime() * verticalFrequency) *
+        verticalAmplitude;
+    sprite.move(0, speed * deltaTime);
+    auto [x, y] = sprite.getPosition();
+    sprite.setPosition(verticalCenter + verticalOffset, y);
+    avail = (y >= 0 && y <= Constants::SCREEN_HEIGHT);
+}
+
+void Enemy3::collide() { takeDamage(3.2f); }

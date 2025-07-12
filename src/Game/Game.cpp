@@ -62,9 +62,10 @@ void Game::run() {
 }
 
 void Game::spawnEnemies(float deltaTime) {
-    static const std::vector<int> levelSet = {1, 2};
+    static const std::vector<int> levelSet = {1, 2, 3};
     static const std::vector<float> levelProb = {Constants::ENEMY1_SPAWN_PROB,
-                                                 Constants::ENEMY2_SPAWN_PROB};
+                                                 Constants::ENEMY2_SPAWN_PROB,
+                                                 Constants::ENEMY3_SPAWN_PROB};
     float spawnInterval = RandomUtils::generateInRange(0.32f, 1.28f);
     if (spawnTimer.hasElapsed(spawnInterval)) {
         float spawnPositionX =
@@ -78,6 +79,10 @@ void Game::spawnEnemies(float deltaTime) {
                 break;
             case 2:
                 enemies.push_back(std::make_unique<Enemy2>(
+                    sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                break;
+            case 3:
+                enemies.push_back(std::make_unique<Enemy3>(
                     sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
                 break;
             default: __builtin_unreachable(); break;

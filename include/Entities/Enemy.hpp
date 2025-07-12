@@ -40,6 +40,7 @@ public:
 
 protected:
     float speed;
+    float bulletspeed;
     Timer lastShotTimer;
     Timer animationTimer;
     float current_shot_gap;
@@ -55,6 +56,20 @@ public:
 class Enemy2 : public Enemy {
 public:
     Enemy2(sf::Vector2f position);
+
+    void move(float deltaTime) override;
+    void collide() override;
+
+private:
+    float verticalAmplitude; // Random amplitude for vertical movement
+    float verticalFrequency; // Random frequency for the oscillation
+    float verticalCenter;
+    Timer timer;
+};
+
+class Enemy3 : public Enemy {
+public:
+    Enemy3(sf::Vector2f position);
 
     void move(float deltaTime) override;
     void collide() override;

@@ -37,7 +37,8 @@ constexpr size_t ENEMY_BULLET_ID         = 0ul;
 constexpr float ENEMY_SPAWN_INTERVAL_MIN = 0.32f;
 constexpr float ENEMY_SPAWN_INTERVAL_MAX = 1.28f;
 constexpr float ENEMY1_SPAWN_PROB        = 0.65f;
-constexpr float ENEMY2_SPAWN_PROB        = 1.0f - ENEMY1_SPAWN_PROB;
+constexpr float ENEMY2_SPAWN_PROB        = 0.25f;
+constexpr float ENEMY3_SPAWN_PROB        = 0.1f;
 
 // clang-format on
 } // namespace Constants

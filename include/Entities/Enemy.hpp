@@ -36,6 +36,7 @@ public:
     void updateBulletCollisions(std::vector<Bullet> &bullet_pool);
 
     float health;
+    float maxHealth;
     int level;
 
 protected:

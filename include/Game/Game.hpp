@@ -44,6 +44,7 @@ private:
     sf::Text gameOverText;
     sf::Text stopwatchText;
     sf::Text healthText;
+    sf::Text bossHealthText;
 
     Timer globalTimer;
     Timer deltaTimer;
@@ -53,6 +54,7 @@ private:
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::array<int, Constants::ENEMY_LEVEL_COUNT + 1ul> enemyCount;
     Player player;
+    Enemy *currentBoss = nullptr;
 
     bool running;
 };

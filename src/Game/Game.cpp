@@ -35,6 +35,11 @@ Game::Game(sf::RenderWindow &window)
     healthText.setFillColor(sf::Color::Yellow);
     healthText.setPosition(Constants::SCREEN_WIDTH - 200.0f, 40.0f);
 
+    bossHealthText.setFont(ResourceManager::gameFont);
+    bossHealthText.setCharacterSize(80);
+    bossHealthText.setFillColor(sf::Color::Magenta);
+    bossHealthText.setPosition(Constants::SCREEN_WIDTH / 2.0f - 200.0f, 20.0f);
+
     std::fill(enemyCount.begin(), enemyCount.end(), 0);
 }
 
@@ -160,11 +165,14 @@ bool Game::update(float deltaTime) {
     }
 
     // Update enemies
+    currentBoss = nullptr;
     for (auto it = enemies.begin(); it != enemies.end();) {
         if ((*it)->isAvailable()) {
             (*it)->update(deltaTime);
             (*it)->shoot(bullets);
             (*it)->updateBulletCollisions(bullets);
+            if ((*it)->level == 3 && (*it)->health > 0.0f)
+                currentBoss = it->get();
             ++it;
         } else {
             int level = (*it)->level;
@@ -173,6 +181,10 @@ bool Game::update(float deltaTime) {
             enemyCount[level] = std::max(0, enemyCount[level] - 1);
             enemies.erase(it);
         }
+    }
+    if (currentBoss) {
+        bossHealthText.setString(
+            "Boss: " + std::to_string(static_cast<int>(currentBoss->health)));
     }
 
     spawnEnemies(deltaTime);
@@ -196,5 +208,7 @@ void Game::render() {
 
     window.draw(stopwatchText);
     window.draw(healthText);
+    if (currentBoss)
+        window.draw(bossHealthText);
     window.display();
 }

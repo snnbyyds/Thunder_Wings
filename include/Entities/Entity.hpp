@@ -22,9 +22,11 @@ public:
     Entity() = default;
     virtual ~Entity() = default;
 
-    virtual void update(float deltaTime) = 0;
+    virtual void update(float deltaTime) {};
     virtual void render(sf::RenderWindow &window);
     virtual sf::FloatRect getBounds() const;
+
+    sf::Vector2f getPosition();
 
     bool isAvailable() const { return avail; }
 

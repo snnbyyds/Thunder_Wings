@@ -18,7 +18,6 @@
 #include "Core/Constants.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
-#include <iostream>
 
 Game::Game(sf::RenderWindow &window)
     : window(window), terminated(false), running(false) {
@@ -74,7 +73,7 @@ void Game::spawnEnemies(float deltaTime) {
     static const std::vector<float> levelProb = {Constants::ENEMY1_SPAWN_PROB,
                                                  Constants::ENEMY2_SPAWN_PROB,
                                                  Constants::ENEMY3_SPAWN_PROB};
-    float spawnInterval = RandomUtils::generateInRange(0.32f, 1.28f);
+    float spawnInterval = RandomUtils::generateInRange(0.3f, 2.4f);
     if (spawnTimer.hasElapsed(spawnInterval)) {
         float spawnPositionX =
             RandomUtils::generateInRange(0.4f, Constants::SCREEN_WIDTH - 0.4f);
@@ -97,14 +96,19 @@ void Game::spawnEnemies(float deltaTime) {
                 break;
             case 3:
                 if (enemyCount[3] < Constants::ENEMY3_MAX_ALIVE) {
-                    // Spawn 16 enemy2 as well
+                    // Spawn 32 enemy1
                     for (int i = 0; i < 32; i++)
+                        enemies.push_back(std::make_unique<Enemy1>(
+                            sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+
+                    // Spawn 24 enemy2
+                    for (int i = 0; i < 24; i++)
                         enemies.push_back(std::make_unique<Enemy2>(
                             sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
 
                     // Spawn 1 enemy3
                     enemies.push_back(std::make_unique<Enemy3>(
-                        sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                        sf::Vector2f(Constants::SCREEN_WIDTH / 2.0f, 0)));
                     enemyCount[2] += 16;
                     enemyCount[3]++;
                 }
@@ -157,7 +161,7 @@ bool Game::update(float deltaTime) {
     // Update bullets
     for (auto it = bullets.begin(); it != bullets.end();) {
         if (it->isAvailable()) {
-            it->update(deltaTime);
+            it->update(deltaTime, player.getPosition());
             ++it;
         } else {
             bullets.erase(it);
@@ -188,8 +192,6 @@ bool Game::update(float deltaTime) {
     }
 
     spawnEnemies(deltaTime);
-    for (int i = 0; i < enemyCount.size(); i++)
-        std::cout << enemyCount[i] << " \n"[i == enemyCount.size() - 1];
     return true;
 }
 

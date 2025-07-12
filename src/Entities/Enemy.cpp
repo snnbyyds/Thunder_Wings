@@ -26,20 +26,20 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
 
     switch (level) {
         case 1:
-            maxHealth = health = 1024.0f;
+            maxHealth = health = 2048.0f;
             speed = RandomUtils::generateInRange(128.0f, 256.0f);
             bulletspeed = speed * 3.2f;
             current_shot_gap = RandomUtils::generateInRange(0.8f, 1.6f);
             damage = 128.0f;
-            killBonus = 128.0f;
+            killBonus = 512.8f;
             break;
         case 2:
-            maxHealth = health = 2048.0f;
+            maxHealth = health = 16384.0f;
             speed = RandomUtils::generateInRange(64.0f, 256.0f);
             bulletspeed = speed * 4.0f;
             current_shot_gap = RandomUtils::generateInRange(0.6f, 1.2f);
-            damage = 256.0f;
-            killBonus = 512.0f;
+            damage = 1024.0f;
+            killBonus = 3072.9f;
             break;
         case 3:
             maxHealth = health =
@@ -48,7 +48,7 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
             current_shot_gap = RandomUtils::generateInRange(0.08f, 0.4f);
             damage = 512.0f;
-            killBonus = 8192.0f;
+            killBonus = 114514.19f;
             break;
         default: __builtin_unreachable(); break;
     }
@@ -101,7 +101,8 @@ void Enemy::shoot(std::vector<Bullet> &bullet_pool) {
     const sf::FloatRect bounds = sprite.getGlobalBounds();
     sf::Vector2f spawnPosition(bounds.left + bounds.width / 2.0f,
                                bounds.top + bounds.height + 8.0f);
-    bullet_pool.emplace_back(spawnPosition, sf::Vector2f(0.0f, 1.0f),
+    sf::Vector2f direction = {0.0f, 1.0f};
+    bullet_pool.emplace_back(spawnPosition, direction,
                              Constants::ENEMY_BULLET_ID, false, bulletspeed,
                              damage);
 
@@ -191,13 +192,15 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
     if (current_shot_gap > 0.0f && !lastShotTimer.hasElapsed(current_shot_gap))
         return;
 
+    static int shootCounter = 0;
+
     const sf::FloatRect bounds = sprite.getGlobalBounds();
     const float centerX = bounds.left + bounds.width / 2.0f;
     const float bottomY = bounds.top + bounds.height + 8.0f;
     const float spacing = 20.0f; // Spacing for bullets
 
-    for (int row = 0; row < 3; ++row) {
-        for (int col = 0; col < 3; ++col) {
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
             const float offsetX = (col - 1) * spacing;
             const float offsetY = (row - 1) * spacing;
 
@@ -210,6 +213,23 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
             bullet_pool.emplace_back(spawnPosition, sf::Vector2f(0.0f, 1.0f),
                                      Constants::ENEMY_BULLET_ID, false,
                                      bulletspeed, bulletDamage);
+        }
+    }
+
+    shootCounter = (shootCounter + 1) % 10;
+    if (!shootCounter) {
+        for (int i = 0; i < 2; i++) {
+            bullet_pool.emplace_back(
+                sf::Vector2f(centerX - 50.0f - i * 8.0f, bottomY - i * 36.0f),
+                sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
+                bulletspeed * (0.12f + i * 0.08f), damage * 4.0f,
+                0.4f + i * 0.12f);
+
+            bullet_pool.emplace_back(
+                sf::Vector2f(centerX + 50.0f + i * 8.0f, bottomY - i * 36.0f),
+                sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
+                bulletspeed * (0.12f + i * 0.08f), damage * 4.0f,
+                0.4f + i * 0.12f);
         }
     }
 

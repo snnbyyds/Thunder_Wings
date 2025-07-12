@@ -21,4 +21,6 @@ void Entity::render(sf::RenderWindow &window) {
         window.draw(sprite);
 }
 
+sf::Vector2f Entity::getPosition() { return sprite.getPosition(); }
+
 sf::FloatRect Entity::getBounds() const { return sprite.getGlobalBounds(); }

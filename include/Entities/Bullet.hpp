@@ -16,6 +16,7 @@
 
 #pragma once
 #include "Entity.hpp"
+#include "../Core/Timer.hpp"
 #include <SFML/Graphics.hpp>
 
 class Bullet : public Entity {
@@ -24,14 +25,21 @@ public:
            float damage);
     Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
            bool from_player, float speed, float damage);
+    Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
+           bool from_player, float speed, float damage, float tracking);
 
-    void update(float deltaTime) override;
+    void update(float deltaTime, sf::Vector2f hitTarget);
 
     bool from_player;
     float damage;
+    float tracking;
+    Timer timer;
 
 private:
-    const char *bullets_path[2] = {"assets/bullet1.png", "assets/bullet2.png"};
+    void updateRotation();
+
+    const char *bullets_path[3] = {"assets/bullet1.png", "assets/bullet2.png",
+                                   "assets/missle.png"};
     sf::Vector2f direction;
     float speed;
 };

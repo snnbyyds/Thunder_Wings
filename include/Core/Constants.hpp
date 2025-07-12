@@ -27,7 +27,7 @@ constexpr int SCREEN_HEIGHT = 900;
 constexpr float PLAYER_SPEED          = 512.0f;
 constexpr float PLAYER_MAX_HEALTH     = 96000.0f;
 constexpr float PLAYER_DAMAGE         = 512.0f;
-constexpr float PLAYER_SHOT_GAP       = 0.128f;
+constexpr float PLAYER_SHOT_GAP       = 0.016f;
 constexpr float PLAYER_RECOVER_HEALTH = 8.0f;
 
 // Enemy Properties

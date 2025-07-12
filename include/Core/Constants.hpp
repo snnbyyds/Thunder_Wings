@@ -29,16 +29,20 @@ constexpr size_t PLAYER_BULLET_ID     = 1ul;
 constexpr float PLAYER_SPEED          = 512.0f;
 constexpr float PLAYER_MAX_HEALTH     = 96000.0f;
 constexpr float PLAYER_DAMAGE         = 512.0f;
-constexpr float PLAYER_SHOT_GAP       = 0.016f;
+constexpr float PLAYER_SHOT_GAP       = 0.012f;
 constexpr float PLAYER_RECOVER_HEALTH = 8.0f;
 
 // Enemy Properties
 constexpr size_t ENEMY_BULLET_ID         = 0ul;
 constexpr float ENEMY_SPAWN_INTERVAL_MIN = 0.32f;
 constexpr float ENEMY_SPAWN_INTERVAL_MAX = 1.28f;
-constexpr float ENEMY1_SPAWN_PROB        = 0.65f;
-constexpr float ENEMY2_SPAWN_PROB        = 0.25f;
-constexpr float ENEMY3_SPAWN_PROB        = 0.1f;
+constexpr float ENEMY1_SPAWN_PROB        = 0.5f;
+constexpr int ENEMY1_MAX_ALIVE           = 32;
+constexpr float ENEMY2_SPAWN_PROB        = 0.3f;
+constexpr int ENEMY2_MAX_ALIVE           = 32;
+constexpr float ENEMY3_SPAWN_PROB        = 0.2f;
+constexpr int ENEMY3_MAX_ALIVE           = 1;
+constexpr size_t ENEMY_LEVEL_COUNT       = 3;
 
 // clang-format on
 } // namespace Constants

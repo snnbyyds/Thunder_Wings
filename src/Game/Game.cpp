@@ -18,6 +18,7 @@
 #include "Core/Constants.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
+#include <iostream>
 
 Game::Game(sf::RenderWindow &window)
     : window(window), terminated(false), running(false) {
@@ -33,6 +34,8 @@ Game::Game(sf::RenderWindow &window)
     healthText.setCharacterSize(30);
     healthText.setFillColor(sf::Color::Yellow);
     healthText.setPosition(Constants::SCREEN_WIDTH - 200.0f, 40.0f);
+
+    std::fill(enemyCount.begin(), enemyCount.end(), 0);
 }
 
 void Game::run() {
@@ -74,16 +77,32 @@ void Game::spawnEnemies(float deltaTime) {
             RandomUtils::generateFromSetWithProb(levelSet, levelProb);
         switch (enemyLevel) {
             case 1:
-                enemies.push_back(std::make_unique<Enemy1>(
-                    sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                if (enemyCount[1] < Constants::ENEMY1_MAX_ALIVE) {
+                    enemies.push_back(std::make_unique<Enemy1>(
+                        sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                    enemyCount[1]++;
+                }
                 break;
             case 2:
-                enemies.push_back(std::make_unique<Enemy2>(
-                    sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                if (enemyCount[2] < Constants::ENEMY2_MAX_ALIVE) {
+                    enemies.push_back(std::make_unique<Enemy2>(
+                        sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                    enemyCount[2]++;
+                }
                 break;
             case 3:
-                enemies.push_back(std::make_unique<Enemy3>(
-                    sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                if (enemyCount[3] < Constants::ENEMY3_MAX_ALIVE) {
+                    // Spawn 16 enemy2 as well
+                    for (int i = 0; i < 32; i++)
+                        enemies.push_back(std::make_unique<Enemy2>(
+                            sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+
+                    // Spawn 1 enemy3
+                    enemies.push_back(std::make_unique<Enemy3>(
+                        sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                    enemyCount[2] += 16;
+                    enemyCount[3]++;
+                }
                 break;
             default: __builtin_unreachable(); break;
         }
@@ -148,13 +167,17 @@ bool Game::update(float deltaTime) {
             (*it)->updateBulletCollisions(bullets);
             ++it;
         } else {
+            int level = (*it)->level;
             if ((*it)->health <= 0.0f)
-                player.health += (*it)->level * 128.0f;
+                player.health += level * 128.0f;
+            enemyCount[level] = std::max(0, enemyCount[level] - 1);
             enemies.erase(it);
         }
     }
 
     spawnEnemies(deltaTime);
+    for (int i = 0; i < enemyCount.size(); i++)
+        std::cout << enemyCount[i] << " \n"[i == enemyCount.size() - 1];
     return true;
 }
 

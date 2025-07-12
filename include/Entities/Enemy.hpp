@@ -72,6 +72,7 @@ public:
     Enemy3(sf::Vector2f position);
 
     void move(float deltaTime) override;
+    void shoot(std::vector<Bullet> &bullet_pool) override;
     void collide() override;
 
 private:

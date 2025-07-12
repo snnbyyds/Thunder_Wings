@@ -131,9 +131,22 @@ void Player::shoot(std::vector<Bullet> &bullet_pool) {
     if (current_shot_gap > 0.0f && !lastShotTimer.hasElapsed(current_shot_gap))
         return;
 
-    bullet_pool.emplace_back(sprite.getPosition() + sf::Vector2f(32.0f, -8.0f),
-                             Constants::PLAYER_BULLET_ID, true, 1024.0f,
-                             damage);
+    const sf::Vector2f playerCenter =
+        sprite.getPosition() +
+        sf::Vector2f(sprite.getGlobalBounds().width / 2.0f, 0.0f);
+
+    const float horizontalOffset = 20.0f;
+    const float verticalOffset = -8.0f;
+
+    // left
+    bullet_pool.emplace_back(
+        playerCenter + sf::Vector2f(-horizontalOffset, verticalOffset),
+        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage);
+
+    // right
+    bullet_pool.emplace_back(
+        playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
+        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage);
 
     lastShotTimer.restart();
 }

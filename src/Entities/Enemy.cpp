@@ -40,11 +40,11 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
             damage = 256.0f;
             break;
         case 3:
-            health = RandomUtils::generateInRange(24000.0f, 32000.0f);
+            health = RandomUtils::generateInRange(32000.0f, 128000.0f);
             speed = RandomUtils::generateInRange(8.0f, 32.0f);
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
             current_shot_gap = RandomUtils::generateInRange(0.08f, 0.4f);
-            damage = 1024.0f;
+            damage = 512.0f;
             break;
         default: __builtin_unreachable(); break;
     }
@@ -158,7 +158,7 @@ void Enemy2::collide() { takeDamage(health * 0.8f); }
 
 Enemy3::Enemy3(sf::Vector2f position) : Enemy(3, position) {
     verticalAmplitude = RandomUtils::generateInRange(128.0f, 256.0f);
-    verticalFrequency = RandomUtils::generateInRange(0.032f, 0.16f);
+    verticalFrequency = RandomUtils::generateInRange(0.6f, 1.2f);
     verticalCenter = position.x;
     timer.restart();
 }
@@ -170,10 +170,44 @@ void Enemy3::move(float deltaTime) {
     float verticalOffset =
         std::sin(timer.getElapsedTime() * verticalFrequency) *
         verticalAmplitude;
-    sprite.move(0, speed * deltaTime);
+    if (sprite.getPosition().y > (float)Constants::SCREEN_HEIGHT / 4)
+        sprite.move(0, speed * deltaTime);
     auto [x, y] = sprite.getPosition();
     sprite.setPosition(verticalCenter + verticalOffset, y);
-    avail = (y >= 0 && y <= Constants::SCREEN_HEIGHT);
+    avail = (x >= 0 && x < Constants::SCREEN_WIDTH && y >= 0 &&
+             y <= Constants::SCREEN_HEIGHT);
 }
 
-void Enemy3::collide() { takeDamage(3.2f); }
+void Enemy3::collide() { takeDamage(64.0f); }
+
+void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
+    if (!avail || health <= 0.0f)
+        return;
+
+    if (current_shot_gap > 0.0f && !lastShotTimer.hasElapsed(current_shot_gap))
+        return;
+
+    const sf::FloatRect bounds = sprite.getGlobalBounds();
+    const float centerX = bounds.left + bounds.width / 2.0f;
+    const float bottomY = bounds.top + bounds.height + 8.0f;
+    const float spacing = 20.0f; // Spacing for bullets
+
+    for (int row = 0; row < 3; ++row) {
+        for (int col = 0; col < 3; ++col) {
+            const float offsetX = (col - 1) * spacing;
+            const float offsetY = (row - 1) * spacing;
+
+            sf::Vector2f spawnPosition(centerX + offsetX, bottomY + offsetY);
+
+            float bulletDamage = damage;
+            if (col == 0 || col == 2)
+                bulletDamage = damage * 0.333f;
+
+            bullet_pool.emplace_back(spawnPosition, sf::Vector2f(0.0f, 1.0f),
+                                     Constants::ENEMY_BULLET_ID, false,
+                                     bulletspeed, bulletDamage);
+        }
+    }
+
+    lastShotTimer.restart();
+}

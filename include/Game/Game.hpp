@@ -15,11 +15,13 @@
  */
 
 #pragma once
+#include "../Core/Constants.hpp"
 #include "../Core/Timer.hpp"
 #include "../Entities/Bullet.hpp"
 #include "../Entities/Enemy.hpp"
 #include "../Entities/Player.hpp"
 #include <SFML/Graphics.hpp>
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -39,14 +41,18 @@ private:
     const char *backgroundPath = "assets/background.png";
     sf::RenderWindow &window;
     sf::Sprite backgroundSprite;
-    Timer globalTimer;
-    Timer deltaTimer;
-    Timer spawnTimer;
     sf::Text gameOverText;
     sf::Text stopwatchText;
     sf::Text healthText;
+
+    Timer globalTimer;
+    Timer deltaTimer;
+    Timer spawnTimer;
+
     std::vector<Bullet> bullets;
     std::vector<std::unique_ptr<Enemy>> enemies;
+    std::array<int, Constants::ENEMY_LEVEL_COUNT + 1ul> enemyCount;
     Player player;
+
     bool running;
 };

@@ -37,6 +37,7 @@ public:
 
     float health;
     float maxHealth;
+    float killBonus;
     int level;
 
 protected:

@@ -27,7 +27,7 @@ constexpr int SCREEN_HEIGHT = 900;
 // Player Properties
 constexpr size_t PLAYER_BULLET_ID     = 1ul;
 constexpr float PLAYER_SPEED          = 512.0f;
-constexpr float PLAYER_MAX_HEALTH     = 96000.0f;
+constexpr float PLAYER_MAX_HEALTH     = 64000.0f;
 constexpr float PLAYER_DAMAGE         = 512.0f;
 constexpr float PLAYER_SHOT_GAP       = 0.012f;
 constexpr float PLAYER_RECOVER_HEALTH = 8.0f;

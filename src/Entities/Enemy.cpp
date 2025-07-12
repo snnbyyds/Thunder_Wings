@@ -31,6 +31,7 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
             bulletspeed = speed * 3.2f;
             current_shot_gap = RandomUtils::generateInRange(0.8f, 1.6f);
             damage = 128.0f;
+            killBonus = 128.0f;
             break;
         case 2:
             maxHealth = health = 2048.0f;
@@ -38,6 +39,7 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
             bulletspeed = speed * 4.0f;
             current_shot_gap = RandomUtils::generateInRange(0.6f, 1.2f);
             damage = 256.0f;
+            killBonus = 512.0f;
             break;
         case 3:
             maxHealth = health =
@@ -46,6 +48,7 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
             current_shot_gap = RandomUtils::generateInRange(0.08f, 0.4f);
             damage = 512.0f;
+            killBonus = 8192.0f;
             break;
         default: __builtin_unreachable(); break;
     }

@@ -177,7 +177,7 @@ bool Game::update(float deltaTime) {
         } else {
             int level = (*it)->level;
             if ((*it)->health <= 0.0f)
-                player.health += level * 128.0f;
+                player.health += (*it)->killBonus;
             enemyCount[level] = std::max(0, enemyCount[level] - 1);
             enemies.erase(it);
         }

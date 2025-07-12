@@ -21,7 +21,8 @@
 #include <cmath>
 #include <cstdlib>
 
-Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
+Enemy::Enemy(int level, sf::Vector2f position)
+    : level(level), downFrameIdx(1), dying(false) {
     avail = true;
 
     switch (level) {
@@ -65,6 +66,13 @@ void Enemy::update(float deltaTime) {
     move(deltaTime);
 
     if (health <= 0.0f) {
+        if (!dying) {
+            dying = true;
+            std::string dyingSound = std::string("assets/enemy") +
+                                     std::to_string(level) + "_down.wav";
+            ResourceManager::playSound(dyingSound);
+        }
+
         std::string current = std::string("assets/enemy") +
                               std::to_string(level) + "_down" +
                               std::to_string(downFrameIdx) + ".png";
@@ -193,7 +201,7 @@ void Enemy3::move(float deltaTime) {
              y <= Constants::SCREEN_HEIGHT);
 }
 
-void Enemy3::collide() { 
+void Enemy3::collide() {
     if (!lastCollideTimer.hasElapsed(0.02)) {
         lastCollideTimer.restart();
         takeDamage(64.0f);
@@ -213,6 +221,8 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
     const float centerX = bounds.left + bounds.width / 2.0f;
     const float bottomY = bounds.top + bounds.height + 8.0f;
     const float spacing = 20.0f; // Spacing for bullets
+
+    ResourceManager::playSound("assets/bullet.wav");
 
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {

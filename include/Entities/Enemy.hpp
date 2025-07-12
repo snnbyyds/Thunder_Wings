@@ -49,6 +49,7 @@ protected:
     float current_shot_gap;
     float damage;
     size_t downFrameIdx;
+    bool dying;
 };
 
 class Enemy1 : public Enemy {

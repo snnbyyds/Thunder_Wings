@@ -27,6 +27,7 @@ Menu::Menu()
     ResourceManager::loadFont(fontPath);
 
     ResourceManager::loadBackgroundMusic(musicPath);
+    ResourceManager::gameBackgroundMusic.setVolume(8.0f);
     ResourceManager::gameBackgroundMusic.setLoop(true);
     ResourceManager::gameBackgroundMusic.play();
 

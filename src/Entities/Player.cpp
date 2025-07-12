@@ -45,6 +45,7 @@ void Player::update(float deltaTime) {
             } else {
                 avail = false;
                 dying = false;
+                ResourceManager::playSound("assets/me_down.wav");
             }
         }
         return;
@@ -150,6 +151,8 @@ void Player::shoot(std::vector<Bullet> &bullet_pool) {
     bullet_pool.emplace_back(
         playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
         Constants::PLAYER_BULLET_ID, true, 1024.0f, damage);
+
+    // ResourceManager::playSound("assets/bullet.wav");
 
     lastShotTimer.restart();
 }

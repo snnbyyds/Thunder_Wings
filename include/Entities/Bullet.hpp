@@ -15,8 +15,8 @@
  */
 
 #pragma once
-#include "Entity.hpp"
 #include "../Core/Timer.hpp"
+#include "Entity.hpp"
 #include <SFML/Graphics.hpp>
 
 class Bullet : public Entity {

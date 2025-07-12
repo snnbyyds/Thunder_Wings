@@ -21,6 +21,8 @@
 sf::Font ResourceManager::gameFont;
 sf::Music ResourceManager::gameBackgroundMusic;
 std::unordered_map<std::string, sf::Texture> ResourceManager::textures;
+std::unordered_map<std::string, sf::SoundBuffer> ResourceManager::soundBuffers;
+std::vector<sf::Sound> ResourceManager::activeSounds;
 
 sf::Texture &ResourceManager::getTexture(const std::string &texturePath) {
     auto it = textures.find(texturePath);
@@ -67,4 +69,32 @@ void ResourceManager::loadBackgroundMusic(const std::string &filePath) {
         throw AudioLoadException("Failed to load music: " + filePath);
     else
         std::cout << "Loaded music: " + filePath << std::endl;
+}
+
+void ResourceManager::playSound(const std::string &filePath) {
+    // Remove finished sound
+    static sf::Clock cleanupTimer;
+    if (cleanupTimer.getElapsedTime().asSeconds() > 0.5f) {
+        activeSounds.erase(
+            std::remove_if(activeSounds.begin(), activeSounds.end(),
+                           [](const sf::Sound &s) {
+                               return s.getStatus() == sf::Sound::Stopped;
+                           }),
+            activeSounds.end());
+        cleanupTimer.restart();
+    }
+
+    auto it = soundBuffers.find(filePath);
+    if (it == soundBuffers.end()) {
+        sf::SoundBuffer buffer;
+        if (!buffer.loadFromFile(filePath))
+            throw AudioLoadException("Failed to load sound: " + filePath);
+        auto [newIt, success] =
+            soundBuffers.emplace(filePath, std::move(buffer));
+        it = newIt;
+    }
+    activeSounds.emplace_back();
+    sf::Sound &sound = activeSounds.back();
+    sound.setBuffer(it->second);
+    sound.play();
 }

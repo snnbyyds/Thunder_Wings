@@ -47,10 +47,15 @@ public:
     static bool getTextureifExists(const std::string &texturePath);
     static void loadFont(const std::string &fontPath);
     static void loadBackgroundMusic(const std::string &filePath);
+    static void playSound(const std::string &filePath);
 
     static sf::Font gameFont;
     static sf::Music gameBackgroundMusic;
 
 private:
     static std::unordered_map<std::string, sf::Texture> textures;
+    static std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
+    static std::vector<sf::Sound> activeSounds;
+
+    static constexpr size_t MAX_CONCURRENT_SOUNDS = 32;
 };

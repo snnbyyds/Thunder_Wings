@@ -87,7 +87,7 @@ void Enemy::shoot(std::vector<Bullet> &bullet_pool) {
         return;
 
     bullet_pool.emplace_back(sprite.getPosition() + sf::Vector2f(32.0f, 8.0f),
-                             sf::Vector2f(0.0f, 1.0f), 0, false,
+                             sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_BULLET_ID, false,
                              std::min(625.0f, speed * 3.0f), damage);
 
     lastShotTimer.restart();

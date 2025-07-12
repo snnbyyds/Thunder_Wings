@@ -132,7 +132,7 @@ void Player::shoot(std::vector<Bullet> &bullet_pool) {
         return;
 
     bullet_pool.emplace_back(sprite.getPosition() + sf::Vector2f(32.0f, -8.0f),
-                             0, true, 1024.0f, damage);
+                             Constants::PLAYER_BULLET_ID, true, 1024.0f, damage);
 
     lastShotTimer.restart();
 }

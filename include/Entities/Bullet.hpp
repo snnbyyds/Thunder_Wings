@@ -31,7 +31,7 @@ public:
     float damage;
 
 private:
-    const char *bullets_path[1] = {"assets/bullet1.png"};
+    const char *bullets_path[2] = {"assets/bullet1.png", "assets/bullet2.png"};
     sf::Vector2f direction;
     float speed;
 };

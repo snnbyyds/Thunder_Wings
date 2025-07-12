@@ -55,6 +55,7 @@ private:
     float speed;
     size_t current_texture;
     Timer lastShotTimer;
+    Timer lastCollideTimer;
     Timer deathTimer;
     Timer animationTimer;
     Timer recoverTimer;

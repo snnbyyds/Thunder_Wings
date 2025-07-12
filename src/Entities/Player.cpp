@@ -118,7 +118,10 @@ void Player::updateCollisions(std::vector<Bullet> &bullet_pool,
     for (auto &enemy : enemy_pool) {
         if (enemy->isAvailable() && enemy->health > 0.0f &&
             bounds.intersects(enemy->getBounds())) {
-            takeDamage(enemy->health);
+            if (!lastCollideTimer.hasElapsed(0.01)) {
+                lastCollideTimer.restart();
+                takeDamage(std::min(enemy->health * 0.32f, 10000.0f));
+            }
             enemy->collide();
         }
     }

@@ -43,6 +43,7 @@ public:
 protected:
     float speed;
     float bulletspeed;
+    Timer lastCollideTimer;
     Timer lastShotTimer;
     Timer animationTimer;
     float current_shot_gap;

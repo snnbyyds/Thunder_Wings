@@ -19,7 +19,8 @@
 
 class Entity {
 public:
-    Entity() = default;
+    Entity() : avail(true) {}
+    Entity(sf::Vector2f position) : avail(true) { sprite.setPosition(position); }
     virtual ~Entity() = default;
 
     virtual void update(float deltaTime) {};

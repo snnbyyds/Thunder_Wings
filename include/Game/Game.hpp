@@ -19,6 +19,7 @@
 #include "../Core/Timer.hpp"
 #include "../Entities/Bullet.hpp"
 #include "../Entities/Enemy.hpp"
+#include "../Entities/Gift.hpp"
 #include "../Entities/Player.hpp"
 #include <SFML/Graphics.hpp>
 #include <array>
@@ -29,8 +30,10 @@ class Game {
 public:
     Game(sf::RenderWindow &window);
     void run();
-    void spawnEnemies(float deltaTime);
     bool isRunning();
+
+    void spawnEnemies(float deltaTime);
+    void spawnGifts(float deltaTime);
 
     bool terminated;
 
@@ -48,13 +51,16 @@ private:
 
     Timer globalTimer;
     Timer deltaTimer;
-    Timer spawnTimer;
+    Timer spawnTimerEnemy;
+    Timer spawnTimerGift;
 
+    // Entities
     std::vector<Bullet> bullets;
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::array<int, Constants::ENEMY_LEVEL_COUNT + 1ul> enemyCount;
-    Player player;
     Enemy *currentBoss = nullptr;
+    Player player;
+    std::vector<std::unique_ptr<Gift>> gifts;
 
     bool running;
 };

@@ -18,6 +18,8 @@
 #include "Core/Constants.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
+#include <cstdint>
+#include <cstdlib>
 
 Game::Game(sf::RenderWindow &window)
     : window(window), terminated(false), running(false) {
@@ -40,6 +42,8 @@ Game::Game(sf::RenderWindow &window)
     bossHealthText.setPosition(Constants::SCREEN_WIDTH / 2.0f - 200.0f, 20.0f);
 
     std::fill(enemyCount.begin(), enemyCount.end(), 0);
+
+    srand((uint32_t)time(nullptr));
 }
 
 void Game::run() {
@@ -68,13 +72,15 @@ void Game::run() {
     running = false;
 }
 
+bool Game::isRunning() { return running; }
+
 void Game::spawnEnemies(float deltaTime) {
     static const std::vector<int> levelSet = {1, 2, 3};
     static const std::vector<float> levelProb = {Constants::ENEMY1_SPAWN_PROB,
                                                  Constants::ENEMY2_SPAWN_PROB,
                                                  Constants::ENEMY3_SPAWN_PROB};
     float spawnInterval = RandomUtils::generateInRange(0.3f, 2.4f);
-    if (spawnTimer.hasElapsed(spawnInterval)) {
+    if (spawnTimerEnemy.hasElapsed(spawnInterval)) {
         float spawnPositionX =
             RandomUtils::generateInRange(0.4f, Constants::SCREEN_WIDTH - 0.4f);
         int enemyLevel =
@@ -111,15 +117,30 @@ void Game::spawnEnemies(float deltaTime) {
                         sf::Vector2f(Constants::SCREEN_WIDTH / 2.0f, 0)));
                     enemyCount[2] += 16;
                     enemyCount[3]++;
+                    // spawnTimerGift.restart();
                 }
                 break;
             default: __builtin_unreachable(); break;
         }
-        spawnTimer.restart();
+        spawnTimerEnemy.restart();
     }
 }
 
-bool Game::isRunning() { return running; }
+void Game::spawnGifts(float deltaTIme) {
+    // if (gifts.size() >= 2ul || !currentBoss)
+    //    return;
+    float spawnInterval = RandomUtils::generateInRange(2.0f, 4.0f);
+    if (spawnTimerGift.hasElapsed(spawnInterval)) {
+        int choice = rand() % 3;
+        switch (choice) {
+            case 0: gifts.push_back(std::make_unique<SuperRecovery>()); break;
+            case 1: gifts.push_back(std::make_unique<CenturyShield>()); break;
+            case 2: gifts.push_back(std::make_unique<FullFirePower>()); break;
+            default: __builtin_unreachable(); break;
+        }
+        spawnTimerGift.restart();
+    }
+}
 
 bool Game::update(float deltaTime) {
     if (!player.isAvailable()) {
@@ -188,10 +209,22 @@ bool Game::update(float deltaTime) {
     }
     if (currentBoss) {
         bossHealthText.setString(
-            "Boss: " + std::to_string(static_cast<int>(currentBoss->health)));
+            "Boss: " + std::to_string((int)currentBoss->health));
+    }
+
+    // Update gifts
+    for (auto it = gifts.begin(); it != gifts.end();) {
+        if ((*it)->isAvailable()) {
+            if (!(*it)->isApplied() && (*it)->getBounds().intersects(player.getBounds()))
+                (*it)->applyTo(player);
+            (*it)->update(deltaTime, player);
+        } else {
+            gifts.erase(it);
+        }
     }
 
     spawnEnemies(deltaTime);
+    spawnGifts(deltaTime);
     return true;
 }
 
@@ -207,6 +240,10 @@ void Game::render() {
     for (auto &enemy : enemies)
         if (enemy->isAvailable())
             enemy->render(window);
+
+    for (auto &gift : gifts)
+        if (gift->isAvailable())
+            gift->render(window);
 
     window.draw(stopwatchText);
     window.draw(healthText);

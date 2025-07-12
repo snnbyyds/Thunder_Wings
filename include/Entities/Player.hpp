@@ -16,9 +16,9 @@
 
 #pragma once
 #include "../Core/Timer.hpp"
+#include "../Core/Constants.hpp"
 #include "Bullet.hpp"
 #include "Enemy.hpp"
-#include "Entity.hpp"
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <memory>
@@ -32,18 +32,26 @@ public:
     void update(float deltaTime) override;
 
     void move(float deltaTime);
+
     void updateCollisions(std::vector<Bullet> &bullet_pool,
                           std::vector<std::unique_ptr<Enemy>> &enemy_pool);
+
     void shoot(std::vector<Bullet> &bullet_pool);
     void takeDamage(float damage);
 
-    const float max_health = 96000.0f;
+    // Common properties
+    const float max_health = Constants::PLAYER_MAX_HEALTH;
     bool damaged;
     bool dying;
     float current_shot_gap;
     float health;
     float damage;
     float recover_health;
+
+    // Buffs
+    float additionalRecovery = 0.0f;
+    float damageReduction = 0.0f;
+    int superAttackCount = 0; // Number of such buff
 
 private:
     const std::array<std::string, 2> images = {"assets/me1.png",
@@ -52,6 +60,7 @@ private:
         "assets/me_destroy_1.png", "assets/me_destroy_2.png",
         "assets/me_destroy_3.png", "assets/me_destroy_4.png"};
 
+    // Common properties
     float speed;
     size_t current_texture;
     Timer lastShotTimer;

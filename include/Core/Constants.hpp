@@ -34,7 +34,7 @@ constexpr float PLAYER_RECOVER_HEALTH = 8.0f;
 
 // Enemy Properties
 constexpr size_t ENEMY_BULLET_ID         = 0ul;
-constexpr size_t ENEMY_MISSILE_ID         = 2ul;
+constexpr size_t ENEMY_MISSILE_ID        = 2ul;
 constexpr float ENEMY_SPAWN_INTERVAL_MIN = 0.32f;
 constexpr float ENEMY_SPAWN_INTERVAL_MAX = 1.28f;
 constexpr float ENEMY1_SPAWN_PROB        = 0.6f;
@@ -44,6 +44,9 @@ constexpr int ENEMY2_MAX_ALIVE           = 32;
 constexpr float ENEMY3_SPAWN_PROB        = 0.02f;
 constexpr int ENEMY3_MAX_ALIVE           = 1;
 constexpr size_t ENEMY_LEVEL_COUNT       = 3;
+
+// Gifts Properties
+constexpr float GIFT_BUFF_TIME = 16.0f;
 
 // clang-format on
 } // namespace Constants

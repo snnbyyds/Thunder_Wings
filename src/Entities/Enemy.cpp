@@ -47,8 +47,8 @@ Enemy::Enemy(int level, sf::Vector2f position) : level(level), downFrameIdx(1) {
             speed = RandomUtils::generateInRange(8.0f, 32.0f);
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
             current_shot_gap = RandomUtils::generateInRange(0.08f, 0.4f);
-            damage = 512.0f;
-            killBonus = 114514.19f;
+            damage = 1024.0f;
+            killBonus = maxHealth;
             break;
         default: __builtin_unreachable(); break;
     }
@@ -231,20 +231,20 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
         }
     }
 
-    shootCounter = (shootCounter + 1) % 10;
+    shootCounter = (shootCounter + 1) % 12;
     if (!shootCounter) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             bullet_pool.emplace_back(
-                sf::Vector2f(centerX - 50.0f - i * 8.0f, bottomY - i * 36.0f),
+                sf::Vector2f(centerX - 50.0f - i * 20.0f, bottomY - i * 36.0f),
                 sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
-                bulletspeed * (0.12f + i * 0.08f), damage * 4.0f,
-                0.4f + i * 0.12f);
+                bulletspeed * (0.12f + i * 0.01f), damage * 4.8f,
+                0.4f + i * 0.5f);
 
             bullet_pool.emplace_back(
-                sf::Vector2f(centerX + 50.0f + i * 8.0f, bottomY - i * 36.0f),
+                sf::Vector2f(centerX + 50.0f + i * 20.0f, bottomY - i * 36.0f),
                 sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
-                bulletspeed * (0.12f + i * 0.08f), damage * 4.0f,
-                0.4f + i * 0.12f);
+                bulletspeed * (0.12f + i * 0.01f), damage * 4.8f,
+                0.4f + i * 0.5f);
         }
     }
 

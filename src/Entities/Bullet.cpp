@@ -77,7 +77,7 @@ void Bullet::update(float deltaTime, sf::Vector2f hitTarget) {
         direction = Math::angleToVector(newAngle);
 
         updateRotation();
-        if (timer.hasElapsed(4.0f))
+        if (timer.hasElapsed(12.0f))
             tracking = 0.0f;
     }
 

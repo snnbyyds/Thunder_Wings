@@ -47,7 +47,7 @@ Enemy::Enemy(int level, sf::Vector2f position)
                 RandomUtils::generateInRange(131072.0f, 524288.0f);
             speed = RandomUtils::generateInRange(8.0f, 32.0f);
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
-            current_shot_gap = RandomUtils::generateInRange(0.08f, 0.4f);
+            current_shot_gap = RandomUtils::generateInRange(0.2f, 0.4f);
             damage = 1024.0f;
             killBonus = maxHealth;
             break;
@@ -215,7 +215,7 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
     if (current_shot_gap > 0.0f && !lastShotTimer.hasElapsed(current_shot_gap))
         return;
 
-    static int shootCounter = 0;
+    static size_t shootCounter = 0;
 
     const sf::FloatRect bounds = sprite.getGlobalBounds();
     const float centerX = bounds.left + bounds.width / 2.0f;
@@ -240,8 +240,9 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
     }
 
     shootCounter = (shootCounter + 1) % 12;
-    if (!shootCounter) {
-        for (int i = 0; i < 3; i++) {
+    if (!shootCounter && health < maxHealth * 0.8f) {
+        const int missileCount = health < maxHealth * 0.064f ? 4 : 3;
+        for (int i = 0; i < missileCount; i++) {
             bullet_pool.emplace_back(
                 sf::Vector2f(centerX - 50.0f - i * 20.0f, bottomY - i * 36.0f),
                 sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,

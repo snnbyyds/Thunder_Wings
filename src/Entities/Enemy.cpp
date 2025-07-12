@@ -222,8 +222,6 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
     const float bottomY = bounds.top + bounds.height + 8.0f;
     const float spacing = 20.0f; // Spacing for bullets
 
-    ResourceManager::playSound("assets/bullet.wav");
-
     for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {
             const float offsetX = (col - 1) * spacing;
@@ -256,6 +254,10 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
                 bulletspeed * (0.12f + i * 0.01f), damage * 4.8f,
                 0.4f + i * 0.5f);
         }
+
+        ResourceManager::playSound("assets/missile.wav");
+    } else {
+        ResourceManager::playSound("assets/bullet.wav");
     }
 
     lastShotTimer.restart();

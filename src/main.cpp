@@ -28,6 +28,9 @@ int main() {
     } catch (const FontLoadException &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
+    } catch (const AudioLoadException &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
     } catch (const std::exception &e) {
         std::cerr << "Unexpected error: " << e.what() << std::endl;
         std::exit(EXIT_FAILURE);

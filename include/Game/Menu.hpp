@@ -16,6 +16,7 @@
 
 #pragma once
 #include "Game.hpp"
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
 class Menu {
@@ -34,6 +35,7 @@ private:
 
     const char *backgroundPath = "assets/background.png";
     const char *fontPath = "assets/Morning Routine.otf";
+    const char *musicPath = "assets/background.mp3";
     Game *game = nullptr;
     sf::RenderWindow window;
     sf::Sprite backgroundSprite;

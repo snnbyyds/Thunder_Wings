@@ -67,7 +67,7 @@ if(MSVC)
     )
 endif()
 
-find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
+find_package(SFML 2.6 COMPONENTS graphics window system audio REQUIRED)
 
 add_executable(thunder_wings ${SOURCES} ${HEADERS})
 
@@ -78,6 +78,7 @@ target_include_directories(thunder_wings PRIVATE
 )
 
 target_link_libraries(thunder_wings PRIVATE
+    sfml-audio
     sfml-graphics 
     sfml-window 
     sfml-system

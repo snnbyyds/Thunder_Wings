@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <stdexcept>
 #include <string>
@@ -23,6 +24,12 @@
 class FontLoadException : public std::runtime_error {
 public:
     explicit FontLoadException(const std::string &message)
+        : std::runtime_error(message) {}
+};
+
+class AudioLoadException : public std::runtime_error {
+public:
+    explicit AudioLoadException(const std::string &message)
         : std::runtime_error(message) {}
 };
 
@@ -39,8 +46,10 @@ public:
     static sf::Texture &getTexture(const std::string &texturePath);
     static bool getTextureifExists(const std::string &texturePath);
     static void loadFont(const std::string &fontPath);
+    static void loadBackgroundMusic(const std::string &filePath);
 
     static sf::Font gameFont;
+    static sf::Music gameBackgroundMusic;
 
 private:
     static std::unordered_map<std::string, sf::Texture> textures;

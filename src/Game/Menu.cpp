@@ -23,7 +23,12 @@ Menu::Menu()
       active(false) {
     backgroundSprite.setTexture(ResourceManager::getTexture(backgroundPath));
     backgroundSprite.setPosition(0.0f, 0.0f);
+
     ResourceManager::loadFont(fontPath);
+
+    ResourceManager::loadBackgroundMusic(musicPath);
+    ResourceManager::gameBackgroundMusic.setLoop(true);
+    ResourceManager::gameBackgroundMusic.play();
 
     titleText.setFont(ResourceManager::gameFont);
     titleText.setString("THUNDER WINGS");

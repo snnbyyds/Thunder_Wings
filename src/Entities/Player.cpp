@@ -99,7 +99,7 @@ void Player::move(float deltaTime) {
 }
 
 void Player::updateCollisions(std::vector<Bullet> &bullet_pool,
-                              std::vector<Enemy> &enemy_pool) {
+                              std::vector<std::unique_ptr<Enemy>> &enemy_pool) {
     if (!avail || dying)
         return;
 
@@ -115,11 +115,11 @@ void Player::updateCollisions(std::vector<Bullet> &bullet_pool,
     }
 
     // Enemy collisions
-    for (Enemy &enemy : enemy_pool) {
-        if (enemy.isAvailable() && enemy.health > 0.0f &&
-            bounds.intersects(enemy.getBounds())) {
-            takeDamage(enemy.health);
-            enemy.collide();
+    for (auto &enemy : enemy_pool) {
+        if (enemy->isAvailable() && enemy->health > 0.0f &&
+            bounds.intersects(enemy->getBounds())) {
+            takeDamage(enemy->health);
+            enemy->collide();
         }
     }
 }

@@ -51,3 +51,17 @@ class Enemy1 : public Enemy {
 public:
     Enemy1(sf::Vector2f position);
 };
+
+class Enemy2 : public Enemy {
+public:
+    Enemy2(sf::Vector2f position);
+
+    void move(float deltaTime) override;
+    void collide() override;
+
+private:
+    float verticalAmplitude; // Random amplitude for vertical movement
+    float verticalFrequency; // Random frequency for the oscillation
+    float verticalCenter;
+    Timer timer;
+};

@@ -20,6 +20,7 @@
 #include "../Entities/Enemy.hpp"
 #include "../Entities/Player.hpp"
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include <vector>
 
 class Game {
@@ -45,7 +46,7 @@ private:
     sf::Text stopwatchText;
     sf::Text healthText;
     std::vector<Bullet> bullets;
-    std::vector<Enemy> enemies;
+    std::vector<std::unique_ptr<Enemy>> enemies;
     Player player;
     bool running;
 };

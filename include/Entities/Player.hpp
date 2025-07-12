@@ -21,6 +21,7 @@
 #include "Entity.hpp"
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,7 +33,7 @@ public:
 
     void move(float deltaTime);
     void updateCollisions(std::vector<Bullet> &bullet_pool,
-                          std::vector<Enemy> &enemy_pool);
+                          std::vector<std::unique_ptr<Enemy>> &enemy_pool);
     void shoot(std::vector<Bullet> &bullet_pool);
     void takeDamage(float damage);
 

@@ -16,8 +16,8 @@
 
 #include "Game/Game.hpp"
 #include "Core/Constants.hpp"
+#include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
-#include <cstdlib>
 
 Game::Game(sf::RenderWindow &window)
     : window(window), terminated(false), running(false) {
@@ -33,8 +33,6 @@ Game::Game(sf::RenderWindow &window)
     healthText.setCharacterSize(30);
     healthText.setFillColor(sf::Color::Yellow);
     healthText.setPosition(Constants::SCREEN_WIDTH - 200.0f, 40.0f);
-
-    srand((unsigned int)time(NULL));
 }
 
 void Game::run() {
@@ -64,10 +62,26 @@ void Game::run() {
 }
 
 void Game::spawnEnemies(float deltaTime) {
-    float spawnInterval = (float)(rand() % 2) + 0.64f;
+    static const std::vector<int> levelSet = {1, 2};
+    static const std::vector<float> levelProb = {Constants::ENEMY1_SPAWN_PROB,
+                                                 Constants::ENEMY2_SPAWN_PROB};
+    float spawnInterval = RandomUtils::generateInRange(0.32f, 1.28f);
     if (spawnTimer.hasElapsed(spawnInterval)) {
-        enemies.push_back(
-            Enemy1(sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+        float spawnPositionX =
+            RandomUtils::generateInRange(0.4f, Constants::SCREEN_WIDTH - 0.4f);
+        int enemyLevel =
+            RandomUtils::generateFromSetWithProb(levelSet, levelProb);
+        switch (enemyLevel) {
+            case 1:
+                enemies.push_back(std::make_unique<Enemy1>(
+                    sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                break;
+            case 2:
+                enemies.push_back(std::make_unique<Enemy2>(
+                    sf::Vector2f(rand() % Constants::SCREEN_WIDTH, 0)));
+                break;
+            default: __builtin_unreachable(); break;
+        }
         spawnTimer.restart();
     }
 }
@@ -123,14 +137,14 @@ bool Game::update(float deltaTime) {
 
     // Update enemies
     for (auto it = enemies.begin(); it != enemies.end();) {
-        if (it->isAvailable()) {
-            it->update(deltaTime);
-            it->shoot(bullets);
-            it->updateBulletCollisions(bullets);
+        if ((*it)->isAvailable()) {
+            (*it)->update(deltaTime);
+            (*it)->shoot(bullets);
+            (*it)->updateBulletCollisions(bullets);
             ++it;
         } else {
-            if (it->health <= 0.0f)
-                player.health += it->level * 128.0f;
+            if ((*it)->health <= 0.0f)
+                player.health += (*it)->level * 128.0f;
             enemies.erase(it);
         }
     }
@@ -149,8 +163,8 @@ void Game::render() {
             bullet.render(window);
 
     for (auto &enemy : enemies)
-        if (enemy.isAvailable())
-            enemy.render(window);
+        if (enemy->isAvailable())
+            enemy->render(window);
 
     window.draw(stopwatchText);
     window.draw(healthText);

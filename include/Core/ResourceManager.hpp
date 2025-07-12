@@ -17,6 +17,7 @@
 #pragma once
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -48,6 +49,7 @@ public:
     static void loadFont(const std::string &fontPath);
     static void loadBackgroundMusic(const std::string &filePath);
     static void playSound(const std::string &filePath);
+    static void updateSounds();
 
     static sf::Font gameFont;
     static sf::Music gameBackgroundMusic;
@@ -55,7 +57,7 @@ public:
 private:
     static std::unordered_map<std::string, sf::Texture> textures;
     static std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
-    static std::vector<sf::Sound> activeSounds;
+    static std::vector<std::unique_ptr<sf::Sound>> activeSounds;
 
-    static constexpr size_t MAX_CONCURRENT_SOUNDS = 32;
+    static constexpr size_t MAX_CONCURRENT_SOUNDS = 16;
 };

@@ -20,9 +20,11 @@
 
 sf::Font ResourceManager::gameFont;
 sf::Music ResourceManager::gameBackgroundMusic;
+
 std::unordered_map<std::string, sf::Texture> ResourceManager::textures;
+
 std::unordered_map<std::string, sf::SoundBuffer> ResourceManager::soundBuffers;
-std::vector<sf::Sound> ResourceManager::activeSounds;
+std::vector<std::unique_ptr<sf::Sound>> ResourceManager::activeSounds;
 
 sf::Texture &ResourceManager::getTexture(const std::string &texturePath) {
     auto it = textures.find(texturePath);
@@ -72,29 +74,41 @@ void ResourceManager::loadBackgroundMusic(const std::string &filePath) {
 }
 
 void ResourceManager::playSound(const std::string &filePath) {
-    // Remove finished sound
-    static sf::Clock cleanupTimer;
-    if (cleanupTimer.getElapsedTime().asSeconds() > 0.5f) {
-        activeSounds.erase(
-            std::remove_if(activeSounds.begin(), activeSounds.end(),
-                           [](const sf::Sound &s) {
-                               return s.getStatus() == sf::Sound::Stopped;
-                           }),
-            activeSounds.end());
-        cleanupTimer.restart();
-    }
-
     auto it = soundBuffers.find(filePath);
     if (it == soundBuffers.end()) {
         sf::SoundBuffer buffer;
         if (!buffer.loadFromFile(filePath))
             throw AudioLoadException("Failed to load sound: " + filePath);
-        auto [newIt, success] =
-            soundBuffers.emplace(filePath, std::move(buffer));
+        auto [newIt, success] = soundBuffers.emplace(filePath, std::move(buffer));
         it = newIt;
     }
-    activeSounds.emplace_back();
-    sf::Sound &sound = activeSounds.back();
-    sound.setBuffer(it->second);
-    sound.play();
+    
+    ResourceManager::updateSounds();
+    
+    if (activeSounds.size() >= MAX_CONCURRENT_SOUNDS) {
+        for (auto& sound : activeSounds) {
+            if (sound->getStatus() == sf::Sound::Stopped) {
+                sound->setBuffer(it->second);
+                sound->play();
+                return;
+            }
+        }
+        // Skip
+        return;
+    }
+    
+    auto newSound = std::make_unique<sf::Sound>();
+    newSound->setBuffer(it->second);
+    newSound->play();
+    activeSounds.push_back(std::move(newSound));
+}
+
+void ResourceManager::updateSounds() {
+    activeSounds.erase(
+        std::remove_if(activeSounds.begin(), activeSounds.end(),
+            [](const auto& sound) { 
+                return sound->getStatus() == sf::Sound::Stopped; 
+            }),
+        activeSounds.end()
+    );
 }

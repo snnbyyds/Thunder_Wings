@@ -79,7 +79,11 @@ endif()
 find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 
 # Add the executable target
-add_executable(thunder_wings ${SOURCES} ${HEADERS})
+if(WIN32)
+    add_executable(thunder_wings WIN32 ${SOURCES} ${HEADERS})
+else()
+    add_executable(thunder_wings ${SOURCES} ${HEADERS})
+endif()
 
 # Include directories for the target
 target_include_directories(thunder_wings PRIVATE
@@ -95,6 +99,10 @@ target_link_libraries(thunder_wings PRIVATE
     sfml-window 
     sfml-system
 )
+
+if(WIN32)
+    target_link_libraries(thunder_wings PRIVATE sfml-main)
+endif()
 
 # Define assets directories
 set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)

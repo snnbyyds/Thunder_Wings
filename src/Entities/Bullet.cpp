@@ -22,7 +22,7 @@
 
 Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
-    : from_player(from_player), damage(damage), speed(speed), id(id) {
+    : from_player(from_player), damage(damage), speed(speed), id(id), exploding(false) {
     avail = true;
     size_t bullets_path_size = sizeof(bullets_path) / sizeof(*bullets_path);
     id = std::min(id, bullets_path_size - 1);
@@ -32,6 +32,8 @@ Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
     if (id == Constants::ENEMY_MISSILE_ID)
         sprite.setOrigin(sprite.getLocalBounds().width / 2,
                          sprite.getLocalBounds().height);
+    whiteFlash.setSize(sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
+    whiteFlash.setFillColor(sf::Color(255, 255, 255, 220));
 }
 
 Bullet::Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
@@ -59,6 +61,9 @@ void Bullet::updateRotation() {
 void Bullet::update(float deltaTime, sf::Vector2f hitTarget) {
     if (!avail)
         return;
+
+    if (from_player)
+        tracking = 0.0f; // Force disable tracking for player bullets
 
     if (tracking > 0.0f) {
         tracking += deltaTime * 0.00002;
@@ -88,7 +93,23 @@ void Bullet::update(float deltaTime, sf::Vector2f hitTarget) {
              y <= Constants::SCREEN_HEIGHT);
 }
 
+void Bullet::render(sf::RenderWindow &window) {
+    if (exploding) {
+        avail = false;
+        if (explodeTimer.hasElapsed(0.16f)) {
+            exploding = false;
+        } else {
+            window.draw(whiteFlash);
+        }
+    }
+    if (avail)
+        window.draw(sprite);
+}
+
 void Bullet::explode() {
-    if (id == Constants::ENEMY_MISSILE_ID)
+    if (id == Constants::ENEMY_MISSILE_ID) {
         ResourceManager::playSound("assets/explode.wav");
+        exploding = true;
+        explodeTimer.restart();
+    }
 }

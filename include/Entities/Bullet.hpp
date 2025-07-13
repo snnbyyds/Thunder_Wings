@@ -30,12 +30,15 @@ public:
 
     void update(float deltaTime, sf::Vector2f hitTarget);
 
+    void render(sf::RenderWindow &window) override;
+
     void explode();
 
     bool from_player;
     float damage;
     float tracking;
     Timer timer;
+    bool exploding;
 
 private:
     void updateRotation();
@@ -45,4 +48,7 @@ private:
     sf::Vector2f direction;
     float speed;
     size_t id;
+
+    sf::RectangleShape whiteFlash;
+    Timer explodeTimer;
 };

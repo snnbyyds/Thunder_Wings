@@ -17,6 +17,7 @@
 #include "Entities/Player.hpp"
 #include "Core/Constants.hpp"
 #include "Core/ResourceManager.hpp"
+#include "Game/Menu.hpp"
 #include <algorithm>
 
 Player::Player()

@@ -191,7 +191,9 @@ bool Game::update(float deltaTime) {
     }
     if (currentBoss) {
         bossHealthText.setString(
-            "Boss: " + std::to_string(static_cast<int>(currentBoss->health)));
+            "Boss: " + std::to_string((int)currentBoss->health) + "\n" +
+            std::to_string(currentBoss->health / currentBoss->maxHealth * 100) +
+            "%");
     }
 
     spawnEnemies(deltaTime);

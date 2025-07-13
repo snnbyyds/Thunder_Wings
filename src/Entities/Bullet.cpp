@@ -22,7 +22,8 @@
 
 Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
-    : from_player(from_player), damage(damage), speed(speed), id(id), exploding(false) {
+    : from_player(from_player), damage(damage), speed(speed), id(id),
+      exploding(false) {
     avail = true;
     size_t bullets_path_size = sizeof(bullets_path) / sizeof(*bullets_path);
     id = std::min(id, bullets_path_size - 1);
@@ -32,7 +33,8 @@ Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
     if (id == Constants::ENEMY_MISSILE_ID)
         sprite.setOrigin(sprite.getLocalBounds().width / 2,
                          sprite.getLocalBounds().height);
-    whiteFlash.setSize(sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
+    whiteFlash.setSize(
+        sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
     whiteFlash.setFillColor(sf::Color(255, 255, 255, 220));
 }
 

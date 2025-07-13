@@ -79,14 +79,15 @@ void ResourceManager::playSound(const std::string &filePath) {
         sf::SoundBuffer buffer;
         if (!buffer.loadFromFile(filePath))
             throw AudioLoadException("Failed to load sound: " + filePath);
-        auto [newIt, success] = soundBuffers.emplace(filePath, std::move(buffer));
+        auto [newIt, success] =
+            soundBuffers.emplace(filePath, std::move(buffer));
         it = newIt;
     }
-    
+
     ResourceManager::updateSounds();
-    
+
     if (activeSounds.size() >= MAX_CONCURRENT_SOUNDS) {
-        for (auto& sound : activeSounds) {
+        for (auto &sound : activeSounds) {
             if (sound->getStatus() == sf::Sound::Stopped) {
                 sound->setBuffer(it->second);
                 sound->play();
@@ -96,7 +97,7 @@ void ResourceManager::playSound(const std::string &filePath) {
         // Skip
         return;
     }
-    
+
     auto newSound = std::make_unique<sf::Sound>();
     newSound->setBuffer(it->second);
     newSound->play();
@@ -104,11 +105,10 @@ void ResourceManager::playSound(const std::string &filePath) {
 }
 
 void ResourceManager::updateSounds() {
-    activeSounds.erase(
-        std::remove_if(activeSounds.begin(), activeSounds.end(),
-            [](const auto& sound) { 
-                return sound->getStatus() == sf::Sound::Stopped; 
-            }),
-        activeSounds.end()
-    );
+    activeSounds.erase(std::remove_if(activeSounds.begin(), activeSounds.end(),
+                                      [](const auto &sound) {
+                                          return sound->getStatus() ==
+                                                 sf::Sound::Stopped;
+                                      }),
+                       activeSounds.end());
 }

@@ -12,24 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Set the minimum required version of CMake
 cmake_minimum_required(VERSION 3.10)
 
+# Project name
 project(Thunder_Wings)
 
+# Set the build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose build type: Debug or Release" FORCE)
 endif()
 
+# Set C++ standard to C++20 and make it required
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Gather all source files recursively
 file(GLOB_RECURSE SOURCES 
     "src/*.cpp"
     "src/*.cxx"
     "src/*.cc"
 )
 
+# Gather all header files recursively
 file(GLOB_RECURSE HEADERS 
     "include/*.hpp"
     "include/*.h"
@@ -37,6 +43,7 @@ file(GLOB_RECURSE HEADERS
     "src/*.h"
 )
 
+# Compiler-specific flags for GNU/Clang (Linux and MinGW on Windows)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(
         "$<$<CONFIG:Debug>:-g>"
@@ -55,6 +62,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     endif()
 endif()
 
+# Compiler-specific flags for MSVC (Windows)
 if(MSVC)
     add_compile_options(
         "$<$<CONFIG:Debug>:/Zi>"
@@ -67,16 +75,20 @@ if(MSVC)
     )
 endif()
 
+# Find SFML package (version 2.5 or higher)
 find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 
+# Add the executable target
 add_executable(thunder_wings ${SOURCES} ${HEADERS})
 
+# Include directories for the target
 target_include_directories(thunder_wings PRIVATE
     ${SFML_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
 )
 
+# Link SFML libraries to the target
 target_link_libraries(thunder_wings PRIVATE
     sfml-audio
     sfml-graphics 
@@ -84,18 +96,39 @@ target_link_libraries(thunder_wings PRIVATE
     sfml-system
 )
 
+# Define assets directories
 set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)
 set(TARGET_ASSETS_DIR ${CMAKE_BINARY_DIR}/assets)
 
+# Copy assets to the build directory after building the target
 add_custom_command(TARGET thunder_wings POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_ASSETS_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} ${TARGET_ASSETS_DIR}
     COMMENT "Copying assets to build directory"
 )
 
+# Windows-specific: Copy SFML DLLs to the executable directory
+if(WIN32)
+    # Get the directory where the executable is built
+    set(EXECUTABLE_DIR $<TARGET_FILE_DIR:thunder_wings>)
+
+    # Copy SFML DLLs to the executable directory
+    add_custom_command(TARGET thunder_wings POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-graphics>
+        $<TARGET_FILE:sfml-window>
+        $<TARGET_FILE:sfml-system>
+        $<TARGET_FILE:sfml-audio>
+        ${EXECUTABLE_DIR}
+        COMMENT "Copying SFML DLLs to executable directory"
+    )
+endif()
+
+# Optional: Install commands (commented out)
 # install(TARGETS thunder_wings RUNTIME DESTINATION bin)
 # install(DIRECTORY ${ASSETS_DIR} DESTINATION .)
 
+# Print build information
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "Source files: ${SOURCES}")

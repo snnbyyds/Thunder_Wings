@@ -98,29 +98,52 @@ target_link_libraries(thunder_wings PRIVATE
 
 # Define assets directories
 set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)
-set(TARGET_ASSETS_DIR ${CMAKE_BINARY_DIR}/assets)
 
-# Copy assets to the build directory after building the target
-add_custom_command(TARGET thunder_wings POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_ASSETS_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_DIR} ${TARGET_ASSETS_DIR}
-    COMMENT "Copying assets to build directory"
-)
-
-# Windows-specific: Copy SFML DLLs to the executable directory
+# Windows-specific: Copy SFML DLLs and assets to executable directory
 if(WIN32)
     # Get the directory where the executable is built
     set(EXECUTABLE_DIR $<TARGET_FILE_DIR:thunder_wings>)
-
-    # Copy SFML DLLs to the executable directory
+    set(EXECUTABLE_PATH $<TARGET_FILE:thunder_wings>)
+    
+    # Get SFML DLL directory
+    get_filename_component(SFML_DLL_DIR ${SFML_DIR} DIRECTORY)
+    set(SFML_DLL_DIR "${SFML_DLL_DIR}/../../bin")
+    
+    # List of required DLLs (including openal32.dll)
+    set(REQUIRED_DLLS
+        "sfml-graphics-2.dll"
+        "sfml-window-2.dll"
+        "sfml-system-2.dll"
+        "sfml-audio-2.dll"
+        "openal32.dll"
+    )
+    
+    # Copy SFML DLLs to executable directory
     add_custom_command(TARGET thunder_wings POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:sfml-graphics>
-        $<TARGET_FILE:sfml-window>
-        $<TARGET_FILE:sfml-system>
-        $<TARGET_FILE:sfml-audio>
+        "${SFML_DLL_DIR}/sfml-graphics-2.dll"
+        "${SFML_DLL_DIR}/sfml-window-2.dll"
+        "${SFML_DLL_DIR}/sfml-system-2.dll"
+        "${SFML_DLL_DIR}/sfml-audio-2.dll"
+        "${SFML_DLL_DIR}/openal32.dll"
         ${EXECUTABLE_DIR}
-        COMMENT "Copying SFML DLLs to executable directory"
+        COMMENT "Copying SFML DLLs and OpenAL to executable directory"
+    )
+    
+    # Copy assets to executable directory (next to executable)
+    set(TARGET_ASSETS_DIR "${EXECUTABLE_DIR}/assets")
+    add_custom_command(TARGET thunder_wings POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSETS_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_DIR}" "${TARGET_ASSETS_DIR}"
+        COMMENT "Copying assets to executable directory"
+    )
+else()
+    # For non-Windows platforms, copy assets to build directory
+    set(TARGET_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
+    add_custom_command(TARGET thunder_wings POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSETS_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_DIR}" "${TARGET_ASSETS_DIR}"
+        COMMENT "Copying assets to build directory"
     )
 endif()
 
@@ -133,3 +156,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "Source files: ${SOURCES}")
 message(STATUS "Assets directory: ${ASSETS_DIR} -> ${TARGET_ASSETS_DIR}")
+if(WIN32)
+    message(STATUS "SFML DLL directory: ${SFML_DLL_DIR}")
+    message(STATUS "Executable directory: ${EXECUTABLE_DIR}")
+endif()
+

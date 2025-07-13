@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include "../Core/Constants.hpp"
 #include "../Core/Timer.hpp"
 #include "Bullet.hpp"
 #include "Enemy.hpp"
@@ -37,7 +38,7 @@ public:
     void shoot(std::vector<Bullet> &bullet_pool);
     void takeDamage(float damage);
 
-    const float max_health = 96000.0f;
+    const float max_health = Constants::PLAYER_MAX_HEALTH;
     bool damaged;
     bool dying;
     float current_shot_gap;

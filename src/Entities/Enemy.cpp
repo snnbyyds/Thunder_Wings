@@ -242,8 +242,8 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     }
 
     shootCounter = (shootCounter + 1) % 16;
-    if (shootCounter == 0) {
-        const int missileCount = health < maxHealth * 0.064f ? 3 : 2;
+    if (shootCounter == 0 || (health < maxHealth * 0.036f)) {
+        const int missileCount = health < maxHealth * 0.4f ? 4 : 2;
         for (int i = 0; i < missileCount; i++) {
             bullet_pool.push_back(std::make_unique<Missile>(
                 sf::Vector2f(centerX - 50.0f - i * 20.0f, bottomY - i * 36.0f),
@@ -259,7 +259,7 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
         }
 
         ResourceManager::playSound("assets/missile.wav");
-    } else if (shootCounter == 4 || shootCounter == 6) {
+    } else if (shootCounter == 4 || shootCounter == 6 || (health < maxHealth * 0.32f && shootCounter == 9)) {
         bullet_pool.push_back(std::make_unique<Rocket>(
             sf::Vector2f(centerX - 50.0f, bottomY), sf::Vector2f(0.0f, 1.0f),
             Constants::ENEMY_ROCKET_ID, false, bulletspeed * 0.01f,

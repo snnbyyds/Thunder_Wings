@@ -35,7 +35,7 @@ private:
 
     const char *backgroundPath = "assets/background.png";
     const char *fontPath = "assets/Morning Routine.otf";
-    const char *musicPath = "assets/background.mp3";
+    const char *musicPath = "assets/background.wav";
     Game *game = nullptr;
     sf::RenderWindow window;
     sf::Sprite backgroundSprite;

@@ -80,7 +80,8 @@ find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 
 # Add the executable target
 if(WIN32)
-    add_executable(thunder_wings WIN32 ${SOURCES} ${HEADERS})
+    set(ICON_RESOURCE_FILE "${CMAKE_SOURCE_DIR}/icon.rc")
+    add_executable(thunder_wings WIN32 ${SOURCES} ${HEADERS} ${ICON_RESOURCE_FILE})
 else()
     add_executable(thunder_wings ${SOURCES} ${HEADERS})
 endif()

@@ -99,7 +99,7 @@ void Player::move(float deltaTime) {
         sprite.move(0, speed * deltaTime);
 }
 
-void Player::updateCollisions(std::vector<Bullet> &bullet_pool,
+void Player::updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool,
                               std::vector<std::unique_ptr<Enemy>> &enemy_pool) {
     if (!avail || dying)
         return;
@@ -107,12 +107,12 @@ void Player::updateCollisions(std::vector<Bullet> &bullet_pool,
     const auto bounds = getBounds();
 
     // Bullet collisions
-    for (Bullet &bullet : bullet_pool) {
-        if (bullet.isAvailable() && !bullet.from_player &&
-            bounds.intersects(bullet.getBounds())) {
-            takeDamage(bullet.damage);
-            bullet.explode();
-            bullet.setAvailable(false);
+    for (auto &bullet : bullet_pool) {
+        if (bullet->isAvailable() && !bullet->from_player &&
+            bounds.intersects(bullet->getBounds())) {
+            takeDamage(bullet->damage);
+            bullet->explode();
+            bullet->setAvailable(false);
         }
     }
 
@@ -129,7 +129,7 @@ void Player::updateCollisions(std::vector<Bullet> &bullet_pool,
     }
 }
 
-void Player::shoot(std::vector<Bullet> &bullet_pool) {
+void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail)
         return;
 
@@ -144,14 +144,14 @@ void Player::shoot(std::vector<Bullet> &bullet_pool) {
     const float verticalOffset = -8.0f;
 
     // left
-    bullet_pool.emplace_back(
-        playerCenter + sf::Vector2f(-horizontalOffset, verticalOffset),
-        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage);
+    bullet_pool.push_back(
+        std::make_unique<Cannon>(playerCenter + sf::Vector2f(-horizontalOffset, verticalOffset),
+        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage));
 
     // right
-    bullet_pool.emplace_back(
-        playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
-        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage);
+    bullet_pool.push_back(
+        std::make_unique<Cannon>(playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
+        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage));
 
     // ResourceManager::playSound("assets/bullet.wav");
 

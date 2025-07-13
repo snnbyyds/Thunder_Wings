@@ -22,37 +22,19 @@
 
 Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
-    : from_player(from_player), damage(damage), speed(speed), id(id),
-      exploding(false) {
+    : from_player(from_player), damage(damage), speed(speed), id(id), exploding(false) {
     avail = true;
     size_t bullets_path_size = sizeof(bullets_path) / sizeof(*bullets_path);
     id = std::min(id, bullets_path_size - 1);
     sprite.setTexture(ResourceManager::getTexture(bullets_path[id]));
     sprite.setPosition(position);
     direction = sf::Vector2f(0.0f, -1.0f);
-    if (id == Constants::ENEMY_MISSILE_ID)
-        sprite.setOrigin(sprite.getLocalBounds().width / 2,
-                         sprite.getLocalBounds().height);
-    whiteFlash.setSize(
-        sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
-    whiteFlash.setFillColor(sf::Color(255, 255, 255, 220));
 }
 
 Bullet::Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage)
     : Bullet(position, id, from_player, speed, damage) {
     this->direction = Math::normalize(direction);
-    this->tracking = 0.0f;
-}
-
-Bullet::Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
-               bool from_player, float speed, float damage, float tracking)
-    : Bullet(position, direction, id, from_player, speed, damage) {
-    if (from_player)
-        tracking = 0.0f; // Disable tracking for player bullets
-    this->tracking = tracking;
-    if (id == Constants::ENEMY_MISSILE_ID)
-        updateRotation();
 }
 
 void Bullet::updateRotation() {
@@ -64,8 +46,60 @@ void Bullet::update(float deltaTime, sf::Vector2f hitTarget) {
     if (!avail)
         return;
 
+    sprite.move(direction * speed * deltaTime);
+
+    auto [x, y] = sprite.getPosition();
+    avail = (x >= 0 && x <= Constants::SCREEN_WIDTH && y >= 0 &&
+             y <= Constants::SCREEN_HEIGHT);
+}
+
+void Bullet::render(sf::RenderWindow &window) {
+    if (avail)
+        window.draw(sprite);
+}
+
+void Bullet::explode() {}
+
+// Cannon
+
+Cannon::Cannon(sf::Vector2f position, size_t id, bool from_player, float speed,
+               float damage)
+    : Bullet(position, id, from_player, speed, damage) {
+}
+
+Cannon::Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
+               bool from_player, float speed, float damage)
+    : Bullet(position, direction, id, from_player, speed, damage) {
+}
+
+// Missile
+
+Missile::Missile(sf::Vector2f position, sf::Vector2f direction, size_t id,
+                 bool from_player, float speed, float damage, float tracking)
+    : Bullet(position, direction, id, from_player, speed, damage),
+      tracking(tracking) {
+    
     if (from_player)
-        tracking = 0.0f; // Force disable tracking for player bullets
+        this->tracking = 0.0f;
+    
+    if (id == Constants::ENEMY_MISSILE_ID)
+        sprite.setOrigin(sprite.getLocalBounds().width / 2,
+                         sprite.getLocalBounds().height);
+    
+    whiteFlash.setSize(
+        sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
+    whiteFlash.setFillColor(sf::Color(255, 255, 255, 220));
+    
+    if (id == Constants::ENEMY_MISSILE_ID)
+        updateRotation();
+}
+
+void Missile::update(float deltaTime, sf::Vector2f hitTarget) {
+    if (!avail)
+        return;
+
+    if (from_player)
+        tracking = 0.0f;
 
     if (tracking > 0.0f) {
         tracking += deltaTime * 0.00002;
@@ -95,7 +129,7 @@ void Bullet::update(float deltaTime, sf::Vector2f hitTarget) {
              y <= Constants::SCREEN_HEIGHT);
 }
 
-void Bullet::render(sf::RenderWindow &window) {
+void Missile::render(sf::RenderWindow &window) {
     if (exploding) {
         avail = false;
         if (explodeTimer.hasElapsed(0.16f)) {
@@ -108,7 +142,7 @@ void Bullet::render(sf::RenderWindow &window) {
         window.draw(sprite);
 }
 
-void Bullet::explode() {
+void Missile::explode() {
     if (id == Constants::ENEMY_MISSILE_ID) {
         ResourceManager::playSound("assets/explode.wav");
         exploding = true;

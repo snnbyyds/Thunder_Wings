@@ -99,7 +99,7 @@ void Enemy::move(float deltaTime) {
              y <= Constants::SCREEN_HEIGHT);
 }
 
-void Enemy::shoot(std::vector<Bullet> &bullet_pool) {
+void Enemy::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail || health <= 0.0f)
         return;
 
@@ -110,9 +110,9 @@ void Enemy::shoot(std::vector<Bullet> &bullet_pool) {
     sf::Vector2f spawnPosition(bounds.left + bounds.width / 2.0f,
                                bounds.top + bounds.height + 8.0f);
     sf::Vector2f direction = {0.0f, 1.0f};
-    bullet_pool.emplace_back(spawnPosition, direction,
+    bullet_pool.push_back(std::make_unique<Cannon>(spawnPosition, direction,
                              Constants::ENEMY_BULLET_ID, false, bulletspeed,
-                             damage);
+                             damage));
 
     lastShotTimer.restart();
 }
@@ -130,16 +130,16 @@ void Enemy::collide() {
     }
 }
 
-void Enemy::updateBulletCollisions(std::vector<Bullet> &bullet_pool) {
+void Enemy::updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail || health <= 0.0f)
         return;
 
     const auto bounds = getBounds();
-    for (Bullet &bullet : bullet_pool) {
-        if (bullet.isAvailable() && bullet.from_player &&
-            bounds.intersects(bullet.getBounds())) {
-            takeDamage(bullet.damage);
-            bullet.setAvailable(false);
+    for (auto &bullet : bullet_pool) {
+        if (bullet->isAvailable() && bullet->from_player &&
+            bounds.intersects(bullet->getBounds())) {
+            takeDamage(bullet->damage);
+            bullet->setAvailable(false);
         }
     }
 }
@@ -208,7 +208,7 @@ void Enemy3::collide() {
     }
 }
 
-void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
+void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail || health <= 0.0f)
         return;
 
@@ -233,9 +233,9 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
             if (col == 0 || col == 2)
                 bulletDamage = damage * 0.333f;
 
-            bullet_pool.emplace_back(spawnPosition, sf::Vector2f(0.0f, 1.0f),
+            bullet_pool.push_back(std::make_unique<Cannon>(spawnPosition, sf::Vector2f(0.0f, 1.0f),
                                      Constants::ENEMY_BULLET_ID, false,
-                                     bulletspeed, bulletDamage);
+                                     bulletspeed, bulletDamage));
         }
     }
 
@@ -243,17 +243,17 @@ void Enemy3::shoot(std::vector<Bullet> &bullet_pool) {
     if (!shootCounter && health < maxHealth * 0.8f) {
         const int missileCount = health < maxHealth * 0.064f ? 4 : 3;
         for (int i = 0; i < missileCount; i++) {
-            bullet_pool.emplace_back(
+            bullet_pool.push_back(std::make_unique<Missile>(
                 sf::Vector2f(centerX - 50.0f - i * 20.0f, bottomY - i * 36.0f),
                 sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
                 bulletspeed * (0.12f + i * 0.01f), damage * 4.8f,
-                0.4f + i * 0.5f);
+                0.4f + i * 0.5f));
 
-            bullet_pool.emplace_back(
+            bullet_pool.emplace_back(std::make_unique<Missile>(
                 sf::Vector2f(centerX + 50.0f + i * 20.0f, bottomY - i * 36.0f),
                 sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
                 bulletspeed * (0.12f + i * 0.01f), damage * 4.8f,
-                0.4f + i * 0.5f);
+                0.4f + i * 0.5f));
         }
 
         ResourceManager::playSound("assets/missile.wav");

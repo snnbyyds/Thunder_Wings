@@ -33,9 +33,9 @@ public:
     void update(float deltaTime) override;
 
     void move(float deltaTime);
-    void updateCollisions(std::vector<Bullet> &bullet_pool,
+    void updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool,
                           std::vector<std::unique_ptr<Enemy>> &enemy_pool);
-    void shoot(std::vector<Bullet> &bullet_pool);
+    void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
     void takeDamage(float damage);
 
     const float max_health = Constants::PLAYER_MAX_HEALTH;

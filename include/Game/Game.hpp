@@ -50,7 +50,7 @@ private:
     Timer deltaTimer;
     Timer spawnTimer;
 
-    std::vector<Bullet> bullets;
+    std::vector<std::unique_ptr<Bullet>> bullets;
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::array<int, Constants::ENEMY_LEVEL_COUNT + 1ul> enemyCount;
     Player player;

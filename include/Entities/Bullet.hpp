@@ -25,30 +25,49 @@ public:
            float damage);
     Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
            bool from_player, float speed, float damage);
-    Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
-           bool from_player, float speed, float damage, float tracking);
 
-    void update(float deltaTime, sf::Vector2f hitTarget);
-
-    void render(sf::RenderWindow &window) override;
-
-    void explode();
+    virtual void update(float deltaTime, sf::Vector2f hitTarget);
+    virtual void render(sf::RenderWindow &window) override;
+    virtual void explode();
 
     bool from_player;
     float damage;
-    float tracking;
     Timer timer;
     bool exploding;
 
-private:
+protected:
     void updateRotation();
-
+    
     const char *bullets_path[3] = {"assets/bullet1.png", "assets/bullet2.png",
                                    "assets/missle.png"};
     sf::Vector2f direction;
     float speed;
     size_t id;
 
+private:
+    Bullet(const Bullet&) = delete;
+    Bullet& operator=(const Bullet&) = delete;
+};
+
+class Cannon : public Bullet {
+public:
+    Cannon(sf::Vector2f position, size_t id, bool from_player, float speed,
+           float damage);
+    Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
+           bool from_player, float speed, float damage);
+};
+
+class Missile : public Bullet {
+public:
+    Missile(sf::Vector2f position, sf::Vector2f direction, size_t id,
+            bool from_player, float speed, float damage, float tracking);
+
+    void update(float deltaTime, sf::Vector2f hitTarget) override;
+    void render(sf::RenderWindow &window) override;
+    void explode() override;
+
+private:
+    float tracking;
     sf::RectangleShape whiteFlash;
     Timer explodeTimer;
 };

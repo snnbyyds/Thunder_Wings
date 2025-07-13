@@ -160,11 +160,11 @@ bool Game::update(float deltaTime) {
 
     // Update bullets
     for (auto it = bullets.begin(); it != bullets.end();) {
-        if (it->isAvailable()) {
-            it->update(deltaTime, player.getPosition());
+        if ((*it)->isAvailable()) {
+            (*it)->update(deltaTime, player.getPosition());
             ++it;
         } else {
-            if (!it->exploding)
+            if (!(*it)->exploding)
                 bullets.erase(it);
             else
                 ++it;
@@ -206,7 +206,7 @@ void Game::render() {
     player.render(window);
 
     for (auto &bullet : bullets)
-        bullet.render(window);
+        bullet->render(window);
 
     for (auto &enemy : enemies)
         if (enemy->isAvailable())

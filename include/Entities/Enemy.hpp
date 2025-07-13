@@ -19,6 +19,7 @@
 #include "Bullet.hpp"
 #include "Entity.hpp"
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include <vector>
 
 class Enemy : public Entity {
@@ -29,11 +30,11 @@ public:
     void update(float deltaTime) override;
 
     virtual void move(float deltaTime);
-    virtual void shoot(std::vector<Bullet> &bullet_pool);
+    virtual void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
     virtual void takeDamage(float damage);
     virtual void collide();
 
-    void updateBulletCollisions(std::vector<Bullet> &bullet_pool);
+    void updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
 
     float health;
     float maxHealth;
@@ -76,7 +77,7 @@ public:
     Enemy3(sf::Vector2f position);
 
     void move(float deltaTime) override;
-    void shoot(std::vector<Bullet> &bullet_pool) override;
+    void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) override;
     void collide() override;
 
 private:

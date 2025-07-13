@@ -16,6 +16,7 @@
 
 #include "Game/Game.hpp"
 #include "Core/Constants.hpp"
+#include "Core/Macros.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 
@@ -113,7 +114,7 @@ void Game::spawnEnemies(float deltaTime) {
                     enemyCount[3]++;
                 }
                 break;
-            default: __builtin_unreachable(); break;
+            default: __unreachable(); break;
         }
         spawnTimer.restart();
     }

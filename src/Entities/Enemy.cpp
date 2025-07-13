@@ -16,6 +16,7 @@
 
 #include "Entities/Enemy.hpp"
 #include "Core/Constants.hpp"
+#include "Core/Macros.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 #include <cmath>
@@ -51,7 +52,7 @@ Enemy::Enemy(int level, sf::Vector2f position)
             damage = 1024.0f;
             killBonus = maxHealth;
             break;
-        default: __builtin_unreachable(); break;
+        default: __unreachable(); break;
     }
 
     sprite.setTexture(ResourceManager::getTexture(

@@ -110,7 +110,7 @@ void Player::updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool,
     for (auto &bullet : bullet_pool) {
         if (bullet->isAvailable() && !bullet->from_player &&
             bounds.intersects(bullet->getBounds())) {
-            takeDamage(bullet->damage);
+            takeDamage(std::max(bullet->damage, bullet->damageRate * health));
             bullet->explode();
             bullet->setAvailable(false);
         }
@@ -144,13 +144,13 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     const float verticalOffset = -8.0f;
 
     // left
-    bullet_pool.push_back(
-        std::make_unique<Cannon>(playerCenter + sf::Vector2f(-horizontalOffset, verticalOffset),
+    bullet_pool.push_back(std::make_unique<Cannon>(
+        playerCenter + sf::Vector2f(-horizontalOffset, verticalOffset),
         Constants::PLAYER_BULLET_ID, true, 1024.0f, damage));
 
     // right
-    bullet_pool.push_back(
-        std::make_unique<Cannon>(playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
+    bullet_pool.push_back(std::make_unique<Cannon>(
+        playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
         Constants::PLAYER_BULLET_ID, true, 1024.0f, damage));
 
     // ResourceManager::playSound("assets/bullet.wav");

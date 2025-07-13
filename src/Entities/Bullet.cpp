@@ -22,13 +22,18 @@
 
 Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
-    : from_player(from_player), damage(damage), speed(speed), id(id), exploding(false) {
+    : from_player(from_player), damage(damage), speed(speed), id(id),
+      exploding(false) {
     avail = true;
     size_t bullets_path_size = sizeof(bullets_path) / sizeof(*bullets_path);
     id = std::min(id, bullets_path_size - 1);
     sprite.setTexture(ResourceManager::getTexture(bullets_path[id]));
     sprite.setPosition(position);
     direction = sf::Vector2f(0.0f, -1.0f);
+    timer.restart();
+
+    // By default
+    damageRate = 0.0f;
 }
 
 Bullet::Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
@@ -64,13 +69,11 @@ void Bullet::explode() {}
 
 Cannon::Cannon(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
-    : Bullet(position, id, from_player, speed, damage) {
-}
+    : Bullet(position, id, from_player, speed, damage) {}
 
 Cannon::Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage)
-    : Bullet(position, direction, id, from_player, speed, damage) {
-}
+    : Bullet(position, direction, id, from_player, speed, damage) {}
 
 // Missile
 
@@ -78,18 +81,17 @@ Missile::Missile(sf::Vector2f position, sf::Vector2f direction, size_t id,
                  bool from_player, float speed, float damage, float tracking)
     : Bullet(position, direction, id, from_player, speed, damage),
       tracking(tracking) {
-    
+
     if (from_player)
         this->tracking = 0.0f;
-    
-    if (id == Constants::ENEMY_MISSILE_ID)
-        sprite.setOrigin(sprite.getLocalBounds().width / 2,
-                         sprite.getLocalBounds().height);
-    
+
+    sprite.setOrigin(sprite.getLocalBounds().width / 2,
+                     sprite.getLocalBounds().height);
+
     whiteFlash.setSize(
         sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
     whiteFlash.setFillColor(sf::Color(255, 255, 255, 220));
-    
+
     if (id == Constants::ENEMY_MISSILE_ID)
         updateRotation();
 }
@@ -102,7 +104,7 @@ void Missile::update(float deltaTime, sf::Vector2f hitTarget) {
         tracking = 0.0f;
 
     if (tracking > 0.0f) {
-        tracking += deltaTime * 0.00002;
+        tracking += deltaTime * 0.00002f;
         sf::Vector2f targetDir = hitTarget - sprite.getPosition();
         targetDir = Math::normalize(targetDir);
 
@@ -143,9 +145,86 @@ void Missile::render(sf::RenderWindow &window) {
 }
 
 void Missile::explode() {
-    if (id == Constants::ENEMY_MISSILE_ID) {
-        ResourceManager::playSound("assets/explode.wav");
-        exploding = true;
-        explodeTimer.restart();
+    ResourceManager::playSound("assets/explode.wav");
+    exploding = true;
+    explodeTimer.restart();
+}
+
+// Rocket
+
+Rocket::Rocket(sf::Vector2f position, sf::Vector2f direction, size_t id,
+               bool from_player, float speed, float damage)
+    : Bullet(position, direction, id, from_player, speed, damage) {
+
+    damageRate = Constants::ROCKET_DAMAGE_RATE;
+
+    if (from_player)
+        this->tracking = 0.0f;
+
+    sprite.setOrigin(sprite.getLocalBounds().width / 2,
+                     sprite.getLocalBounds().height);
+
+    redFlash.setSize(
+        sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
+    redFlash.setFillColor(sf::Color(255, 69, 1, 128));
+
+    updateRotation();
+}
+
+void Rocket::update(float deltaTime, sf::Vector2f hitTarget) {
+    if (!avail)
+        return;
+
+    if (from_player)
+        tracking = 0.0f;
+    else
+        tracking = 16384.0f;
+
+    if (tracking != 0.0f && timer.hasElapsed(1.0f))
+        tracking = 0.0f;
+
+    if (tracking > 0.0f) {
+        sf::Vector2f targetDir = hitTarget - sprite.getPosition();
+        targetDir = Math::normalize(targetDir);
+
+        float currentAngle = Math::vectorToAngle(direction);
+        float targetAngle = Math::vectorToAngle(targetDir);
+        float angleDiff = Math::normalizeAngle(targetAngle - currentAngle);
+
+        float maxTurn = tracking * Math::PI * deltaTime;
+        if (std::abs(angleDiff) > maxTurn)
+            angleDiff = (angleDiff > 0) ? maxTurn : -maxTurn;
+
+        float newAngle = currentAngle + angleDiff;
+        direction = Math::angleToVector(newAngle);
+
+        updateRotation();
     }
+
+    speed += deltaTime * 460.0f;
+
+    sprite.move(direction * speed * deltaTime);
+
+    auto [x, y] = sprite.getPosition();
+    avail = (x >= 0 && x <= Constants::SCREEN_WIDTH && y >= 0 &&
+             y <= Constants::SCREEN_HEIGHT);
+}
+
+void Rocket::render(sf::RenderWindow &window) {
+    if (exploding) {
+        avail = false;
+        if (explodeTimer.hasElapsed(0.08f)) {
+            exploding = false;
+        } else {
+            window.draw(redFlash);
+        }
+    }
+    if (avail)
+        window.draw(sprite);
+}
+
+void Rocket::explode() {
+    ResourceManager::playSound("assets/explode.wav");
+    exploding = true;
+    explodeTimer.restart();
 }

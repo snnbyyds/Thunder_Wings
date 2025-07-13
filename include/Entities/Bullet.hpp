@@ -32,21 +32,22 @@ public:
 
     bool from_player;
     float damage;
+    float damageRate;
     Timer timer;
     bool exploding;
 
 protected:
     void updateRotation();
-    
-    const char *bullets_path[3] = {"assets/bullet1.png", "assets/bullet2.png",
-                                   "assets/missle.png"};
+
+    const char *bullets_path[4] = {"assets/bullet1.png", "assets/bullet2.png",
+                                   "assets/missle.png", "assets/rocket.png"};
     sf::Vector2f direction;
     float speed;
     size_t id;
 
 private:
-    Bullet(const Bullet&) = delete;
-    Bullet& operator=(const Bullet&) = delete;
+    Bullet(const Bullet &) = delete;
+    Bullet &operator=(const Bullet &) = delete;
 };
 
 class Cannon : public Bullet {
@@ -69,5 +70,20 @@ public:
 private:
     float tracking;
     sf::RectangleShape whiteFlash;
+    Timer explodeTimer;
+};
+
+class Rocket : public Bullet {
+public:
+    Rocket(sf::Vector2f position, sf::Vector2f direction, size_t id,
+           bool from_player, float speed, float damage);
+
+    void update(float deltaTime, sf::Vector2f hitTarget) override;
+    void render(sf::RenderWindow &window) override;
+    void explode() override;
+
+private:
+    float tracking;
+    sf::RectangleShape redFlash;
     Timer explodeTimer;
 };

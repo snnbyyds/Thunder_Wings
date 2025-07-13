@@ -34,7 +34,8 @@ public:
     virtual void takeDamage(float damage);
     virtual void collide();
 
-    void updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
+    void
+    updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
 
     float health;
     float maxHealth;

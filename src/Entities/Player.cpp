@@ -22,7 +22,7 @@
 Player::Player()
     : current_texture(0), speed(Constants::PLAYER_SPEED), damaged(false),
       dying(false), current_shot_gap(Constants::PLAYER_SHOT_GAP),
-      health(48000.0f), damage(Constants::PLAYER_DAMAGE),
+      health(Constants::PLAYER_MAX_HEALTH * 0.64f), damage(Constants::PLAYER_DAMAGE),
       recover_health(Constants::PLAYER_RECOVER_HEALTH) {
     avail = true;
 

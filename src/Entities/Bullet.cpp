@@ -104,6 +104,7 @@ void Missile::update(float deltaTime, sf::Vector2f hitTarget) {
         tracking = 0.0f;
 
     if (tracking > 0.0f) {
+        speed += deltaTime * 100.0f;
         tracking += deltaTime * 0.00002f;
         sf::Vector2f targetDir = hitTarget - sprite.getPosition();
         targetDir = Math::normalize(targetDir);
@@ -120,8 +121,10 @@ void Missile::update(float deltaTime, sf::Vector2f hitTarget) {
         direction = Math::angleToVector(newAngle);
 
         updateRotation();
-        if (timer.hasElapsed(12.0f))
+        if (timer.hasElapsed(2.5f))
             tracking = 0.0f;
+    } else {
+        speed += deltaTime * 220.0f;
     }
 
     sprite.move(direction * speed * deltaTime);
@@ -156,7 +159,7 @@ Rocket::Rocket(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage)
     : Bullet(position, direction, id, from_player, speed, damage) {
 
-    damageRate = Constants::ROCKET_DAMAGE_RATE;
+    damageRate = Constants::ROCKET_DAMAGE_RATE_INITIAL;
 
     if (from_player)
         this->tracking = 0.0f;
@@ -180,8 +183,11 @@ void Rocket::update(float deltaTime, sf::Vector2f hitTarget) {
     else
         tracking = 16384.0f;
 
-    if (tracking != 0.0f && timer.hasElapsed(1.0f))
+    if (tracking != 0.0f && timer.hasElapsed(0.92f))
         tracking = 0.0f;
+
+    if (damageRate != Constants::ROCKET_DAMAGE_RATE && timer.hasElapsed(0.04f))
+        damageRate = Constants::ROCKET_DAMAGE_RATE;
 
     if (tracking > 0.0f) {
         sf::Vector2f targetDir = hitTarget - sprite.getPosition();
@@ -201,7 +207,7 @@ void Rocket::update(float deltaTime, sf::Vector2f hitTarget) {
         updateRotation();
     }
 
-    speed += deltaTime * 460.0f;
+    speed += deltaTime * 540.0f;
 
     sprite.move(direction * speed * deltaTime);
 

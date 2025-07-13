@@ -27,10 +27,10 @@ constexpr int SCREEN_HEIGHT = 900;
 // Player Properties
 constexpr size_t PLAYER_BULLET_ID     = 1ul;
 constexpr float PLAYER_SPEED          = 512.0f;
-constexpr float PLAYER_MAX_HEALTH     = 128000.0f;
-constexpr float PLAYER_DAMAGE         = 512.0f;
-constexpr float PLAYER_SHOT_GAP       = 0.012f;
-constexpr float PLAYER_RECOVER_HEALTH = 8.0f;
+constexpr float PLAYER_MAX_HEALTH     = 1024000.0f;
+constexpr float PLAYER_DAMAGE         = 6144.0f;
+constexpr float PLAYER_SHOT_GAP       = 0.144f;
+constexpr float PLAYER_RECOVER_HEALTH = 128.0f;
 
 // Enemy Properties
 constexpr size_t ENEMY_BULLET_ID         = 0ul;
@@ -47,7 +47,8 @@ constexpr int ENEMY3_MAX_ALIVE           = 1;
 constexpr size_t ENEMY_LEVEL_COUNT       = 3;
 
 // Bullet Properties
-constexpr float ROCKET_DAMAGE_RATE       = 0.16f;
+constexpr float ROCKET_DAMAGE_RATE_INITIAL = 0.84f;
+constexpr float ROCKET_DAMAGE_RATE         = 0.184f;
 
 // clang-format on
 } // namespace Constants

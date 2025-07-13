@@ -32,24 +32,24 @@ Enemy::Enemy(int level, sf::Vector2f position)
             speed = RandomUtils::generateInRange(128.0f, 256.0f);
             bulletspeed = speed * 3.2f;
             current_shot_gap = RandomUtils::generateInRange(0.8f, 1.6f);
-            damage = 128.0f;
-            killBonus = 512.8f;
+            damage = 512.0f;
+            killBonus = 1024.8f;
             break;
         case 2:
             maxHealth = health = 16384.0f;
             speed = RandomUtils::generateInRange(64.0f, 256.0f);
             bulletspeed = speed * 4.0f;
             current_shot_gap = RandomUtils::generateInRange(0.6f, 1.2f);
-            damage = 1024.0f;
-            killBonus = 3072.9f;
+            damage = 2048.0f;
+            killBonus = 8192.0f;
             break;
         case 3:
             maxHealth = health =
-                RandomUtils::generateInRange(131072.0f, 524288.0f);
-            speed = RandomUtils::generateInRange(8.0f, 32.0f);
+                RandomUtils::generateInRange(262144.0f, 524288.0f);
+            speed = RandomUtils::generateInRange(16.0f, 32.0f);
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
-            current_shot_gap = RandomUtils::generateInRange(0.2f, 0.4f);
-            damage = 1024.0f;
+            current_shot_gap = RandomUtils::generateInRange(0.2f, 0.28f);
+            damage = 4096.0f;
             killBonus = maxHealth;
             break;
         default: __unreachable(); break;
@@ -242,33 +242,33 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     }
 
     shootCounter = (shootCounter + 1) % 16;
-    if (!shootCounter && health < maxHealth * 0.8f) {
-        const int missileCount = health < maxHealth * 0.064f ? 4 : 3;
+    if (shootCounter == 0) {
+        const int missileCount = health < maxHealth * 0.064f ? 3 : 2;
         for (int i = 0; i < missileCount; i++) {
             bullet_pool.push_back(std::make_unique<Missile>(
                 sf::Vector2f(centerX - 50.0f - i * 20.0f, bottomY - i * 36.0f),
                 sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
-                bulletspeed * (0.12f + i * 0.01f), damage * 4.8f,
+                bulletspeed * (0.08f + i * 0.01f), damage * 4.2f,
                 0.4f + i * 0.5f));
 
             bullet_pool.push_back(std::make_unique<Missile>(
                 sf::Vector2f(centerX + 50.0f + i * 20.0f, bottomY - i * 36.0f),
                 sf::Vector2f(0.0f, 1.0f), Constants::ENEMY_MISSILE_ID, false,
-                bulletspeed * (0.12f + i * 0.01f), damage * 4.8f,
+                bulletspeed * (0.02f + i * 0.03f), damage * 4.2f,
                 0.4f + i * 0.5f));
         }
 
         ResourceManager::playSound("assets/missile.wav");
-    } else if (shootCounter == 6) {
+    } else if (shootCounter == 4 || shootCounter == 6) {
         bullet_pool.push_back(std::make_unique<Rocket>(
             sf::Vector2f(centerX - 50.0f, bottomY), sf::Vector2f(0.0f, 1.0f),
-            Constants::ENEMY_ROCKET_ID, false, bulletspeed * 0.02f,
-            damage * 3.2f));
+            Constants::ENEMY_ROCKET_ID, false, bulletspeed * 0.01f,
+            damage * 1.6f));
 
         bullet_pool.push_back(std::make_unique<Rocket>(
             sf::Vector2f(centerX + 50.0f, bottomY), sf::Vector2f(0.0f, 1.0f),
-            Constants::ENEMY_ROCKET_ID, false, bulletspeed * 0.16f,
-            damage * 2.4f));
+            Constants::ENEMY_ROCKET_ID, false, bulletspeed * 0.14f,
+            damage * 1.6f));
 
         ResourceManager::playSound("assets/rocket.wav");
     } else {

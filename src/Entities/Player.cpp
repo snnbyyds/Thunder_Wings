@@ -111,6 +111,7 @@ void Player::updateCollisions(std::vector<Bullet> &bullet_pool,
         if (bullet.isAvailable() && !bullet.from_player &&
             bounds.intersects(bullet.getBounds())) {
             takeDamage(bullet.damage);
+            bullet.explode();
             bullet.setAvailable(false);
         }
     }

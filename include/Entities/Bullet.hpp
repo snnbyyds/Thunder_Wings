@@ -30,6 +30,8 @@ public:
 
     void update(float deltaTime, sf::Vector2f hitTarget);
 
+    void explode();
+
     bool from_player;
     float damage;
     float tracking;
@@ -42,4 +44,5 @@ private:
                                    "assets/missle.png"};
     sf::Vector2f direction;
     float speed;
+    size_t id;
 };

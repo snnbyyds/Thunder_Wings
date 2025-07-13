@@ -22,7 +22,7 @@
 
 Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
-    : from_player(from_player), damage(damage), speed(speed) {
+    : from_player(from_player), damage(damage), speed(speed), id(id) {
     avail = true;
     size_t bullets_path_size = sizeof(bullets_path) / sizeof(*bullets_path);
     id = std::min(id, bullets_path_size - 1);
@@ -86,4 +86,9 @@ void Bullet::update(float deltaTime, sf::Vector2f hitTarget) {
     auto [x, y] = sprite.getPosition();
     avail = (x >= 0 && x <= Constants::SCREEN_WIDTH && y >= 0 &&
              y <= Constants::SCREEN_HEIGHT);
+}
+
+void Bullet::explode() {
+    if (id == Constants::ENEMY_MISSILE_ID)
+        ResourceManager::playSound("assets/explode.wav");
 }

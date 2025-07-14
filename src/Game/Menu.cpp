@@ -33,7 +33,7 @@ Menu::Menu()
     ResourceManager::loadBackgroundMusic(musicPath);
     ResourceManager::gameBackgroundMusic.setVolume(8.0f);
     ResourceManager::gameBackgroundMusic.setLoop(true);
-    ResourceManager::gameBackgroundMusic.play();
+    // ResourceManager::gameBackgroundMusic.play();
 
     titleText.setFont(ResourceManager::gameFont);
     titleText.setString("THUNDER WINGS");
@@ -106,6 +106,11 @@ void Menu::playLogo() {
 void Menu::show() {
     if (terminated)
         return;
+
+    if (!musicStarted) {
+        ResourceManager::gameBackgroundMusic.play();
+        musicStarted = true;
+    }
 
     active = true;
     if (game != nullptr && (!game->isRunning() || game->terminated)) {

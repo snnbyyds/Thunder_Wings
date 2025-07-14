@@ -38,6 +38,7 @@ private:
     const char *backgroundPath = "assets/background.png";
     const char *fontPath = "assets/Morning Routine.otf";
     const char *musicPath = "assets/background.wav";
+
     Game *game = nullptr;
     sf::RenderWindow window;
     sf::Sprite backgroundSprite;
@@ -51,4 +52,6 @@ private:
     bool showingLogo = false;
     const float LOGO_DURATION = 3.0f;
     bool terminated = false;
+
+    bool musicStarted = false;
 };

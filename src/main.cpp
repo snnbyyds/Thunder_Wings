@@ -21,6 +21,7 @@
 int main() {
     try {
         Menu menu;
+        menu.playLogo();
         menu.show();
     } catch (const TextureLoadException &e) {
         std::cerr << "Error: " << e.what() << std::endl;

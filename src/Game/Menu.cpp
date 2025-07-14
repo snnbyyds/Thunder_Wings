@@ -15,7 +15,11 @@
  */
 
 #include "Game/Menu.hpp"
+#include "Core/Constants.hpp"
 #include "Core/ResourceManager.hpp"
+#include <SFML/Config.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Window.hpp>
 
 Menu::Menu()
@@ -52,9 +56,57 @@ Menu::Menu()
     exitText.setFillColor(sf::Color::White);
     exitText.setPosition(
         (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 380);
+
+    sf::Texture &logoTexture = ResourceManager::getTexture("assets/mujianwu.png");
+    logoTexture.setSmooth(true);
+    logoSprite.setTexture(logoTexture);
+    auto [x, y] = logoTexture.getSize();
+    logoSprite.setOrigin(x >> 1, y >> 1);
+    logoSprite.setPosition(Constants::SCREEN_WIDTH / 2.0f,
+                           Constants::SCREEN_HEIGHT / 2.0f);
+    logoSprite.setColor(sf::Color(255, 255, 255, 0));
+}
+
+void Menu::playLogo() {
+    logoClock.restart();
+    showingLogo = true;
+
+    sf::Event event;
+    while (showingLogo && window.isOpen()) {
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                terminated = true;
+                exit();
+                return;
+            }
+        }
+
+        float elapsed = logoClock.getElapsedTime();
+        float progress = elapsed / LOGO_DURATION;
+
+        if (progress < 1.0f) {
+            float alpha;
+            if (progress < 0.3f)
+                alpha = 255 * (progress / 0.3f);
+            else if (progress < 0.7f)
+                alpha = 255;
+            else
+                alpha = 255 * (1.0f - (progress - 0.7f) / 0.3f);
+            logoSprite.setColor(sf::Color(255, 255, 255, (sf::Uint8)alpha));
+
+            window.clear(sf::Color::Black);
+            window.draw(logoSprite);
+            window.display();
+        } else {
+            showingLogo = false;
+        }
+    }
 }
 
 void Menu::show() {
+    if (terminated)
+        return;
+
     active = true;
     if (game != nullptr && (!game->isRunning() || game->terminated)) {
         delete game;

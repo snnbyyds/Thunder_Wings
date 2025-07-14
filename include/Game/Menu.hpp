@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include "Core/Timer.hpp"
 #include "Game.hpp"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -23,6 +24,7 @@ class Menu {
 public:
     Menu();
     void show();
+    void playLogo();
     void start();
     void exit();
 
@@ -43,4 +45,10 @@ private:
     sf::Text startText;
     sf::Text exitText;
     bool active;
+
+    sf::Sprite logoSprite;
+    Timer logoClock;
+    bool showingLogo = false;
+    const float LOGO_DURATION = 3.0f;
+    bool terminated = false;
 };

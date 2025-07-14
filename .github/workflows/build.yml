@@ -21,14 +21,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libsfml-dev
 
+    - name: Install aria2 (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        choco install aria2 -y
+
     - name: Download and Setup SFML (Windows)
       if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        # Download SFML 2.6.2 for Windows
-        curl -L -o sfml.zip "https://www.sfml-dev.org/files/SFML-2.6.2-windows-vc17-64-bit.zip"
+        aria2c -x16 -s16 -d . -o sfml.zip "https://www.sfml-dev.org/files/SFML-2.6.2-windows-vc17-64-bit.zip"
         unzip sfml.zip
         mv SFML-2.6.2 sfml
-      shell: pwsh
 
     - name: Configure and Build
       shell: bash

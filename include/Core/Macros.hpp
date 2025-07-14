@@ -23,4 +23,3 @@
 #define __unreachable() do { /* nop */ } while (0)
 /* clang-format on */
 #endif
-

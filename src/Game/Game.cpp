@@ -156,7 +156,8 @@ bool Game::update(float deltaTime) {
         std::to_string(player.health)
             .substr(0, std::to_string(player.health).find(".") + 3));
 
-    player.shoot(bullets);
+    if (player.health > 0.0f)
+        player.shoot(bullets);
 
     // Update bullets
     for (auto it = bullets.begin(); it != bullets.end();) {

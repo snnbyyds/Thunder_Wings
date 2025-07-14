@@ -169,4 +169,3 @@ if(WIN32)
     message(STATUS "SFML DLL directory: ${SFML_DLL_DIR}")
     message(STATUS "Executable directory: ${EXECUTABLE_DIR}")
 endif()
-

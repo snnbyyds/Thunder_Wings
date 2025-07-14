@@ -1,0 +1,82 @@
+name: Build and Package Thunder Wings
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-package:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsfml-dev
+
+    - name: Download and Setup SFML (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        # Download SFML 2.6.2 for Windows
+        curl -L -o sfml.zip "https://www.sfml-dev.org/files/SFML-2.6.2-windows-vc17-64-bit.zip"
+        unzip sfml.zip
+        mv SFML-2.6.2 sfml
+      shell: pwsh
+
+    - name: Configure and Build
+      shell: bash
+      run: |
+        mkdir -p build
+        cd build
+        
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML"
+        else
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+        fi
+        
+        cmake --build . --config Release --parallel
+
+    - name: Prepare release files
+      shell: bash
+      run: |
+        RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
+        mkdir -p "$RELEASE_DIR"
+        
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          cp "build/Release/thunder_wings.exe" "$RELEASE_DIR/" || cp "build/thunder_wings.exe" "$RELEASE_DIR/"
+          # Copy SFML DLLs from downloaded SFML package
+          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-graphics-2.dll" "$RELEASE_DIR/" || true
+          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-window-2.dll" "$RELEASE_DIR/" || true
+          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-system-2.dll" "$RELEASE_DIR/" || true
+          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-audio-2.dll" "$RELEASE_DIR/" || true
+          cp "$GITHUB_WORKSPACE/sfml/bin/openal32.dll" "$RELEASE_DIR/" || true
+        else
+          cp "build/thunder_wings" "$RELEASE_DIR/"
+        fi
+        
+        cp -r "$GITHUB_WORKSPACE/assets" "$RELEASE_DIR/" || echo "No assets directory found"
+
+    - name: Create final ZIP package
+      shell: bash
+      run: |
+        RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
+        
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          7z a "$RELEASE_DIR.zip" "$RELEASE_DIR"
+        else
+          zip -r "$RELEASE_DIR.zip" "$RELEASE_DIR"
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Thunder_Wings_${{ runner.os }}
+        path: Thunder_Wings_${{ runner.os }}.zip

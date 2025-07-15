@@ -21,7 +21,7 @@
 
 Gift::Gift(const std::string &name) : name(name) {
     avail = true;
-    remainingTime = (float)RandomUtils::generateInRange(3, 10);
+    remainingTime = (float)RandomUtils::generateInRange(7, 10);
     sprite.setTexture(ResourceManager::getTexture("assets/" + name + ".png"));
 
     constexpr float padding = 10.0f;
@@ -41,8 +41,23 @@ void Gift::update(float deltaTime) {
     if (!avail)
         return;
     remainingTime -= deltaTime;
-    if (remainingTime <= 0.0f)
+    if (!disappearing && remainingTime <= 3.5f) {
+        disappearingTimer.restart();
+        disappearing = true;
+    }
+    if (disappearing) {
+        if (!disappearingSound1Played && disappearingTimer.hasElapsed(0.72f)) {
+            ResourceManager::playSound("assets/gift_disappear1.wav");
+            disappearingSound1Played = true;
+        } else if (!disappearingSound2Played && disappearingTimer.hasElapsed(1.72f)) {
+            ResourceManager::playSound("assets/gift_disappear1.wav");
+            disappearingSound2Played = true;
+        }
+    }
+    if (remainingTime <= 0.0f) {
         avail = false;
+        ResourceManager::playSound("assets/gift_disappear2.wav");
+    }
 }
 
 float Gift::getRemainingTime() const { return remainingTime; }

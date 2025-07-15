@@ -280,7 +280,10 @@ void Game::drawGifts() {
     text.setFont(ResourceManager::gameFont);
     text.setString(oss.str());
     text.setCharacterSize(34);
-    text.setFillColor(sf::Color(4, 133, 255, 255));
+    if (remaining < 2.6f)
+        text.setFillColor(sf::Color::Red);
+    else
+        text.setFillColor(sf::Color(4, 133, 255, 255));
 
     float textWidth = text.getLocalBounds().width;
     float iconW = icon.getGlobalBounds().width;

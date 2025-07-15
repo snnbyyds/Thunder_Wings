@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include "../Core/Timer.hpp"
 #include "Entity.hpp"
 
 class Gift : public Entity {
@@ -33,6 +34,12 @@ public:
 protected:
     std::string name;
     float remainingTime;
+
+private:
+    Timer disappearingTimer;
+    bool disappearing = false;
+    bool disappearingSound1Played = false;
+    bool disappearingSound2Played = false;
 };
 
 class FullFirePower : public Gift {

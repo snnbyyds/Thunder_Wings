@@ -29,7 +29,8 @@ class Game {
 public:
     Game(sf::RenderWindow &window);
     void run();
-    void spawnEnemies(float deltaTime);
+    void bringGifts();
+    void spawnEnemies();
     bool isRunning();
 
     bool terminated;
@@ -48,6 +49,7 @@ private:
 
     Timer globalTimer;
     Timer deltaTimer;
+    Timer giftTimer;
     Timer spawnTimer;
 
     std::vector<std::unique_ptr<Bullet>> bullets;

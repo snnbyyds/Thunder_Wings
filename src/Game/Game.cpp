@@ -19,6 +19,7 @@
 #include "Core/Macros.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
+#include <iostream>
 
 Game::Game(sf::RenderWindow &window)
     : window(window), terminated(false), running(false) {
@@ -69,7 +70,28 @@ void Game::run() {
     running = false;
 }
 
-void Game::spawnEnemies(float deltaTime) {
+void Game::bringGifts() {
+    constexpr float spawnInterval = 1.0f;
+    if (spawnTimer.hasElapsed(spawnInterval)) {
+        if (!RandomUtils::chooseWithProb(0.6f)) {
+            spawnTimer.restart();
+            return;
+        }
+        int choice = rand() & 1;
+        switch (choice) {
+            case 0:
+                player.gifts.push_back(std::make_unique<FullFirePower>());
+                break;
+            case 1:
+                player.gifts.push_back(std::make_unique<CenturyShield>());
+                break;
+            default: __unreachable(); break;
+        }
+        spawnTimer.restart();
+    }
+}
+
+void Game::spawnEnemies() {
     static const std::vector<int> levelSet = {1, 2, 3};
     static const std::vector<float> levelProb = {Constants::ENEMY1_SPAWN_PROB,
                                                  Constants::ENEMY2_SPAWN_PROB,
@@ -172,6 +194,16 @@ bool Game::update(float deltaTime) {
         }
     }
 
+    // Update gifts
+    for (auto it = player.gifts.begin(); it != player.gifts.end();) {
+        if ((*it)->isAvailable()) {
+            (*it)->update(deltaTime);
+            ++it;
+        } else {
+            player.gifts.erase(it);
+        }
+    }
+
     // Update enemies
     currentBoss = nullptr;
     for (auto it = enemies.begin(); it != enemies.end();) {
@@ -197,7 +229,8 @@ bool Game::update(float deltaTime) {
             "%");
     }
 
-    spawnEnemies(deltaTime);
+    spawnEnemies();
+    bringGifts();
     return true;
 }
 

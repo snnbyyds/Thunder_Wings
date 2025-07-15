@@ -121,8 +121,15 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail)
         return;
 
-    if (current_shot_gap > 0.0f && !lastShotTimer.hasElapsed(current_shot_gap))
-        return;
+    if (current_shot_gap > 0.0f) {
+        float shot_gap = current_shot_gap;
+        float attackSpeedIncrease = 0.0f;
+        for (auto &gift : gifts)
+            attackSpeedIncrease += gift->attackSpeedIncrease;
+        shot_gap /= (1.0f + attackSpeedIncrease);
+        if (!lastShotTimer.hasElapsed(shot_gap))
+            return;
+    }
 
     const sf::Vector2f playerCenter =
         sprite.getPosition() +
@@ -148,6 +155,10 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
 
 void Player::takeDamage(float damage) {
     damage = std::max(0.01f, damage);
+    float damageReduction = 0.0f;
+    for (auto &gift : gifts)
+        damageReduction += gift->damageReduction;
+    damage -= damage * damageReduction;
     health -= damage;
     damaged = true;
     sprite.setTexture(ResourceManager::getTexture("assets/me_hit.png"));

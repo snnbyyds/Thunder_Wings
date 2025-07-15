@@ -20,6 +20,7 @@
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 #include <iomanip>
+#include <sstream>
 
 Game::Game(sf::RenderWindow &window)
     : window(window), terminated(false), running(false) {

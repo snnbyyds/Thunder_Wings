@@ -49,7 +49,8 @@ void Gift::update(float deltaTime) {
         if (!disappearingSound1Played && disappearingTimer.hasElapsed(0.72f)) {
             ResourceManager::playSound("assets/gift_disappear1.wav");
             disappearingSound1Played = true;
-        } else if (!disappearingSound2Played && disappearingTimer.hasElapsed(1.72f)) {
+        } else if (!disappearingSound2Played &&
+                   disappearingTimer.hasElapsed(1.72f)) {
             ResourceManager::playSound("assets/gift_disappear1.wav");
             disappearingSound2Played = true;
         }

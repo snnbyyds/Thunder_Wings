@@ -142,7 +142,7 @@ bool Game::update(float deltaTime) {
     }
 
     player.update(deltaTime);
-    player.updateCollisions(bullets, enemies);
+    player.updateCollisions(bullets);
 
     float elapsedTime = globalTimer.getElapsedTime();
     stopwatchText.setString(

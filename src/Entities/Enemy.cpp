@@ -124,13 +124,6 @@ void Enemy::takeDamage(float damage) {
         std::string("assets/enemy") + std::to_string(level) + "_hit.png"));
 }
 
-void Enemy::collide() {
-    if (!lastCollideTimer.hasElapsed(0.02f)) {
-        lastCollideTimer.restart();
-        takeDamage(640.0f);
-    }
-}
-
 void Enemy::updateBulletCollisions(
     std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail || health <= 0.0f)
@@ -172,13 +165,6 @@ void Enemy2::move(float deltaTime) {
     avail = (y >= 0 && y <= Constants::SCREEN_HEIGHT);
 }
 
-void Enemy2::collide() {
-    if (!lastCollideTimer.hasElapsed(0.02f)) {
-        lastCollideTimer.restart();
-        takeDamage(320.0f);
-    }
-}
-
 /* Enemy3 Implementation */
 
 Enemy3::Enemy3(sf::Vector2f position) : Enemy(3, position) {
@@ -201,13 +187,6 @@ void Enemy3::move(float deltaTime) {
     sprite.setPosition(verticalCenter + verticalOffset, y);
     avail = (x >= 0 && x < Constants::SCREEN_WIDTH && y >= 0 &&
              y <= Constants::SCREEN_HEIGHT);
-}
-
-void Enemy3::collide() {
-    if (!lastCollideTimer.hasElapsed(0.02f)) {
-        lastCollideTimer.restart();
-        takeDamage(64.0f);
-    }
 }
 
 void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {

@@ -100,8 +100,7 @@ void Player::move(float deltaTime) {
         sprite.move(0, speed * deltaTime);
 }
 
-void Player::updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool,
-                              std::vector<std::unique_ptr<Enemy>> &enemy_pool) {
+void Player::updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail || dying)
         return;
 
@@ -114,18 +113,6 @@ void Player::updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool,
             takeDamage(std::max(bullet->damage, bullet->damageRate * health));
             bullet->explode();
             bullet->setAvailable(false);
-        }
-    }
-
-    // Enemy collisions
-    for (auto &enemy : enemy_pool) {
-        if (enemy->isAvailable() && enemy->health > 0.0f &&
-            bounds.intersects(enemy->getBounds())) {
-            if (!lastCollideTimer.hasElapsed(0.01f)) {
-                lastCollideTimer.restart();
-                takeDamage(std::min(enemy->health * 0.32f, 10000.0f));
-            }
-            enemy->collide();
         }
     }
 }

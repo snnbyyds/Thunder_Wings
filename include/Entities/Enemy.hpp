@@ -32,7 +32,6 @@ public:
     virtual void move(float deltaTime);
     virtual void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
     virtual void takeDamage(float damage);
-    virtual void collide();
 
     void
     updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
@@ -64,7 +63,6 @@ public:
     Enemy2(sf::Vector2f position);
 
     void move(float deltaTime) override;
-    void collide() override;
 
 private:
     float verticalAmplitude; // Random amplitude for vertical movement
@@ -79,7 +77,6 @@ public:
 
     void move(float deltaTime) override;
     void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) override;
-    void collide() override;
 
 private:
     float verticalAmplitude; // Random amplitude for vertical movement

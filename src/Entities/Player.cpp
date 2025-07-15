@@ -100,7 +100,8 @@ void Player::move(float deltaTime) {
         sprite.move(0, speed * deltaTime);
 }
 
-void Player::updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
+void Player::updateCollisions(
+    std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail || dying)
         return;
 
@@ -121,8 +122,15 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail)
         return;
 
-    if (current_shot_gap > 0.0f && !lastShotTimer.hasElapsed(current_shot_gap))
-        return;
+    if (current_shot_gap > 0.0f) {
+        float shot_gap = current_shot_gap;
+        float multiplier = 1.0f;
+        for (auto &gift : gifts)
+            multiplier *= (1.0f + gift->attackSpeedIncrease);
+        shot_gap = current_shot_gap / multiplier;
+        if (!lastShotTimer.hasElapsed(shot_gap))
+            return;
+    }
 
     const sf::Vector2f playerCenter =
         sprite.getPosition() +
@@ -146,9 +154,15 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     lastShotTimer.restart();
 }
 
-void Player::takeDamage(float damage) {
-    damage = std::max(0.01f, damage);
-    health -= damage;
+void Player::takeDamage(float rawDamage) {
+    float dmgMul = 1.0f;
+    for (auto &gift : gifts)
+        dmgMul *= (1.0f - gift->damageReduction);
+
+    float finalDamage = rawDamage * dmgMul;
+    finalDamage = std::max(0.0f, finalDamage);
+
+    health -= finalDamage;
     damaged = true;
     sprite.setTexture(ResourceManager::getTexture("assets/me_hit.png"));
 }

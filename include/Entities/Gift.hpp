@@ -15,24 +15,32 @@
  */
 
 #pragma once
-#include <SFML/Graphics.hpp>
+#include "Entity.hpp"
 
-class Entity {
+class Gift : public Entity {
 public:
-    Entity() = default;
-    virtual ~Entity() = default;
+    Gift() = default;
+    Gift(const std::string &name);
+    virtual ~Gift() = default;
 
-    virtual void update(float deltaTime) {};
-    virtual void render(sf::RenderWindow &window);
-    virtual sf::FloatRect getBounds() const;
+    void update(float deltaTime) override;
+    float getRemainingTime() const;
+    sf::Sprite &getSprite();
 
-    sf::Vector2f getPosition();
-
-    bool isAvailable() const { return avail; }
-
-    void setAvailable(bool available) { avail = available; }
+    float damageReduction;
+    float attackSpeedIncrease;
 
 protected:
-    bool avail = true;
-    sf::Sprite sprite;
+    std::string name;
+    float remainingTime;
+};
+
+class FullFirePower : public Gift {
+public:
+    FullFirePower();
+};
+
+class CenturyShield : public Gift {
+public:
+    CenturyShield();
 };

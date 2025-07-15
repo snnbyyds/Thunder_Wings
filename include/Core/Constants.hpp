@@ -50,5 +50,9 @@ constexpr size_t ENEMY_LEVEL_COUNT       = 3;
 constexpr float ROCKET_DAMAGE_RATE_INITIAL = 0.84f;
 constexpr float ROCKET_DAMAGE_RATE         = 0.184f;
 
+
+// Gift Properties
+constexpr float GIFT_SPAWN_PROBABILITY = 0.64f;
+constexpr float GIFT_SPAWN_INTERVAL    = 32.0f;
 // clang-format on
 } // namespace Constants

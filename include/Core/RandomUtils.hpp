@@ -57,4 +57,13 @@ public:
         size_t index = std::distance(cumulative_probs.begin(), it);
         return set[index];
     }
+
+    static bool chooseWithProb(float probability) {
+        if (probability < 0.0f || probability > 1.0f)
+            throw std::invalid_argument(
+                "Probability must be between 0.0 and 1.0");
+
+        std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+        return dist(gen) < probability;
+    }
 };

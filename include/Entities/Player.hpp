@@ -18,6 +18,7 @@
 #include "../Core/Constants.hpp"
 #include "../Core/Timer.hpp"
 #include "Bullet.hpp"
+#include "Entities/Gift.hpp"
 #include "Entity.hpp"
 #include <SFML/Graphics.hpp>
 #include <array>
@@ -34,7 +35,7 @@ public:
     void move(float deltaTime);
     void updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
     void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
-    void takeDamage(float damage);
+    void takeDamage(float rawDamage);
 
     const float max_health = Constants::PLAYER_MAX_HEALTH;
     bool damaged;
@@ -43,6 +44,7 @@ public:
     float health;
     float damage;
     float recover_health;
+    std::vector<std::unique_ptr<Gift>> gifts;
 
 private:
     const std::array<std::string, 2> images = {"assets/me1.png",

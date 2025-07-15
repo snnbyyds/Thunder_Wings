@@ -57,7 +57,8 @@ Menu::Menu()
     exitText.setPosition(
         (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 380);
 
-    sf::Texture &logoTexture = ResourceManager::getTexture("assets/mujianwu.png");
+    sf::Texture &logoTexture =
+        ResourceManager::getTexture("assets/mujianwu.png");
     logoTexture.setSmooth(true);
     logoSprite.setTexture(logoTexture);
     auto [x, y] = logoTexture.getSize();

@@ -29,7 +29,8 @@ class Game {
 public:
     Game(sf::RenderWindow &window);
     void run();
-    void spawnEnemies(float deltaTime);
+    void bringGifts();
+    void spawnEnemies();
     bool isRunning();
 
     bool terminated;
@@ -37,6 +38,7 @@ public:
 private:
     bool update(float deltaTime);
     void render();
+    void drawGifts();
 
     const char *backgroundPath = "assets/background.png";
     sf::RenderWindow &window;
@@ -48,6 +50,7 @@ private:
 
     Timer globalTimer;
     Timer deltaTimer;
+    Timer giftTimer;
     Timer spawnTimer;
 
     std::vector<std::unique_ptr<Bullet>> bullets;

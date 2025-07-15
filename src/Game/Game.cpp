@@ -19,6 +19,7 @@
 #include "Core/Macros.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
+#include <iomanip>
 
 Game::Game(sf::RenderWindow &window)
     : window(window), terminated(false), running(false) {
@@ -69,7 +70,29 @@ void Game::run() {
     running = false;
 }
 
-void Game::spawnEnemies(float deltaTime) {
+void Game::bringGifts() {
+    if (!player.gifts.empty())
+        return;
+    if (giftTimer.hasElapsed(Constants::GIFT_SPAWN_INTERVAL)) {
+        if (!RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)) {
+            giftTimer.restart();
+            return;
+        }
+        int choice = rand() & 1;
+        switch (choice) {
+            case 0:
+                player.gifts.push_back(std::make_unique<FullFirePower>());
+                break;
+            case 1:
+                player.gifts.push_back(std::make_unique<CenturyShield>());
+                break;
+            default: __unreachable(); break;
+        }
+        giftTimer.restart();
+    }
+}
+
+void Game::spawnEnemies() {
     static const std::vector<int> levelSet = {1, 2, 3};
     static const std::vector<float> levelProb = {Constants::ENEMY1_SPAWN_PROB,
                                                  Constants::ENEMY2_SPAWN_PROB,
@@ -172,6 +195,16 @@ bool Game::update(float deltaTime) {
         }
     }
 
+    // Update gifts
+    for (auto it = player.gifts.begin(); it != player.gifts.end();) {
+        if ((*it)->isAvailable()) {
+            (*it)->update(deltaTime);
+            ++it;
+        } else {
+            player.gifts.erase(it);
+        }
+    }
+
     // Update enemies
     currentBoss = nullptr;
     for (auto it = enemies.begin(); it != enemies.end();) {
@@ -197,7 +230,8 @@ bool Game::update(float deltaTime) {
             "%");
     }
 
-    spawnEnemies(deltaTime);
+    spawnEnemies();
+    bringGifts();
     return true;
 }
 
@@ -217,5 +251,40 @@ void Game::render() {
     window.draw(healthText);
     if (currentBoss)
         window.draw(bossHealthText);
+    drawGifts();
     window.display();
+}
+
+void Game::drawGifts() {
+    if (player.gifts.empty())
+        return;
+
+    auto &gift = player.gifts.front();
+
+    constexpr float padding = 10.0f;
+    constexpr float iconSize = 64.0f;
+    constexpr float raiseUp = 32.0f;
+    float x = padding;
+    float y = Constants::SCREEN_HEIGHT - iconSize - padding - raiseUp;
+
+    auto icon = gift->getSprite();
+    const auto bounds = icon.getLocalBounds();
+    float scale = iconSize / bounds.height;
+    gift->render(window);
+
+    float remaining = gift->getRemainingTime();
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(3) << remaining << "s";
+
+    sf::Text text;
+    text.setFont(ResourceManager::gameFont);
+    text.setString(oss.str());
+    text.setCharacterSize(34);
+    text.setFillColor(sf::Color(4, 133, 255, 255));
+
+    float textWidth = text.getLocalBounds().width;
+    float iconW = icon.getGlobalBounds().width;
+    text.setPosition(x + (iconW - textWidth) / 2.0f,
+                     y + icon.getGlobalBounds().height + 4.0f);
+    window.draw(text);
 }

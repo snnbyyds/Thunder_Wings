@@ -40,13 +40,16 @@ private:
     void render();
     void drawGifts();
 
-    const char *backgroundPath = "assets/background.png";
     sf::RenderWindow &window;
+
+    const char *backgroundPath = "assets/background.png";
     sf::Sprite backgroundSprite;
+
     sf::Text gameOverText;
     sf::Text stopwatchText;
     sf::Text healthText;
     sf::Text bossHealthText;
+    sf::Text pauseText;
 
     Timer globalTimer;
     Timer deltaTimer;
@@ -59,5 +62,6 @@ private:
     Player player;
     Enemy *currentBoss = nullptr;
 
-    bool running;
+    bool running = false;
+    bool paused = false;
 };

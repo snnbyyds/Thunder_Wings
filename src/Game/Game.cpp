@@ -42,31 +42,50 @@ Game::Game(sf::RenderWindow &window)
     bossHealthText.setFillColor(sf::Color::Magenta);
     bossHealthText.setPosition(Constants::SCREEN_WIDTH / 2.0f - 200.0f, 20.0f);
 
+    pauseText.setFont(ResourceManager::gameFont);
+    pauseText.setString("PAUSED");
+    pauseText.setCharacterSize(80);
+    pauseText.setFillColor(sf::Color::Cyan);
+    pauseText.setStyle(sf::Text::Bold);
+    sf::FloatRect bounds = pauseText.getLocalBounds();
+    pauseText.setOrigin(bounds.width / 2, bounds.height / 2);
+    pauseText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
+                          Constants::SCREEN_HEIGHT / 2.0f);
+
     std::fill(enemyCount.begin(), enemyCount.end(), 0);
 }
 
 void Game::run() {
     running = true;
+    paused = false;
     deltaTimer.restart();
     globalTimer.restart();
 
     sf::Event event;
     while (window.isOpen()) {
-        float deltaTime = deltaTimer.getElapsedTime();
-        deltaTimer.restart();
-
-        if (!update(deltaTime))
-            break;
-
-        render();
-
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
                 terminated = true;
                 break;
+            } else if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::P) {
+                    paused = !paused;
+                }
+                // We may add handling for more events here.
             }
         }
+
+        if (paused) {
+            deltaTimer.restart();
+        } else {
+            float deltaTime = deltaTimer.getElapsedTime();
+            deltaTimer.restart();
+            if (!update(deltaTime))
+                break;
+        }
+
+        render();
     }
     running = false;
 }
@@ -170,9 +189,13 @@ bool Game::update(float deltaTime) {
 
     std::ostringstream oss;
 
-    float elapsedTime = globalTimer.getElapsedTime();
-    oss << "Time: " << std::fixed << std::setprecision(3) << elapsedTime << 's';
-    stopwatchText.setString(oss.str());
+    static float stopwatchValue = 0.0f;
+    if (!paused) {
+        stopwatchValue += deltaTime;
+        oss << "Time: " << std::fixed << std::setprecision(3) << stopwatchValue
+            << 's';
+        stopwatchText.setString(oss.str());
+    }
 
     oss.clear();
     oss.str("");
@@ -254,6 +277,15 @@ void Game::render() {
     if (currentBoss)
         window.draw(bossHealthText);
     drawGifts();
+
+    if (paused) {
+        sf::RectangleShape overlay(
+            sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
+        overlay.setFillColor(sf::Color(0, 0, 0, 150));
+        window.draw(overlay);
+        window.draw(pauseText);
+    }
+
     window.display();
 }
 

@@ -45,7 +45,7 @@ Enemy::Enemy(int level, sf::Vector2f position)
             break;
         case 3:
             maxHealth = health =
-                RandomUtils::generateInRange(262144.0f, 524288.0f);
+                RandomUtils::generateInRange(524288.0f, 2097152.0f);
             speed = RandomUtils::generateInRange(16.0f, 32.0f);
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
             current_shot_gap = RandomUtils::generateInRange(0.2f, 0.28f);

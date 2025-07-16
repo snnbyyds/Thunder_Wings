@@ -168,17 +168,16 @@ bool Game::update(float deltaTime) {
     player.update(deltaTime);
     player.updateCollisions(bullets);
 
-    float elapsedTime = globalTimer.getElapsedTime();
-    stopwatchText.setString(
-        "Time: " +
-        std::to_string(elapsedTime)
-            .substr(0, std::to_string(elapsedTime).find(".") + 3) +
-        "s");
+    std::ostringstream oss;
 
-    healthText.setString(
-        "Health: " +
-        std::to_string(player.health)
-            .substr(0, std::to_string(player.health).find(".") + 3));
+    float elapsedTime = globalTimer.getElapsedTime();
+    oss << "Time: " << std::fixed << std::setprecision(3) << elapsedTime << 's';
+    stopwatchText.setString(oss.str());
+
+    oss.clear();
+    oss.str("");
+    oss << "Health: " << std::fixed << std::setprecision(2) << player.health;
+    healthText.setString(oss.str());
 
     if (player.health > 0.0f)
         player.shoot(bullets);
@@ -225,10 +224,12 @@ bool Game::update(float deltaTime) {
         }
     }
     if (currentBoss) {
-        bossHealthText.setString(
-            "Boss: " + std::to_string((int)currentBoss->health) + "\n" +
-            std::to_string(currentBoss->health / currentBoss->maxHealth * 100) +
-            "%");
+        oss.clear();
+        oss.str("");
+        oss << "Boss: " << (int)currentBoss->health << std::endl
+            << std::fixed << std::setprecision(5)
+            << currentBoss->health / currentBoss->maxHealth * 100 << '%';
+        bossHealthText.setString(oss.str());
     }
 
     spawnEnemies();

@@ -19,10 +19,12 @@
 #include "Game.hpp"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 class Menu {
 public:
     Menu();
+    ~Menu();
     void show();
     void playLogo();
     void start();
@@ -39,7 +41,7 @@ private:
     const char *fontPath = "assets/Morning Routine.otf";
     const char *musicPath = "assets/background.wav";
 
-    Game *game = nullptr;
+    std::unique_ptr<Game> game;
     sf::RenderWindow window;
     sf::Sprite backgroundSprite;
     sf::Text titleText;

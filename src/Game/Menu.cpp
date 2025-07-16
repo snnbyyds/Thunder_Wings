@@ -68,6 +68,8 @@ Menu::Menu()
     logoSprite.setColor(sf::Color(255, 255, 255, 0));
 }
 
+Menu::~Menu() { game.reset(); }
+
 void Menu::playLogo() {
     logoClock.restart();
     showingLogo = true;
@@ -114,10 +116,8 @@ void Menu::show() {
     }
 
     active = true;
-    if (game != nullptr && (!game->isRunning() || game->terminated)) {
-        delete game;
-        game = nullptr;
-    }
+    if (game != nullptr && (!game->isRunning() || game->terminated))
+        game.reset();
 
     while (active) {
         handleInput();
@@ -159,7 +159,7 @@ void Menu::render() {
 
 void Menu::start() {
     active = false;
-    game = new Game(window);
+    game = std::make_unique<Game>(window);
     game->run();
     if (game->terminated)
         exit();

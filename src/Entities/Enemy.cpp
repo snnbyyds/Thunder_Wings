@@ -45,7 +45,7 @@ Enemy::Enemy(int level, sf::Vector2f position)
             break;
         case 3:
             maxHealth = health =
-                RandomUtils::generateInRange(524288.0f, 2097152.0f);
+                RandomUtils::generateInRange(320000.0f, 640000.0f);
             speed = RandomUtils::generateInRange(16.0f, 32.0f);
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
             current_shot_gap = RandomUtils::generateInRange(0.2f, 0.28f);
@@ -221,7 +221,7 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     }
 
     shootCounter = (shootCounter + 1) % 16;
-    if (shootCounter == 0 || (health < maxHealth * 0.036f)) {
+    if (shootCounter == 0 || (health < 12480.0f)) {
         const int missileCount = health < maxHealth * 0.4f ? 4 : 2;
         for (int i = 0; i < missileCount; i++) {
             bullet_pool.push_back(std::make_unique<Missile>(

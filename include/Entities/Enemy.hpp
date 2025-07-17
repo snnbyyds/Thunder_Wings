@@ -32,6 +32,7 @@ public:
     virtual void move(float deltaTime);
     virtual void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
     virtual void takeDamage(float damage);
+    virtual void recover(float deltaTime);
 
     void
     updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
@@ -77,10 +78,12 @@ public:
 
     void move(float deltaTime) override;
     void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) override;
+    void recover(float deltaTime) override;
 
 private:
     float verticalAmplitude; // Random amplitude for vertical movement
     float verticalFrequency; // Random frequency for the oscillation
     float verticalCenter;
+    float recoverRate = 512.0f;
     Timer timer;
 };

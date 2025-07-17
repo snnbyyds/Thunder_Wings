@@ -65,6 +65,7 @@ void Enemy::update(float deltaTime) {
         return;
 
     move(deltaTime);
+    recover(deltaTime);
 
     if (health <= 0.0f) {
         if (!dying) {
@@ -123,6 +124,8 @@ void Enemy::takeDamage(float damage) {
     sprite.setTexture(ResourceManager::getTexture(
         std::string("assets/enemy") + std::to_string(level) + "_hit.png"));
 }
+
+void Enemy::recover(float deltaTime) {}
 
 void Enemy::updateBulletCollisions(
     std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
@@ -256,4 +259,8 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     }
 
     lastShotTimer.restart();
+}
+
+void Enemy3::recover(float deltaTime) {
+    health = std::min(health + deltaTime * recoverRate, maxHealth * 2.0f);
 }

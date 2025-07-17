@@ -13,10 +13,14 @@
 # limitations under the License.
 
 # Set the minimum required version of CMake
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 # Project name
 project(Thunder_Wings)
+
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 
 # Set the build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -27,6 +31,14 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Add Boost Library
+set(Boost_MINIMUM_VERSION 1.75)
+find_package(Boost ${Boost_MINIMUM_VERSION} REQUIRED COMPONENTS json)
+message(STATUS "Boost found: ${Boost_FOUND}")
+message(STATUS "Boost version: ${Boost_VERSION}")
+message(STATUS "Boost include dir: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 
 # Gather all source files recursively
 file(GLOB_RECURSE SOURCES 
@@ -91,14 +103,16 @@ target_include_directories(thunder_wings PRIVATE
     ${SFML_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
+    ${Boost_INCLUDE_DIRS}
 )
 
-# Link SFML libraries to the target
+# Link libraries to the target
 target_link_libraries(thunder_wings PRIVATE
     sfml-audio
     sfml-graphics 
     sfml-window 
     sfml-system
+    Boost::json
 )
 
 if(WIN32)

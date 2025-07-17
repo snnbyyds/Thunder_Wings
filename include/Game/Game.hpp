@@ -49,6 +49,7 @@ private:
     sf::Text stopwatchText;
     sf::Text healthText;
     sf::Text bossHealthText;
+    sf::Text instructionText;
     sf::Text pauseText;
 
     Timer globalTimer;
@@ -65,4 +66,5 @@ private:
 
     bool running = false;
     bool paused = false;
+    bool showingInstructions = false;
 };

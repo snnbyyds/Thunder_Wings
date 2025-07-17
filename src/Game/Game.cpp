@@ -42,13 +42,24 @@ Game::Game(sf::RenderWindow &window)
     bossHealthText.setFillColor(sf::Color::Magenta);
     bossHealthText.setPosition(Constants::SCREEN_WIDTH / 2.0f - 200.0f, 20.0f);
 
+    instructionText.setFont(ResourceManager::gameFont);
+    instructionText.setString("Use Arrow Keys to Move");
+    instructionText.setCharacterSize(40);
+    instructionText.setFillColor(sf::Color::Cyan);
+    instructionText.setStyle(sf::Text::Bold);
+    sf::FloatRect instructionTextBounds = instructionText.getLocalBounds();
+    instructionText.setOrigin(instructionTextBounds.width / 2,
+                              instructionTextBounds.height / 2);
+    instructionText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
+                                Constants::SCREEN_HEIGHT - 60.0f);
+
     pauseText.setFont(ResourceManager::gameFont);
     pauseText.setString("PAUSED");
     pauseText.setCharacterSize(80);
     pauseText.setFillColor(sf::Color::Cyan);
     pauseText.setStyle(sf::Text::Bold);
-    sf::FloatRect bounds = pauseText.getLocalBounds();
-    pauseText.setOrigin(bounds.width / 2, bounds.height / 2);
+    sf::FloatRect pauseTextBounds = pauseText.getLocalBounds();
+    pauseText.setOrigin(pauseTextBounds.width / 2, pauseTextBounds.height / 2);
     pauseText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
                           Constants::SCREEN_HEIGHT / 2.0f);
 
@@ -78,6 +89,7 @@ void Game::run() {
 
         if (paused) {
             deltaTimer.restart();
+            showingInstructions = true;
         } else {
             float deltaTime = deltaTimer.getElapsedTime();
             deltaTimer.restart();
@@ -139,7 +151,8 @@ void Game::spawnEnemies() {
                 }
                 break;
             case 3:
-                if (enemyCount[3] < Constants::ENEMY3_MAX_ALIVE && timeElapsed > 32.0f) {
+                if (enemyCount[3] < Constants::ENEMY3_MAX_ALIVE &&
+                    timeElapsed > 32.0f) {
                     // Spawn 32 enemy1
                     for (int i = 0; i < 32; i++)
                         enemies.push_back(std::make_unique<Enemy1>(
@@ -196,6 +209,8 @@ bool Game::update(float deltaTime) {
             << 's';
         stopwatchText.setString(oss.str());
     }
+
+    showingInstructions = (timeElapsed <= 8.0f);
 
     oss.clear();
     oss.str("");
@@ -285,6 +300,9 @@ void Game::render() {
         window.draw(overlay);
         window.draw(pauseText);
     }
+
+    if (showingInstructions)
+        window.draw(instructionText);
 
     window.display();
 }

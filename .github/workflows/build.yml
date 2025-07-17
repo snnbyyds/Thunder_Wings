@@ -31,8 +31,31 @@ jobs:
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        aria2c -x16 -s16 -d . -o sfml.zip "https://www.sfml-dev.org/files/SFML-2.6.2-windows-vc17-64-bit.zip"
-        unzip sfml.zip
+        $url = "https://github.com/SFML/SFML/releases/download/2.6.2/SFML-2.6.2-windows-vc17-64-bit.zip"
+        $output = "sfml.zip"
+        $retries = 3
+        $success = $false
+
+        for ($i = 0; $i -lt $retries; $i++) {
+          try {
+            aria2c -x16 -s16 -d . -o $output $url
+            if (Test-Path $output) {
+              $success = $true
+              break
+            }
+          }
+          catch {
+            Write-Host "Download failed. Retrying in 4 seconds..."
+            Start-Sleep -Seconds 4
+          }
+        }
+
+        if (-not $success) {
+          Write-Host "Failed to download SFML after $retries attempts."
+          exit 1
+        }
+
+        unzip $output
         mv SFML-2.6.2 sfml
 
     - name: Configure and Build

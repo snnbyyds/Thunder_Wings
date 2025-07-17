@@ -55,6 +55,7 @@ private:
     Timer deltaTimer;
     Timer giftTimer;
     Timer spawnTimer;
+    float timeElapsed = 0.0f;
 
     std::vector<std::unique_ptr<Bullet>> bullets;
     std::vector<std::unique_ptr<Enemy>> enemies;

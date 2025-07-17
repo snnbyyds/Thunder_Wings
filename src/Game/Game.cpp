@@ -139,7 +139,7 @@ void Game::spawnEnemies() {
                 }
                 break;
             case 3:
-                if (enemyCount[3] < Constants::ENEMY3_MAX_ALIVE) {
+                if (enemyCount[3] < Constants::ENEMY3_MAX_ALIVE && timeElapsed > 32.0f) {
                     // Spawn 32 enemy1
                     for (int i = 0; i < 32; i++)
                         enemies.push_back(std::make_unique<Enemy1>(
@@ -189,10 +189,9 @@ bool Game::update(float deltaTime) {
 
     std::ostringstream oss;
 
-    static float stopwatchValue = 0.0f;
     if (!paused) {
-        stopwatchValue += deltaTime;
-        oss << "Time: " << std::fixed << std::setprecision(3) << stopwatchValue
+        timeElapsed += deltaTime;
+        oss << "Time: " << std::fixed << std::setprecision(3) << timeElapsed
             << 's';
         stopwatchText.setString(oss.str());
     }

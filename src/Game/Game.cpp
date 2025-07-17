@@ -70,7 +70,6 @@ void Game::run() {
     running = true;
     paused = false;
     deltaTimer.restart();
-    globalTimer.restart();
 
     sf::Event event;
     while (window.isOpen()) {

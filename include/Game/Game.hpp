@@ -52,7 +52,6 @@ private:
     sf::Text instructionText;
     sf::Text pauseText;
 
-    Timer globalTimer;
     Timer deltaTimer;
     Timer giftTimer;
     Timer spawnTimer;

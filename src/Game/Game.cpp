@@ -153,8 +153,9 @@ void Game::spawnEnemies() {
                     // Spawn 1 enemy3
                     enemies.push_back(std::make_unique<Enemy3>(
                         sf::Vector2f(Constants::SCREEN_WIDTH / 2.0f, 0)));
-                    enemyCount[2] += 16;
-                    enemyCount[3]++;
+                    enemyCount[1] += 32;
+                    enemyCount[2] += 24;
+                    enemyCount[3] += 1;
                 }
                 break;
             default: __unreachable(); break;

@@ -54,10 +54,8 @@ Menu::Menu()
     loadText.setString("LOAD PROGRESS");
     loadText.setCharacterSize(50);
     loadText.setFillColor(sf::Color::White);
-    loadText.setPosition(
-        screen_w / 2.0f - loadText.getGlobalBounds().width / 2,
-        400.0f
-    );
+    loadText.setPosition(screen_w / 2.0f - loadText.getGlobalBounds().width / 2,
+                         400.0f);
 
     exitText.setFont(ResourceManager::gameFont);
     exitText.setString("EXIT");
@@ -142,10 +140,12 @@ void Menu::handleInput() {
         else if (event.type == sf::Event::KeyPressed) {
             switch (event.key.code) {
                 case sf::Keyboard::Down:
-                    currentOption = std::min(currentOption + 1, MENU_MAX_OPTION);
+                    currentOption =
+                        std::min(currentOption + 1, MENU_MAX_OPTION);
                     break;
                 case sf::Keyboard::Up:
-                    currentOption = std::max(currentOption - 1, MENU_MIN_OPTION);
+                    currentOption =
+                        std::max(currentOption - 1, MENU_MIN_OPTION);
                     break;
                 case sf::Keyboard::PageDown:
                     currentOption = MENU_MAX_OPTION;
@@ -155,23 +155,22 @@ void Menu::handleInput() {
                     break;
                 case sf::Keyboard::Enter:
                     switch (currentOption) {
-                        case MENU_OPTION_START:
-                            start();
-                            break;
-                        case MENU_OPTION_LOAD:
-                            load();
-                            break;
-                        case MENU_OPTION_EXIT:
-                            exit();
-                            break;
+                        case MENU_OPTION_START: start(); break;
+                        case MENU_OPTION_LOAD: load(); break;
+                        case MENU_OPTION_EXIT: exit(); break;
                     }
                     return;
-                default:
-                    break;
+                default: break;
             }
-            startText.setFillColor(currentOption == MENU_OPTION_START ? sf::Color::Red : sf::Color::White);
-            loadText.setFillColor(currentOption == MENU_OPTION_LOAD ? sf::Color::Red : sf::Color::White);
-            exitText.setFillColor(currentOption == MENU_OPTION_EXIT ? sf::Color::Red : sf::Color::White);
+            startText.setFillColor(currentOption == MENU_OPTION_START
+                                       ? sf::Color::Red
+                                       : sf::Color::White);
+            loadText.setFillColor(currentOption == MENU_OPTION_LOAD
+                                      ? sf::Color::Red
+                                      : sf::Color::White);
+            exitText.setFillColor(currentOption == MENU_OPTION_EXIT
+                                      ? sf::Color::Red
+                                      : sf::Color::White);
         }
     }
 }

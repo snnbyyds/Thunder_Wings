@@ -176,9 +176,7 @@ void Enemy::updateBulletCollisions(
 
 /* Enemy1 Implementation */
 
-Enemy1::Enemy1(const boost::json::object &o) : Enemy(o) {
-    deserialize(o);
-}
+Enemy1::Enemy1(const boost::json::object &o) : Enemy(o) { deserialize(o); }
 
 Enemy1::Enemy1(sf::Vector2f position) : Enemy(1, position) {}
 
@@ -190,9 +188,7 @@ void Enemy1::deserialize(const boost::json::object &o) {
 
 /* Enemy2 Implementation */
 
-Enemy2::Enemy2(const boost::json::object &o) : Enemy(o) {
-    deserialize(o);
-}
+Enemy2::Enemy2(const boost::json::object &o) : Enemy(o) { deserialize(o); }
 
 Enemy2::Enemy2(sf::Vector2f position) : Enemy(2, position) {
     verticalAmplitude = RandomUtils::generateInRange(128.0f, 256.0f);
@@ -233,9 +229,7 @@ void Enemy2::deserialize(const boost::json::object &o) {
 
 /* Enemy3 Implementation */
 
-Enemy3::Enemy3(const boost::json::object &o) : Enemy(o) {
-    deserialize(o);
-}
+Enemy3::Enemy3(const boost::json::object &o) : Enemy(o) { deserialize(o); }
 
 Enemy3::Enemy3(sf::Vector2f position) : Enemy(3, position) {
     verticalAmplitude = RandomUtils::generateInRange(128.0f, 256.0f);

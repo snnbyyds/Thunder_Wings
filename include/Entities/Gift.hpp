@@ -49,11 +49,13 @@ private:
 class FullFirePower : public Gift {
 public:
     FullFirePower();
+
     FullFirePower(const boost::json::object &o) : Gift(o) {}
 };
 
 class CenturyShield : public Gift {
 public:
     CenturyShield();
+
     CenturyShield(const boost::json::object &o) : Gift(o) {}
 };

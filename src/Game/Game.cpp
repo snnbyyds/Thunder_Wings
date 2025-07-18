@@ -62,28 +62,33 @@ Game::Game(sf::RenderWindow &window)
     pauseText.setStyle(sf::Text::Bold);
     sf::FloatRect pauseTextBounds = pauseText.getLocalBounds();
     pauseText.setOrigin(pauseTextBounds.width / 2, pauseTextBounds.height / 2);
-    pauseText.setPosition(Constants::SCREEN_WIDTH / 2.0f, Constants::SCREEN_HEIGHT / 2.0f - 350);
+    pauseText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
+                          Constants::SCREEN_HEIGHT / 2.0f - 350);
 
     resumeText.setFont(ResourceManager::gameFont);
     resumeText.setCharacterSize(60);
     resumeText.setString("Resume");
     sf::FloatRect resumeTextBounds = resumeText.getLocalBounds();
-    resumeText.setOrigin(resumeTextBounds.width / 2, resumeTextBounds.height / 2);
-    resumeText.setPosition(Constants::SCREEN_WIDTH / 2.0f, pauseText.getPosition().y + 260);
+    resumeText.setOrigin(resumeTextBounds.width / 2,
+                         resumeTextBounds.height / 2);
+    resumeText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
+                           pauseText.getPosition().y + 260);
 
     saveText.setFont(ResourceManager::gameFont);
     saveText.setCharacterSize(60);
     saveText.setString("Save Progress");
     sf::FloatRect saveTextBounds = saveText.getLocalBounds();
     saveText.setOrigin(saveTextBounds.width / 2, saveTextBounds.height / 2);
-    saveText.setPosition(Constants::SCREEN_WIDTH / 2.0f, resumeText.getPosition().y + 80);
+    saveText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
+                         resumeText.getPosition().y + 80);
 
     exitText.setFont(ResourceManager::gameFont);
     exitText.setCharacterSize(60);
     exitText.setString("Exit");
     sf::FloatRect exitTextBounds = exitText.getLocalBounds();
     exitText.setOrigin(exitTextBounds.width / 2, exitTextBounds.height / 2);
-    exitText.setPosition(Constants::SCREEN_WIDTH / 2.0f, saveText.getPosition().y + 80);
+    exitText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
+                         saveText.getPosition().y + 80);
 
     std::fill(enemyCount.begin(), enemyCount.end(), 0);
 }
@@ -111,10 +116,12 @@ void Game::run() {
                 } else if (paused) {
                     switch (event.key.code) {
                         case sf::Keyboard::Down:
-                            currentPauseOption = std::min(currentPauseOption + 1, PAUSE_MAX_OPTION);
+                            currentPauseOption = std::min(
+                                currentPauseOption + 1, PAUSE_MAX_OPTION);
                             break;
                         case sf::Keyboard::Up:
-                            currentPauseOption = std::max(currentPauseOption - 1, PAUSE_MIN_OPTION);
+                            currentPauseOption = std::max(
+                                currentPauseOption - 1, PAUSE_MIN_OPTION);
                             break;
                         case sf::Keyboard::PageDown:
                             currentPauseOption = PAUSE_MAX_OPTION;
@@ -128,16 +135,11 @@ void Game::run() {
                                     paused = false;
                                     deltaTimer.restart();
                                     break;
-                                case PAUSE_OPTION_SAVE:
-                                    saveToDisk();
-                                    break;
-                                case PAUSE_OPTION_EXIT:
-                                    running = false;
-                                    break;
+                                case PAUSE_OPTION_SAVE: saveToDisk(); break;
+                                case PAUSE_OPTION_EXIT: running = false; break;
                             }
                             break;
-                        default:
-                            break;
+                        default: break;
                     }
                 }
             }
@@ -346,10 +348,12 @@ void Game::loadFromDisk() {
     std::cout << "Loading from disk" << std::endl;
     std::ifstream ifs(Constants::SAVE_FILE_NAME, std::ios::binary);
     if (!ifs.is_open()) {
-        std::cerr << "Load " << Constants::SAVE_FILE_NAME << " failed!" << std::endl;
+        std::cerr << "Load " << Constants::SAVE_FILE_NAME << " failed!"
+                  << std::endl;
         return;
     }
-    std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    std::string content((std::istreambuf_iterator<char>(ifs)),
+                        std::istreambuf_iterator<char>());
     ifs.close();
 
     // Parse JSON
@@ -362,9 +366,11 @@ void Game::loadFromDisk() {
 
 void Game::saveToDisk() {
     std::cout << "Saving to disk" << std::endl;
-    std::ofstream ofs(Constants::SAVE_FILE_NAME, std::ios::trunc | std::ios::binary);
+    std::ofstream ofs(Constants::SAVE_FILE_NAME,
+                      std::ios::trunc | std::ios::binary);
     if (!ofs.is_open())
-        throw std::runtime_error("Cannot open file for writing: " + std::string(Constants::SAVE_FILE_NAME));
+        throw std::runtime_error("Cannot open file for writing: " +
+                                 std::string(Constants::SAVE_FILE_NAME));
     ofs << boost::json::serialize(serialize());
     ofs.close();
 }
@@ -490,9 +496,15 @@ void Game::render() {
         window.draw(overlay);
         window.draw(pauseText);
 
-        resumeText.setFillColor(currentPauseOption == PAUSE_OPTION_RESUME ? sf::Color::Blue : sf::Color::White);
-        saveText.setFillColor(currentPauseOption == PAUSE_OPTION_SAVE  ? sf::Color::Blue : sf::Color::White);
-        exitText.setFillColor(currentPauseOption == PAUSE_OPTION_EXIT  ? sf::Color::Red : sf::Color::White);
+        resumeText.setFillColor(currentPauseOption == PAUSE_OPTION_RESUME
+                                    ? sf::Color::Blue
+                                    : sf::Color::White);
+        saveText.setFillColor(currentPauseOption == PAUSE_OPTION_SAVE
+                                  ? sf::Color::Blue
+                                  : sf::Color::White);
+        exitText.setFillColor(currentPauseOption == PAUSE_OPTION_EXIT
+                                  ? sf::Color::Red
+                                  : sf::Color::White);
         window.draw(resumeText);
         window.draw(saveText);
         window.draw(exitText);

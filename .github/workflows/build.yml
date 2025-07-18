@@ -12,117 +12,116 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install Linux dependencies
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libsfml-dev libboost-all-dev
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsfml-dev libboost-all-dev
 
-    - name: Install aria2 (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        choco install aria2 -y
+      - name: Install aria2 (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install aria2 -y
 
-    - name: Setup vcpkg and install Boost.JSON (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        cd vcpkg
-        .\bootstrap-vcpkg.bat
-        .\vcpkg.exe integrate install
-        .\vcpkg.exe install boost-json:x64-windows
-        cd ..
+      - name: Setup vcpkg and install Boost.JSON (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          .\bootstrap-vcpkg.bat
+          .\vcpkg.exe integrate install
+          # Install static Boost.JSON
+          .\vcpkg.exe install boost-json:x64-windows-static
+          cd ..
 
-    - name: Download and Setup SFML (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        $url = "https://github.com/SFML/SFML/releases/download/2.6.2/SFML-2.6.2-windows-vc17-64-bit.zip"
-        $output = "sfml.zip"
-        $retries = 3
-        $success = $false
+      - name: Download and Setup SFML (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $url = "https://github.com/SFML/SFML/releases/download/2.6.2/SFML-2.6.2-windows-vc17-64-bit.zip"
+          $output = "sfml.zip"
+          $retries = 3
+          $success = $false
 
-        for ($i = 0; $i -lt $retries; $i++) {
-          try {
-            aria2c -x16 -s16 -d . -o $output $url
-            if (Test-Path $output) {
-              $success = $true
-              break
+          for ($i = 0; $i -lt $retries; $i++) {
+            try {
+              aria2c -x16 -s16 -d . -o $output $url
+              if (Test-Path $output) {
+                $success = $true
+                break
+              }
+            }
+            catch {
+              Write-Host "Download failed. Retrying in 4 seconds..."
+              Start-Sleep -Seconds 4
             }
           }
-          catch {
-            Write-Host "Download failed. Retrying in 4 seconds..."
-            Start-Sleep -Seconds 4
+
+          if (-not $success) {
+            Write-Host "Failed to download SFML after $retries attempts."
+            exit 1
           }
-        }
 
-        if (-not $success) {
-          Write-Host "Failed to download SFML after $retries attempts."
-          exit 1
-        }
+          unzip -q $output
+          mv SFML-2.6.2 sfml
 
-        unzip -q $output
-        mv SFML-2.6.2 sfml
+      - name: Configure and Build
+        shell: bash
+        run: |
+          mkdir -p build
+          cd build
+          
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cmake .. \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" \
+              -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+              -DVCPKG_TARGET_TRIPLET=x64-windows-static \
+              -DBoost_USE_STATIC_LIBS=ON
+          else
+            cmake .. -DCMAKE_BUILD_TYPE=Release
+          fi
+          
+          cmake --build . --config Release --parallel
 
-    - name: Download and Setup Boost (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        # Skip downloading Boost since we're using vcpkg
-        Write-Host "Using vcpkg for Boost.JSON installation"
+      - name: Prepare release files
+        shell: bash
+        run: |
+          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
+          mkdir -p "$RELEASE_DIR"
+          
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cp "build/Release/thunder_wings.exe" "$RELEASE_DIR/" || cp "build/thunder_wings.exe" "$RELEASE_DIR/"
+            # Copy SFML DLLs from downloaded SFML package
+            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-graphics-2.dll" "$RELEASE_DIR/" || true
+            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-window-2.dll" "$RELEASE_DIR/" || true
+            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-system-2.dll" "$RELEASE_DIR/" || true
+            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-audio-2.dll" "$RELEASE_DIR/" || true
+            cp "$GITHUB_WORKSPACE/sfml/bin/openal32.dll" "$RELEASE_DIR/" || true
+          else
+            cp "build/thunder_wings" "$RELEASE_DIR/"
+          fi
+          
+          cp -r "$GITHUB_WORKSPACE/assets" "$RELEASE_DIR/" || echo "No assets directory found"
 
-    - name: Configure and Build
-      shell: bash
-      run: |
-        mkdir -p build
-        cd build
-        
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake"
-        else
-          cmake .. -DCMAKE_BUILD_TYPE=Release
-        fi
-        
-        cmake --build . --config Release --parallel
+      - name: Create final ZIP package
+        shell: bash
+        run: |
+          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
+          
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            7z a "$RELEASE_DIR.zip" "$RELEASE_DIR"
+          else
+            zip -r "$RELEASE_DIR.zip" "$RELEASE_DIR"
+          fi
 
-    - name: Prepare release files
-      shell: bash
-      run: |
-        RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
-        mkdir -p "$RELEASE_DIR"
-        
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          cp "build/Release/thunder_wings.exe" "$RELEASE_DIR/" || cp "build/thunder_wings.exe" "$RELEASE_DIR/"
-          # Copy SFML DLLs from downloaded SFML package
-          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-graphics-2.dll" "$RELEASE_DIR/" || true
-          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-window-2.dll" "$RELEASE_DIR/" || true
-          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-system-2.dll" "$RELEASE_DIR/" || true
-          cp "$GITHUB_WORKSPACE/sfml/bin/sfml-audio-2.dll" "$RELEASE_DIR/" || true
-          cp "$GITHUB_WORKSPACE/sfml/bin/openal32.dll" "$RELEASE_DIR/" || true
-        else
-          cp "build/thunder_wings" "$RELEASE_DIR/"
-        fi
-        
-        cp -r "$GITHUB_WORKSPACE/assets" "$RELEASE_DIR/" || echo "No assets directory found"
-
-    - name: Create final ZIP package
-      shell: bash
-      run: |
-        RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
-        
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          7z a "$RELEASE_DIR.zip" "$RELEASE_DIR"
-        else
-          zip -r "$RELEASE_DIR.zip" "$RELEASE_DIR"
-        fi
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Thunder_Wings_${{ runner.os }}
-        path: Thunder_Wings_${{ runner.os }}.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Thunder_Wings_${{ runner.os }}
+          path: Thunder_Wings_${{ runner.os }}.zip

@@ -166,3 +166,22 @@ void Player::takeDamage(float rawDamage) {
     damaged = true;
     sprite.setTexture(ResourceManager::getTexture("assets/me_hit.png"));
 }
+
+boost::json::object Player::serialize() const {
+    boost::json::object o = Entity::serialize();
+    o["damaged"] = damaged;
+    o["current_shot_gap"] = current_shot_gap;
+    o["health"] = health;
+    o["damage"] = damage;
+    o["recover_health"] = recover_health;
+    return o;
+}
+
+void Player::deserialize(const boost::json::object &o) {
+    Entity::deserialize(o);
+    damaged = o.at("damaged").as_bool();
+    current_shot_gap = (float)o.at("current_shot_gap").as_double();
+    health = (float)o.at("health").as_double();
+    damage = (float)o.at("damage").as_double();
+    recover_health = (float)o.at("recover_health").as_double();
+}

@@ -37,6 +37,9 @@ public:
     void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
     void takeDamage(float rawDamage);
 
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
+
     const float max_health = Constants::PLAYER_MAX_HEALTH;
     bool damaged;
     bool dying;

@@ -21,12 +21,16 @@
 class Gift : public Entity {
 public:
     Gift() = default;
+    Gift(const boost::json::object &o);
     Gift(const std::string &name);
     virtual ~Gift() = default;
 
     void update(float deltaTime) override;
     float getRemainingTime() const;
     sf::Sprite &getSprite();
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 
     float damageReduction;
     float attackSpeedIncrease;
@@ -45,9 +49,11 @@ private:
 class FullFirePower : public Gift {
 public:
     FullFirePower();
+    FullFirePower(const boost::json::object &o) : Gift(o) {}
 };
 
 class CenturyShield : public Gift {
 public:
     CenturyShield();
+    CenturyShield(const boost::json::object &o) : Gift(o) {}
 };

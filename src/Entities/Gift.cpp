@@ -19,6 +19,10 @@
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 
+Gift::Gift(const boost::json::object &o) {
+    deserialize(o);
+}
+
 Gift::Gift(const std::string &name) : name(name) {
     avail = true;
     remainingTime = (float)RandomUtils::generateInRange(7, 10);
@@ -64,6 +68,32 @@ void Gift::update(float deltaTime) {
 float Gift::getRemainingTime() const { return remainingTime; }
 
 sf::Sprite &Gift::getSprite() { return sprite; }
+
+boost::json::object Gift::serialize() const {
+    boost::json::object o = Entity::serialize();
+    o["damageReduction"] = damageReduction;
+    o["attackSpeedIncrease"] = attackSpeedIncrease;
+    o["name"] = name;
+    o["remainingTime"] = remainingTime;
+    o["disappearingTime"] = disappearingTimer.getElapsedTime();
+    o["disappearing"] = disappearing;
+    o["disappearingSound1Played"] = disappearingSound1Played;
+    o["disappearingSound2Played"] = disappearingSound2Played;
+    return o;
+}
+
+void Gift::deserialize(const boost::json::object &o) {
+    Entity::deserialize(o);
+    damageReduction = (float)o.at("damageReduction").as_double();
+    attackSpeedIncrease = (float)o.at("attackSpeedIncrease").as_double();
+    name = o.at("name").as_string();
+    remainingTime = (float)o.at("remainingTime").as_double();
+    disappearingTimer.setElapsedTime(
+        (float)o.at("disappearingTime").as_double());
+    disappearing = o.at("disappearing").as_bool();
+    disappearingSound1Played = o.at("disappearingSound1Played").as_bool();
+    disappearingSound2Played = o.at("disappearingSound2Played").as_bool();
+}
 
 FullFirePower::FullFirePower() : Gift("FullFirePower") {
     attackSpeedIncrease = 4.0f; // +400%

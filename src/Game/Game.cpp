@@ -20,6 +20,7 @@
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 Game::Game(sf::RenderWindow &window)
@@ -177,6 +178,109 @@ void Game::spawnEnemies() {
 }
 
 bool Game::isRunning() { return running; }
+
+boost::json::object Game::serialize() const {
+    boost::json::object o = {{"deltaTime", deltaTimer.getElapsedTime()},
+                             {"giftTime", giftTimer.getElapsedTime()},
+                             {"spawnTime", spawnTimer.getElapsedTime()},
+                             {"timeElapsed", timeElapsed}};
+
+    // bullets
+    boost::json::array bulletsArray;
+    for (const auto &bullet : bullets)
+        bulletsArray.push_back(bullet->serialize());
+    o["bullets"] = std::move(bulletsArray);
+
+    // enemies
+    boost::json::array enemiesArray;
+    for (const auto &enemy : enemies)
+        enemiesArray.push_back(enemy->serialize());
+    o["enemies"] = std::move(enemiesArray);
+
+    // enemyCount will be deduced from enemies
+
+    // player
+    o["player"] = player.serialize();
+
+    // gifts
+    boost::json::array giftsArray;
+    for (const auto &gift : player.gifts)
+        giftsArray.push_back(gift->serialize());
+    o["gifts"] = std::move(giftsArray);
+
+    return o;
+}
+
+void Game::deserialize(const boost::json::object &o) {
+    deltaTimer.setElapsedTime((float)o.at("deltaTime").as_double());
+    giftTimer.setElapsedTime((float)o.at("giftTime").as_double());
+    spawnTimer.setElapsedTime((float)o.at("spawnTime").as_double());
+    timeElapsed = (float)o.at("spawnTime").as_double();
+
+    // bullets
+    bullets.clear();
+    for (const auto &v : o.at("bullets").as_array()) {
+        auto obj = v.as_object();
+        bool avail = obj.at("avail").as_bool();
+        if (!avail)
+            continue;
+        std::string type = obj.at("type").as_string().c_str();
+        if (type == "Cannon")
+            bullets.push_back(std::make_unique<Cannon>(obj));
+        else if (type == "Missile")
+            bullets.push_back(std::make_unique<Missile>(obj));
+        else if (type == "Rocket")
+            bullets.push_back(std::make_unique<Rocket>(obj));
+        else
+            std::cerr << "Unrecognized bullet type: " << type << std::endl;
+    }
+
+    // enemies
+    std::fill(enemyCount.begin(), enemyCount.end(), 0);
+    enemies.clear();
+    for (const auto &v : o.at("enemies").as_array()) {
+        auto obj = v.as_object();
+        bool avail = obj.at("avail").as_bool();
+        if (!avail)
+            continue;
+        int level = (int)obj.at("level").as_int64();
+        switch (level) {
+            case 1:
+                enemies.push_back(std::make_unique<Enemy1>(o));
+                enemyCount[1]++;
+                break;
+            case 2:
+                enemies.push_back(std::make_unique<Enemy2>(o));
+                enemyCount[2]++;
+                break;
+            case 3:
+                enemies.push_back(std::make_unique<Enemy3>(o));
+                enemyCount[3]++;
+                break;
+            default:
+                std::cerr << "Unrecognized enemy level: " << level << std::endl;
+                break;
+        }
+    }
+
+    // player
+    player.deserialize(o.at("player").as_object());
+
+    // gifts
+    for (const auto &v : o.at("gifts").as_array()) {
+        auto obj = v.as_object();
+        bool avail = obj.at("avail").as_bool();
+        if (!avail)
+            continue;
+        std::string name = obj.at("name").as_string().c_str();
+        if (name == "FullFirePower")
+            player.gifts.push_back(std::make_unique<FullFirePower>(o));
+        else if (name == "CenturyShield")
+            player.gifts.push_back(std::make_unique<CenturyShield>(o));
+        else
+            std::cerr << "Unrecognized gift name: " << name << std::endl;
+    }
+}
 
 bool Game::update(float deltaTime) {
     if (!player.isAvailable()) {

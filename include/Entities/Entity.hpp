@@ -15,9 +15,10 @@
  */
 
 #pragma once
+#include "../Core/ISerializable.hpp"
 #include <SFML/Graphics.hpp>
 
-class Entity {
+class Entity : public ISerializable {
 public:
     Entity() = default;
     virtual ~Entity() = default;
@@ -27,6 +28,9 @@ public:
     virtual sf::FloatRect getBounds() const;
 
     sf::Vector2f getPosition();
+
+    virtual boost::json::object serialize() const override;
+    virtual void deserialize(const boost::json::object &o) override;
 
     bool isAvailable() const { return avail; }
 

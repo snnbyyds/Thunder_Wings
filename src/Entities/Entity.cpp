@@ -24,3 +24,19 @@ void Entity::render(sf::RenderWindow &window) {
 sf::Vector2f Entity::getPosition() { return sprite.getPosition(); }
 
 sf::FloatRect Entity::getBounds() const { return sprite.getGlobalBounds(); }
+
+boost::json::object Entity::serialize() const {
+    return {
+        {"avail", true},
+        {"position",
+         {{"x", sprite.getPosition().x}, {"y", sprite.getPosition().y}}},
+    };
+}
+
+void Entity::deserialize(const boost::json::object &o) {
+    avail = o.at("avail").as_bool();
+    auto dir_obj = o.at("position").as_object();
+    float x = (float)dir_obj.at("x").as_double();
+    float y = (float)dir_obj.at("y").as_double();
+    sprite.setPosition(x, y);
+}

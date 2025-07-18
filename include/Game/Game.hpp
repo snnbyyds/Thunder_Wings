@@ -16,6 +16,7 @@
 
 #pragma once
 #include "../Core/Constants.hpp"
+#include "../Core/ISerializable.hpp"
 #include "../Core/Timer.hpp"
 #include "../Entities/Bullet.hpp"
 #include "../Entities/Enemy.hpp"
@@ -25,13 +26,17 @@
 #include <memory>
 #include <vector>
 
-class Game {
+class Game : public ISerializable {
 public:
     Game(sf::RenderWindow &window);
+
     void run();
     void bringGifts();
     void spawnEnemies();
     bool isRunning();
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 
     bool terminated;
 

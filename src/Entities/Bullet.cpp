@@ -65,7 +65,37 @@ void Bullet::render(sf::RenderWindow &window) {
 
 void Bullet::explode() {}
 
+boost::json::object Bullet::serialize() const {
+    boost::json::object o = Entity::serialize();
+    o["from_player"] = from_player;
+    o["damage"] = damage;
+    o["damageRate"] = damageRate;
+    o["time"] = timer.getElapsedTime();
+    o["avail"] = avail && !exploding;
+    o["direction"] = {{"x", direction.x}, {"y", direction.y}};
+    o["speed"] = speed;
+    o["id"] = id;
+    return o;
+}
+
+void Bullet::deserialize(const boost::json::object &o) {
+    Entity::deserialize(o);
+    from_player = o.at("from_player").as_bool();
+    damage = (float)o.at("damage").as_double();
+    damageRate = (float)o.at("damageRate").as_double();
+    timer.setElapsedTime((float)o.at("time").as_double());
+
+    auto dir_obj = o.at("direction").as_object();
+    direction.x = (float)dir_obj.at("x").as_double();
+    direction.y = (float)dir_obj.at("y").as_double();
+
+    speed = (float)o.at("speed").as_double();
+    id = (size_t)o.at("id").as_uint64();
+}
+
 // Cannon
+
+Cannon::Cannon(const boost::json::object &o) { deserialize(o); }
 
 Cannon::Cannon(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
@@ -75,7 +105,19 @@ Cannon::Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage)
     : Bullet(position, direction, id, from_player, speed, damage) {}
 
+boost::json::object Cannon::serialize() const {
+    boost::json::object o = Bullet::serialize();
+    o["type"] = "Cannon";
+    return o;
+}
+
+void Cannon::deserialize(const boost::json::object &o) {
+    Bullet::deserialize(o);
+}
+
 // Missile
+
+Missile::Missile(const boost::json::object &o) { deserialize(o); }
 
 Missile::Missile(sf::Vector2f position, sf::Vector2f direction, size_t id,
                  bool from_player, float speed, float damage, float tracking)
@@ -153,7 +195,21 @@ void Missile::explode() {
     explodeTimer.restart();
 }
 
+boost::json::object Missile::serialize() const {
+    boost::json::object o = Bullet::serialize();
+    o["type"] = "Missile";
+    o["tracking"] = tracking;
+    return o;
+}
+
+void Missile::deserialize(const boost::json::object &o) {
+    Bullet::deserialize(o);
+    tracking = (float)o.at("tracking").as_double();
+}
+
 // Rocket
+
+Rocket::Rocket(const boost::json::object &o) { deserialize(o); }
 
 Rocket::Rocket(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage)
@@ -233,4 +289,16 @@ void Rocket::explode() {
     ResourceManager::playSound("assets/explode.wav");
     exploding = true;
     explodeTimer.restart();
+}
+
+boost::json::object Rocket::serialize() const {
+    boost::json::object o = Bullet::serialize();
+    o["type"] = "Rocket";
+    o["tracking"] = tracking;
+    return o;
+}
+
+void Rocket::deserialize(const boost::json::object &o) {
+    Bullet::deserialize(o);
+    tracking = (float)o.at("tracking").as_double();
 }

@@ -24,6 +24,7 @@
 
 class Enemy : public Entity {
 public:
+    Enemy() = default;
     Enemy(int level, sf::Vector2f position);
     virtual ~Enemy() = default;
 
@@ -33,6 +34,9 @@ public:
     virtual void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
     virtual void takeDamage(float damage);
     virtual void recover(float deltaTime);
+
+    virtual boost::json::object serialize() const override;
+    virtual void deserialize(const boost::json::object &o) override;
 
     void
     updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
@@ -45,7 +49,6 @@ public:
 protected:
     float speed;
     float bulletspeed;
-    Timer lastCollideTimer;
     Timer lastShotTimer;
     Timer animationTimer;
     float current_shot_gap;
@@ -56,14 +59,22 @@ protected:
 
 class Enemy1 : public Enemy {
 public:
+    Enemy1(const boost::json::object &o);
     Enemy1(sf::Vector2f position);
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 };
 
 class Enemy2 : public Enemy {
 public:
+    Enemy2(const boost::json::object &o);
     Enemy2(sf::Vector2f position);
 
     void move(float deltaTime) override;
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 
 private:
     float verticalAmplitude; // Random amplitude for vertical movement
@@ -74,11 +85,15 @@ private:
 
 class Enemy3 : public Enemy {
 public:
+    Enemy3(const boost::json::object &o);
     Enemy3(sf::Vector2f position);
 
     void move(float deltaTime) override;
     void shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) override;
     void recover(float deltaTime) override;
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 
 private:
     float verticalAmplitude; // Random amplitude for vertical movement

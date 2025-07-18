@@ -21,6 +21,7 @@
 
 class Bullet : public Entity {
 public:
+    Bullet() = default;
     Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
            float damage);
     Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
@@ -29,6 +30,9 @@ public:
     virtual void update(float deltaTime, sf::Vector2f hitTarget);
     virtual void render(sf::RenderWindow &window) override;
     virtual void explode();
+
+    virtual boost::json::object serialize() const override;
+    virtual void deserialize(const boost::json::object &o) override;
 
     bool from_player;
     float damage;
@@ -52,20 +56,28 @@ private:
 
 class Cannon : public Bullet {
 public:
+    Cannon(const boost::json::object &o);
     Cannon(sf::Vector2f position, size_t id, bool from_player, float speed,
            float damage);
     Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
            bool from_player, float speed, float damage);
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 };
 
 class Missile : public Bullet {
 public:
+    Missile(const boost::json::object &o);
     Missile(sf::Vector2f position, sf::Vector2f direction, size_t id,
             bool from_player, float speed, float damage, float tracking);
 
     void update(float deltaTime, sf::Vector2f hitTarget) override;
     void render(sf::RenderWindow &window) override;
     void explode() override;
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 
 private:
     float tracking;
@@ -75,12 +87,16 @@ private:
 
 class Rocket : public Bullet {
 public:
+    Rocket(const boost::json::object &o);
     Rocket(sf::Vector2f position, sf::Vector2f direction, size_t id,
            bool from_player, float speed, float damage);
 
     void update(float deltaTime, sf::Vector2f hitTarget) override;
     void render(sf::RenderWindow &window) override;
     void explode() override;
+
+    boost::json::object serialize() const override;
+    void deserialize(const boost::json::object &o) override;
 
 private:
     float tracking;

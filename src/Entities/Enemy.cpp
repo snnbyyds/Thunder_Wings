@@ -127,6 +127,32 @@ void Enemy::takeDamage(float damage) {
 
 void Enemy::recover(float deltaTime) {}
 
+boost::json::object Enemy::serialize() const {
+    boost::json::object o = Entity::serialize();
+    o["level"] = level;
+    o["health"] = health;
+    o["maxHealth"] = maxHealth;
+    o["killBonus"] = killBonus;
+    o["speed"] = speed;
+    o["bulletspeed"] = bulletspeed;
+    o["current_shot_gap"] = current_shot_gap;
+    o["damage"] = damage;
+    o["avail"] = avail && !dying;
+    return o;
+}
+
+void Enemy::deserialize(const boost::json::object &o) {
+    Entity::deserialize(o);
+    level = (int)o.at("level").as_int64();
+    health = (float)o.at("health").as_double();
+    maxHealth = (float)o.at("maxHealth").as_double();
+    killBonus = (float)o.at("killBonus").as_double();
+    speed = (float)o.at("speed").as_double();
+    bulletspeed = (float)o.at("bulletspeed").as_double();
+    current_shot_gap = (float)o.at("current_shot_gap").as_double();
+    damage = (float)o.at("damage").as_double();
+}
+
 void Enemy::updateBulletCollisions(
     std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail || health <= 0.0f)
@@ -144,9 +170,19 @@ void Enemy::updateBulletCollisions(
 
 /* Enemy1 Implementation */
 
+Enemy1::Enemy1(const boost::json::object &o) { deserialize(o); }
+
 Enemy1::Enemy1(sf::Vector2f position) : Enemy(1, position) {}
 
+boost::json::object Enemy1::serialize() const { return Enemy::serialize(); }
+
+void Enemy1::deserialize(const boost::json::object &o) {
+    Enemy::deserialize(o);
+}
+
 /* Enemy2 Implementation */
+
+Enemy2::Enemy2(const boost::json::object &o) { deserialize(o); }
 
 Enemy2::Enemy2(sf::Vector2f position) : Enemy(2, position) {
     verticalAmplitude = RandomUtils::generateInRange(128.0f, 256.0f);
@@ -168,7 +204,26 @@ void Enemy2::move(float deltaTime) {
     avail = (y >= 0 && y <= Constants::SCREEN_HEIGHT);
 }
 
+boost::json::object Enemy2::serialize() const {
+    boost::json::object o = Enemy::serialize();
+    o["verticalAmplitude"] = verticalAmplitude;
+    o["verticalFrequency"] = verticalFrequency;
+    o["verticalCenter"] = verticalCenter;
+    o["time"] = timer.getElapsedTime();
+    return o;
+}
+
+void Enemy2::deserialize(const boost::json::object &o) {
+    Enemy::deserialize(o);
+    verticalAmplitude = (float)o.at("verticalAmplitude").as_double();
+    verticalFrequency = (float)o.at("verticalFrequency").as_double();
+    verticalCenter = (float)o.at("verticalCenter").as_double();
+    timer.setElapsedTime((float)o.at("time").as_double());
+}
+
 /* Enemy3 Implementation */
+
+Enemy3::Enemy3(const boost::json::object &o) { deserialize(o); }
 
 Enemy3::Enemy3(sf::Vector2f position) : Enemy(3, position) {
     verticalAmplitude = RandomUtils::generateInRange(128.0f, 256.0f);
@@ -263,4 +318,23 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
 
 void Enemy3::recover(float deltaTime) {
     health = std::min(health + deltaTime * recoverRate, maxHealth * 2.0f);
+}
+
+boost::json::object Enemy3::serialize() const {
+    boost::json::object o = Enemy::serialize();
+    o["verticalAmplitude"] = verticalAmplitude;
+    o["verticalFrequency"] = verticalFrequency;
+    o["verticalCenter"] = verticalCenter;
+    o["recoverRate"] = recoverRate;
+    o["time"] = timer.getElapsedTime();
+    return o;
+}
+
+void Enemy3::deserialize(const boost::json::object &o) {
+    Enemy::deserialize(o);
+    verticalAmplitude = (float)o.at("verticalAmplitude").as_double();
+    verticalFrequency = (float)o.at("verticalFrequency").as_double();
+    verticalCenter = (float)o.at("verticalCenter").as_double();
+    recoverRate = (float)o.at("recoverRate").as_double();
+    timer.setElapsedTime((float)o.at("time").as_double());
 }

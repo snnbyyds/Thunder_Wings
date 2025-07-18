@@ -2,7 +2,7 @@ name: Build and Package Thunder Wings
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   workflow_dispatch:
 
 jobs:
@@ -19,13 +19,13 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libsfml-dev
+        sudo apt-get install -y libsfml-dev libboost-all-dev
 
-    - name: Install aria2 (Windows)
+    - name: Install dependencies (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        choco install aria2 -y
+        choco install aria2 boost-msvc-14.3 -y
 
     - name: Download and Setup SFML (Windows)
       if: runner.os == 'Windows'
@@ -55,8 +55,18 @@ jobs:
           exit 1
         }
 
-        unzip $output
+        unzip -q $output
         mv SFML-2.6.2 sfml
+
+    - name: Download and Setup Boost (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        # Boost installed via Chocolatey, setting environment variables
+        $env:BOOST_ROOT = "C:\local\boost_1_84_0"
+        $env:BOOST_LIBRARYDIR = "C:\local\boost_1_84_0\lib64-msvc-14.3"
+        echo "BOOST_ROOT=$env:BOOST_ROOT" >> $env:GITHUB_ENV
+        echo "BOOST_LIBRARYDIR=$env:BOOST_LIBRARYDIR" >> $env:GITHUB_ENV
 
     - name: Configure and Build
       shell: bash
@@ -65,7 +75,7 @@ jobs:
         cd build
         
         if [ "$RUNNER_OS" == "Windows" ]; then
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML"
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" -DBOOST_ROOT="$BOOST_ROOT" -DBOOST_LIBRARYDIR="$BOOST_LIBRARYDIR"
         else
           cmake .. -DCMAKE_BUILD_TYPE=Release
         fi

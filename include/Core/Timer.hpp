@@ -22,8 +22,10 @@ public:
     Timer();
     void restart();
     float getElapsedTime() const;
+    void setElapsedTime(float seconds);
     bool hasElapsed(float seconds) const;
 
 private:
-    sf::Clock clock;
+    mutable sf::Clock clock;
+    float offset;
 };

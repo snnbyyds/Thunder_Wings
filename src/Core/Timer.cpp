@@ -16,14 +16,22 @@
 
 #include "Core/Timer.hpp"
 
-Timer::Timer() { clock.restart(); }
+Timer::Timer() : offset(0.0f) { clock.restart(); }
 
-void Timer::restart() { clock.restart(); }
+void Timer::restart() {
+    offset = 0.0f;
+    clock.restart();
+}
 
 float Timer::getElapsedTime() const {
-    return clock.getElapsedTime().asSeconds();
+    return clock.getElapsedTime().asSeconds() + offset;
+}
+
+void Timer::setElapsedTime(float seconds) {
+    offset = seconds;
+    clock.restart();
 }
 
 bool Timer::hasElapsed(float seconds) const {
-    return clock.getElapsedTime().asSeconds() >= seconds;
+    return getElapsedTime() >= seconds;
 }

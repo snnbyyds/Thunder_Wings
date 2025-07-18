@@ -21,11 +21,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libsfml-dev libboost-all-dev
 
-    - name: Install dependencies (Windows)
+    - name: Install aria2 (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        choco install aria2 boost-msvc-14.3 -y
+        choco install aria2 -y
+
+    - name: Setup vcpkg and install Boost.JSON (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        .\bootstrap-vcpkg.bat
+        .\vcpkg.exe integrate install
+        .\vcpkg.exe install boost-json:x64-windows
+        cd ..
 
     - name: Download and Setup SFML (Windows)
       if: runner.os == 'Windows'
@@ -62,11 +73,8 @@ jobs:
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        # Boost installed via Chocolatey, setting environment variables
-        $env:BOOST_ROOT = "C:\local\boost_1_84_0"
-        $env:BOOST_LIBRARYDIR = "C:\local\boost_1_84_0\lib64-msvc-14.3"
-        echo "BOOST_ROOT=$env:BOOST_ROOT" >> $env:GITHUB_ENV
-        echo "BOOST_LIBRARYDIR=$env:BOOST_LIBRARYDIR" >> $env:GITHUB_ENV
+        # Skip downloading Boost since we're using vcpkg
+        Write-Host "Using vcpkg for Boost.JSON installation"
 
     - name: Configure and Build
       shell: bash
@@ -75,7 +83,7 @@ jobs:
         cd build
         
         if [ "$RUNNER_OS" == "Windows" ]; then
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" -DBOOST_ROOT="$BOOST_ROOT" -DBOOST_LIBRARYDIR="$BOOST_LIBRARYDIR"
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake"
         else
           cmake .. -DCMAKE_BUILD_TYPE=Release
         fi

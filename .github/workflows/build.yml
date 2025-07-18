@@ -36,7 +36,7 @@ jobs:
           .\bootstrap-vcpkg.bat
           .\vcpkg.exe integrate install
           # Install static Boost.JSON
-          .\vcpkg.exe install boost-json:x64-windows-static
+          .\vcpkg.exe install boost-json:x64-windows-static-md
           cd ..
 
       - name: Download and Setup SFML (Windows)
@@ -81,7 +81,7 @@ jobs:
               -DCMAKE_BUILD_TYPE=Release \
               -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" \
               -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake" \
-              -DVCPKG_TARGET_TRIPLET=x64-windows-static \
+              -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
               -DBoost_USE_STATIC_LIBS=ON
           else
             cmake .. -DCMAKE_BUILD_TYPE=Release

@@ -19,6 +19,7 @@
 #include "Core/Macros.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -46,7 +47,7 @@ Game::Game(sf::RenderWindow &window)
     instructionText.setFont(ResourceManager::gameFont);
     instructionText.setString("Use Arrow Keys to Move");
     instructionText.setCharacterSize(40);
-    instructionText.setFillColor(sf::Color::Cyan);
+    instructionText.setFillColor(sf::Color::Green);
     instructionText.setStyle(sf::Text::Bold);
     sf::FloatRect instructionTextBounds = instructionText.getLocalBounds();
     instructionText.setOrigin(instructionTextBounds.width / 2,
@@ -61,8 +62,28 @@ Game::Game(sf::RenderWindow &window)
     pauseText.setStyle(sf::Text::Bold);
     sf::FloatRect pauseTextBounds = pauseText.getLocalBounds();
     pauseText.setOrigin(pauseTextBounds.width / 2, pauseTextBounds.height / 2);
-    pauseText.setPosition(Constants::SCREEN_WIDTH / 2.0f,
-                          Constants::SCREEN_HEIGHT / 2.0f);
+    pauseText.setPosition(Constants::SCREEN_WIDTH / 2.0f, Constants::SCREEN_HEIGHT / 2.0f - 350);
+
+    resumeText.setFont(ResourceManager::gameFont);
+    resumeText.setCharacterSize(60);
+    resumeText.setString("Resume");
+    sf::FloatRect resumeTextBounds = resumeText.getLocalBounds();
+    resumeText.setOrigin(resumeTextBounds.width / 2, resumeTextBounds.height / 2);
+    resumeText.setPosition(Constants::SCREEN_WIDTH / 2.0f, pauseText.getPosition().y + 260);
+
+    saveText.setFont(ResourceManager::gameFont);
+    saveText.setCharacterSize(60);
+    saveText.setString("Save Progress");
+    sf::FloatRect saveTextBounds = saveText.getLocalBounds();
+    saveText.setOrigin(saveTextBounds.width / 2, saveTextBounds.height / 2);
+    saveText.setPosition(Constants::SCREEN_WIDTH / 2.0f, resumeText.getPosition().y + 80);
+
+    exitText.setFont(ResourceManager::gameFont);
+    exitText.setCharacterSize(60);
+    exitText.setString("Exit");
+    sf::FloatRect exitTextBounds = exitText.getLocalBounds();
+    exitText.setOrigin(exitTextBounds.width / 2, exitTextBounds.height / 2);
+    exitText.setPosition(Constants::SCREEN_WIDTH / 2.0f, saveText.getPosition().y + 80);
 
     std::fill(enemyCount.begin(), enemyCount.end(), 0);
 }
@@ -73,8 +94,8 @@ void Game::run() {
     deltaTimer.restart();
 
     sf::Event event;
-    while (window.isOpen()) {
-        while (window.pollEvent(event)) {
+    while (running && window.isOpen()) {
+        while (running && window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
                 terminated = true;
@@ -82,10 +103,48 @@ void Game::run() {
             } else if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::P) {
                     paused = !paused;
+                    currentPauseOption = PAUSE_OPTION_RESUME;
+                    deltaTimer.restart();
+                } else if (event.key.code == sf::Keyboard::Escape) {
+                    running = false;
+                    break;
+                } else if (paused) {
+                    switch (event.key.code) {
+                        case sf::Keyboard::Down:
+                            currentPauseOption = std::min(currentPauseOption + 1, PAUSE_MAX_OPTION);
+                            break;
+                        case sf::Keyboard::Up:
+                            currentPauseOption = std::max(currentPauseOption - 1, PAUSE_MIN_OPTION);
+                            break;
+                        case sf::Keyboard::PageDown:
+                            currentPauseOption = PAUSE_MAX_OPTION;
+                            break;
+                        case sf::Keyboard::PageUp:
+                            currentPauseOption = PAUSE_MIN_OPTION;
+                            break;
+                        case sf::Keyboard::Enter:
+                            switch (currentPauseOption) {
+                                case PAUSE_OPTION_RESUME:
+                                    paused = false;
+                                    deltaTimer.restart();
+                                    break;
+                                case PAUSE_OPTION_SAVE:
+                                    saveToDisk();
+                                    break;
+                                case PAUSE_OPTION_EXIT:
+                                    running = false;
+                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                // We may add handling for more events here.
             }
         }
+
+        if (!running)
+            break;
 
         if (paused) {
             deltaTimer.restart();
@@ -215,7 +274,7 @@ void Game::deserialize(const boost::json::object &o) {
     deltaTimer.setElapsedTime((float)o.at("deltaTime").as_double());
     giftTimer.setElapsedTime((float)o.at("giftTime").as_double());
     spawnTimer.setElapsedTime((float)o.at("spawnTime").as_double());
-    timeElapsed = (float)o.at("spawnTime").as_double();
+    timeElapsed = (float)o.at("timeElapsed").as_double();
 
     // bullets
     bullets.clear();
@@ -280,6 +339,34 @@ void Game::deserialize(const boost::json::object &o) {
         else
             std::cerr << "Unrecognized gift name: " << name << std::endl;
     }
+}
+
+void Game::loadFromDisk() {
+    // Load file
+    std::cout << "Loading from disk" << std::endl;
+    std::ifstream ifs(Constants::SAVE_FILE_NAME, std::ios::binary);
+    if (!ifs.is_open()) {
+        std::cerr << "Load " << Constants::SAVE_FILE_NAME << " failed!" << std::endl;
+        return;
+    }
+    std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    ifs.close();
+
+    // Parse JSON
+    boost::json::error_code ec;
+    boost::json::value jv = boost::json::parse(content, ec);
+    if (ec)
+        throw std::runtime_error("JSON parse error: " + ec.message());
+    deserialize(jv.as_object());
+}
+
+void Game::saveToDisk() {
+    std::cout << "Saving to disk" << std::endl;
+    std::ofstream ofs(Constants::SAVE_FILE_NAME, std::ios::trunc | std::ios::binary);
+    if (!ofs.is_open())
+        throw std::runtime_error("Cannot open file for writing: " + std::string(Constants::SAVE_FILE_NAME));
+    ofs << boost::json::serialize(serialize());
+    ofs.close();
 }
 
 bool Game::update(float deltaTime) {
@@ -402,6 +489,13 @@ void Game::render() {
         overlay.setFillColor(sf::Color(0, 0, 0, 150));
         window.draw(overlay);
         window.draw(pauseText);
+
+        resumeText.setFillColor(currentPauseOption == PAUSE_OPTION_RESUME ? sf::Color::Blue : sf::Color::White);
+        saveText.setFillColor(currentPauseOption == PAUSE_OPTION_SAVE  ? sf::Color::Blue : sf::Color::White);
+        exitText.setFillColor(currentPauseOption == PAUSE_OPTION_EXIT  ? sf::Color::Red : sf::Color::White);
+        window.draw(resumeText);
+        window.draw(saveText);
+        window.draw(exitText);
     }
 
     if (showingInstructions)

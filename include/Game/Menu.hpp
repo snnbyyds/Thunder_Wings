@@ -21,19 +21,31 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 
+// clang-format off
+#define MENU_OPTION_START 0
+#define MENU_OPTION_LOAD  1
+#define MENU_OPTION_EXIT  2
+#define MENU_MAX_OPTION   2
+#define MENU_MIN_OPTION   0
+// clang-format on
+
 class Menu {
 public:
     Menu();
     ~Menu();
     void show();
     void playLogo();
-    void start();
-    void exit();
 
-    static constexpr int screen_w = 1440;
-    static constexpr int screen_h = 900;
+    static constexpr int screen_w = Constants::SCREEN_WIDTH;
+    static constexpr int screen_h = Constants::SCREEN_HEIGHT;
+
+    int currentOption = MENU_OPTION_START;
 
 private:
+    void start();
+    void load();
+    void exit();
+
     void handleInput();
     void render();
 
@@ -44,16 +56,19 @@ private:
     std::unique_ptr<Game> game;
     sf::RenderWindow window;
     sf::Sprite backgroundSprite;
+
+    sf::Text loadText;
     sf::Text titleText;
     sf::Text startText;
     sf::Text exitText;
-    bool active;
 
+    const float LOGO_DURATION = 3.0f;
     sf::Sprite logoSprite;
     Timer logoClock;
     bool showingLogo = false;
-    const float LOGO_DURATION = 3.0f;
+
     bool terminated = false;
+    bool active;
 
     bool musicStarted = false;
 };

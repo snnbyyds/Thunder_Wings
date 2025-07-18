@@ -41,21 +41,30 @@ Menu::Menu()
     titleText.setFillColor(sf::Color(255, 215, 0));
     titleText.setStyle(sf::Text::Bold);
     titleText.setPosition(
-        (float)screen_w / 2 - titleText.getGlobalBounds().width / 2, 100);
+        screen_w / 2.0f - titleText.getGlobalBounds().width / 2, 100);
 
     startText.setFont(ResourceManager::gameFont);
     startText.setString("START");
     startText.setCharacterSize(50);
     startText.setFillColor(sf::Color::Red);
     startText.setPosition(
-        (float)screen_w / 2 - startText.getGlobalBounds().width / 2, 300);
+        screen_w / 2.0f - startText.getGlobalBounds().width / 2, 300);
+
+    loadText.setFont(ResourceManager::gameFont);
+    loadText.setString("LOAD PROGRESS");
+    loadText.setCharacterSize(50);
+    loadText.setFillColor(sf::Color::White);
+    loadText.setPosition(
+        screen_w / 2.0f - loadText.getGlobalBounds().width / 2,
+        400.0f
+    );
 
     exitText.setFont(ResourceManager::gameFont);
     exitText.setString("EXIT");
     exitText.setCharacterSize(50);
     exitText.setFillColor(sf::Color::White);
     exitText.setPosition(
-        (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 380);
+        (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 500);
 
     sf::Texture &logoTexture =
         ResourceManager::getTexture("assets/mujianwu.png");
@@ -130,20 +139,39 @@ void Menu::handleInput() {
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             exit();
-
-        if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Up) {
-                startText.setFillColor(sf::Color::Red);
-                exitText.setFillColor(sf::Color::White);
-            } else if (event.key.code == sf::Keyboard::Down) {
-                startText.setFillColor(sf::Color::White);
-                exitText.setFillColor(sf::Color::Red);
-            } else if (event.key.code == sf::Keyboard::Enter) {
-                if (startText.getFillColor() == sf::Color::Red)
-                    start();
-                else if (exitText.getFillColor() == sf::Color::Red)
-                    exit();
+        else if (event.type == sf::Event::KeyPressed) {
+            switch (event.key.code) {
+                case sf::Keyboard::Down:
+                    currentOption = std::min(currentOption + 1, MENU_MAX_OPTION);
+                    break;
+                case sf::Keyboard::Up:
+                    currentOption = std::max(currentOption - 1, MENU_MIN_OPTION);
+                    break;
+                case sf::Keyboard::PageDown:
+                    currentOption = MENU_MAX_OPTION;
+                    break;
+                case sf::Keyboard::PageUp:
+                    currentOption = MENU_MIN_OPTION;
+                    break;
+                case sf::Keyboard::Enter:
+                    switch (currentOption) {
+                        case MENU_OPTION_START:
+                            start();
+                            break;
+                        case MENU_OPTION_LOAD:
+                            load();
+                            break;
+                        case MENU_OPTION_EXIT:
+                            exit();
+                            break;
+                    }
+                    return;
+                default:
+                    break;
             }
+            startText.setFillColor(currentOption == MENU_OPTION_START ? sf::Color::Red : sf::Color::White);
+            loadText.setFillColor(currentOption == MENU_OPTION_LOAD ? sf::Color::Red : sf::Color::White);
+            exitText.setFillColor(currentOption == MENU_OPTION_EXIT ? sf::Color::Red : sf::Color::White);
         }
     }
 }
@@ -153,6 +181,7 @@ void Menu::render() {
     window.draw(backgroundSprite);
     window.draw(titleText);
     window.draw(startText);
+    window.draw(loadText);
     window.draw(exitText);
     window.display();
 }
@@ -161,6 +190,17 @@ void Menu::start() {
     active = false;
     game = std::make_unique<Game>(window);
     game->run();
+    if (game->terminated)
+        exit();
+    else
+        show();
+}
+
+void Menu::load() {
+    game = std::make_unique<Game>(window);
+    game->loadFromDisk();
+    game->run();
+    active = false;
     if (game->terminated)
         exit();
     else

@@ -90,7 +90,7 @@ void Bullet::deserialize(const boost::json::object &o) {
     direction.y = (float)dir_obj.at("y").as_double();
 
     speed = (float)o.at("speed").as_double();
-    id = (size_t)o.at("id").as_uint64();
+    id = (size_t)o.at("id").as_int64();
 }
 
 // Cannon

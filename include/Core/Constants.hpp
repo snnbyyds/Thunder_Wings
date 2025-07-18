@@ -20,6 +20,9 @@
 namespace Constants {
 // clang-format off
 
+// File Properties
+constexpr const char *SAVE_FILE_NAME = "game_data.json";
+
 // Screen Properties
 constexpr int SCREEN_WIDTH  = 1440;
 constexpr int SCREEN_HEIGHT = 900;
@@ -49,7 +52,6 @@ constexpr size_t ENEMY_LEVEL_COUNT       = 3;
 // Bullet Properties
 constexpr float ROCKET_DAMAGE_RATE_INITIAL = 0.84f;
 constexpr float ROCKET_DAMAGE_RATE         = 0.184f;
-
 
 // Gift Properties
 constexpr float GIFT_SPAWN_PROBABILITY = 0.64f;

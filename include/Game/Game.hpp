@@ -26,6 +26,14 @@
 #include <memory>
 #include <vector>
 
+// clang-format off
+#define PAUSE_OPTION_RESUME 0
+#define PAUSE_OPTION_SAVE   1
+#define PAUSE_OPTION_EXIT   2
+#define PAUSE_MAX_OPTION    2
+#define PAUSE_MIN_OPTION    0
+// clang-format on
+
 class Game : public ISerializable {
 public:
     Game(sf::RenderWindow &window);
@@ -37,6 +45,9 @@ public:
 
     boost::json::object serialize() const override;
     void deserialize(const boost::json::object &o) override;
+
+    void loadFromDisk();
+    void saveToDisk();
 
     bool terminated;
 
@@ -55,7 +66,11 @@ private:
     sf::Text healthText;
     sf::Text bossHealthText;
     sf::Text instructionText;
+
     sf::Text pauseText;
+    sf::Text resumeText;
+    sf::Text saveText;
+    sf::Text exitText;
 
     Timer deltaTimer;
     Timer giftTimer;
@@ -69,6 +84,8 @@ private:
     Enemy *currentBoss = nullptr;
 
     bool running = false;
-    bool paused = false;
     bool showingInstructions = false;
+
+    bool paused = false;
+    int currentPauseOption = PAUSE_OPTION_RESUME;
 };

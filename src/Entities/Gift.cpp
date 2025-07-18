@@ -21,6 +21,16 @@
 
 Gift::Gift(const boost::json::object &o) {
     deserialize(o);
+    sprite.setTexture(ResourceManager::getTexture("assets/" + name + ".png"));
+    constexpr float padding = 10.0f;
+    constexpr float iconSize = 64.0f;
+    constexpr float raiseUp = 32.0f;
+    float x = padding;
+    float y = Constants::SCREEN_HEIGHT - iconSize - padding - raiseUp;
+    const auto bounds = sprite.getLocalBounds();
+    float scale = iconSize / bounds.height;
+    sprite.setScale(scale, scale);
+    sprite.setPosition(x, y);
 }
 
 Gift::Gift(const std::string &name) : name(name) {

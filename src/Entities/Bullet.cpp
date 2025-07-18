@@ -117,7 +117,22 @@ void Cannon::deserialize(const boost::json::object &o) {
 
 // Missile
 
-Missile::Missile(const boost::json::object &o) { deserialize(o); }
+Missile::Missile(const boost::json::object &o) {
+    deserialize(o);
+    if (from_player)
+        this->tracking = 0.0f;
+
+    sprite.setTexture(ResourceManager::getTexture(bullets_path[id]));
+    sprite.setOrigin(sprite.getLocalBounds().width / 2,
+                     sprite.getLocalBounds().height);
+
+    whiteFlash.setSize(
+        sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
+    whiteFlash.setFillColor(sf::Color(255, 255, 255, 220));
+
+    if (id == Constants::ENEMY_MISSILE_ID)
+        updateRotation();
+}
 
 Missile::Missile(sf::Vector2f position, sf::Vector2f direction, size_t id,
                  bool from_player, float speed, float damage, float tracking)
@@ -209,7 +224,18 @@ void Missile::deserialize(const boost::json::object &o) {
 
 // Rocket
 
-Rocket::Rocket(const boost::json::object &o) { deserialize(o); }
+Rocket::Rocket(const boost::json::object &o) {
+    deserialize(o);
+    sprite.setTexture(ResourceManager::getTexture(bullets_path[id]));
+    sprite.setOrigin(sprite.getLocalBounds().width / 2,
+                     sprite.getLocalBounds().height);
+
+    redFlash.setSize(
+        sf::Vector2f(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT));
+    redFlash.setFillColor(sf::Color(255, 69, 1, 128));
+
+    updateRotation();
+}
 
 Rocket::Rocket(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage)

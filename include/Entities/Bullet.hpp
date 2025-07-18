@@ -38,7 +38,7 @@ public:
     float damage;
     float damageRate;
     Timer timer;
-    bool exploding;
+    bool exploding = false;
 
 protected:
     void updateRotation();

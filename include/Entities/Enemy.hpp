@@ -25,6 +25,7 @@
 class Enemy : public Entity {
 public:
     Enemy() = default;
+    Enemy(const boost::json::object &o);
     Enemy(int level, sf::Vector2f position);
     virtual ~Enemy() = default;
 
@@ -54,7 +55,7 @@ protected:
     float current_shot_gap;
     float damage;
     size_t downFrameIdx;
-    bool dying;
+    bool dying = false;
 };
 
 class Enemy1 : public Enemy {

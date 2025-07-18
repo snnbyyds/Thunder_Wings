@@ -305,15 +305,15 @@ void Game::deserialize(const boost::json::object &o) {
         int level = (int)obj.at("level").as_int64();
         switch (level) {
             case 1:
-                enemies.push_back(std::make_unique<Enemy1>(o));
+                enemies.push_back(std::make_unique<Enemy1>(obj));
                 enemyCount[1]++;
                 break;
             case 2:
-                enemies.push_back(std::make_unique<Enemy2>(o));
+                enemies.push_back(std::make_unique<Enemy2>(obj));
                 enemyCount[2]++;
                 break;
             case 3:
-                enemies.push_back(std::make_unique<Enemy3>(o));
+                enemies.push_back(std::make_unique<Enemy3>(obj));
                 enemyCount[3]++;
                 break;
             default:
@@ -333,9 +333,9 @@ void Game::deserialize(const boost::json::object &o) {
             continue;
         std::string name = obj.at("name").as_string().c_str();
         if (name == "FullFirePower")
-            player.gifts.push_back(std::make_unique<FullFirePower>(o));
+            player.gifts.push_back(std::make_unique<FullFirePower>(obj));
         else if (name == "CenturyShield")
-            player.gifts.push_back(std::make_unique<CenturyShield>(o));
+            player.gifts.push_back(std::make_unique<CenturyShield>(obj));
         else
             std::cerr << "Unrecognized gift name: " << name << std::endl;
     }

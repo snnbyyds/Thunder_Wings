@@ -109,6 +109,16 @@ jobs:
           
           cp -r "$GITHUB_WORKSPACE/assets" "$RELEASE_DIR/" || echo "No assets directory found"
 
+      - name: Print version
+        shell: bash
+        run: |
+          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            "$RELEASE_DIR/thunder_wings.exe" --version
+          else
+            "$RELEASE_DIR/thunder_wings" --version
+          fi
+
       - name: Create final ZIP package
         shell: bash
         run: |

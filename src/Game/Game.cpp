@@ -39,6 +39,11 @@ Game::Game(sf::RenderWindow &window)
     healthText.setFillColor(sf::Color::Yellow);
     healthText.setPosition(Constants::SCREEN_WIDTH - 200.0f, 40.0f);
 
+    killedText.setFont(ResourceManager::gameFont);
+    killedText.setCharacterSize(32);
+    killedText.setFillColor(sf::Color::Green);
+    killedText.setPosition(Constants::SCREEN_WIDTH - 200.0f, 80.0f);
+
     bossHealthText.setFont(ResourceManager::gameFont);
     bossHealthText.setCharacterSize(80);
     bossHealthText.setFillColor(sf::Color::Magenta);
@@ -244,7 +249,8 @@ boost::json::object Game::serialize() const {
     boost::json::object o = {{"deltaTime", deltaTimer.getElapsedTime()},
                              {"giftTime", giftTimer.getElapsedTime()},
                              {"spawnTime", spawnTimer.getElapsedTime()},
-                             {"timeElapsed", timeElapsed}};
+                             {"timeElapsed", timeElapsed},
+                             {"killed", killed}};
 
     // bullets
     boost::json::array bulletsArray;
@@ -277,6 +283,7 @@ void Game::deserialize(const boost::json::object &o) {
     giftTimer.setElapsedTime((float)o.at("giftTime").as_double());
     spawnTimer.setElapsedTime((float)o.at("spawnTime").as_double());
     timeElapsed = (float)o.at("timeElapsed").as_double();
+    killed = (size_t)o.at("killed").as_int64();
 
     // bullets
     bullets.clear();
@@ -413,6 +420,11 @@ bool Game::update(float deltaTime) {
     oss << "Health: " << std::fixed << std::setprecision(2) << player.health;
     healthText.setString(oss.str());
 
+    oss.clear();
+    oss.str("");
+    oss << "killed: " << killed;
+    killedText.setString(oss.str());
+
     if (player.health > 0.0f)
         player.shoot(bullets);
 
@@ -451,8 +463,10 @@ bool Game::update(float deltaTime) {
             ++it;
         } else {
             int level = (*it)->level;
-            if ((*it)->health <= 0.0f)
+            if ((*it)->health <= 0.0f) {
                 player.health += (*it)->killBonus;
+                killed++;
+            }
             enemyCount[level] = std::max(0, enemyCount[level] - 1);
             enemies.erase(it);
         }
@@ -485,6 +499,7 @@ void Game::render() {
 
     window.draw(stopwatchText);
     window.draw(healthText);
+    window.draw(killedText);
     if (currentBoss)
         window.draw(bossHealthText);
     drawGifts();

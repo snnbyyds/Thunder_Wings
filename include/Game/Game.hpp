@@ -64,6 +64,7 @@ private:
     sf::Text gameOverText;
     sf::Text stopwatchText;
     sf::Text healthText;
+    sf::Text killedText;
     sf::Text bossHealthText;
     sf::Text instructionText;
 
@@ -88,4 +89,6 @@ private:
 
     bool paused = false;
     int currentPauseOption = PAUSE_OPTION_RESUME;
+
+    size_t killed = 0ul;
 };

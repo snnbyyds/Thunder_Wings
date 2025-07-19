@@ -46,12 +46,14 @@ public:
 
     static sf::Texture &getTexture(const std::string &texturePath);
     static bool getTextureifExists(const std::string &texturePath);
-    static void loadFont(const std::string &fontPath);
+    static void loadGameFont(const std::string &fontPath);
+    static void loadPageFont(const std::string &fontPath);
     static void loadBackgroundMusic(const std::string &filePath);
     static void playSound(const std::string &filePath);
     static void updateSounds();
 
     static sf::Font gameFont;
+    static sf::Font pageFont;
     static sf::Music gameBackgroundMusic;
 
 private:

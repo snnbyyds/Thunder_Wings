@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "config.h"
 #include "Core/Macros.h"
 #include "Core/ResourceManager.hpp"
 #include "Game/Menu.hpp"

@@ -16,6 +16,7 @@
 
 #include "Game/Menu.hpp"
 #include "Core/Constants.hpp"
+#include "Core/Macros.h"
 #include "Core/ResourceManager.hpp"
 #include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -28,7 +29,8 @@ Menu::Menu()
     backgroundSprite.setTexture(ResourceManager::getTexture(backgroundPath));
     backgroundSprite.setPosition(0.0f, 0.0f);
 
-    ResourceManager::loadFont(fontPath);
+    ResourceManager::loadGameFont("assets/Morning Routine.otf");
+    ResourceManager::loadPageFont("assets/NotoSans-MediumItalic.ttf");
 
     ResourceManager::loadBackgroundMusic(musicPath);
     ResourceManager::gameBackgroundMusic.setVolume(8.0f);
@@ -41,14 +43,14 @@ Menu::Menu()
     titleText.setFillColor(sf::Color(255, 215, 0));
     titleText.setStyle(sf::Text::Bold);
     titleText.setPosition(
-        screen_w / 2.0f - titleText.getGlobalBounds().width / 2, 100);
+        screen_w / 2.0f - titleText.getGlobalBounds().width / 2, 100.0f);
 
     startText.setFont(ResourceManager::gameFont);
     startText.setString("START");
     startText.setCharacterSize(50);
-    startText.setFillColor(sf::Color::Red);
+    startText.setFillColor(sf::Color::Green);
     startText.setPosition(
-        screen_w / 2.0f - startText.getGlobalBounds().width / 2, 300);
+        screen_w / 2.0f - startText.getGlobalBounds().width / 2, 300.0f);
 
     loadText.setFont(ResourceManager::gameFont);
     loadText.setString("LOAD PROGRESS");
@@ -62,14 +64,21 @@ Menu::Menu()
     guideText.setCharacterSize(50);
     guideText.setFillColor(sf::Color::White);
     guideText.setPosition(
-        screen_w / 2.0f - guideText.getGlobalBounds().width / 2, 500.f);
+        screen_w / 2.0f - guideText.getGlobalBounds().width / 2, 500.0f);
+
+    aboutText.setFont(ResourceManager::gameFont);
+    aboutText.setString("ABOUT");
+    aboutText.setCharacterSize(50);
+    aboutText.setFillColor(sf::Color::White);
+    aboutText.setPosition(
+        screen_w / 2.0f - guideText.getGlobalBounds().width / 2, 600.0f);
 
     exitText.setFont(ResourceManager::gameFont);
     exitText.setString("EXIT");
     exitText.setCharacterSize(50);
     exitText.setFillColor(sf::Color::White);
     exitText.setPosition(
-        (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 600);
+        (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 700.0f);
 
     sf::Texture &logoTexture =
         ResourceManager::getTexture("assets/mujianwu.png");
@@ -165,18 +174,22 @@ void Menu::handleInput() {
                         case MENU_OPTION_START: start(); break;
                         case MENU_OPTION_LOAD: load(); break;
                         case MENU_OPTION_GUIDE: showGuide(); break;
+                        case MENU_OPTION_ABOUT: showAbout(); break;
                         case MENU_OPTION_EXIT: exit(); break;
                     }
                     return;
                 default: break;
             }
             startText.setFillColor(currentOption == MENU_OPTION_START
-                                       ? sf::Color::Yellow
+                                       ? sf::Color::Green
                                        : sf::Color::White);
             loadText.setFillColor(currentOption == MENU_OPTION_LOAD
                                       ? sf::Color::Yellow
                                       : sf::Color::White);
             guideText.setFillColor(currentOption == MENU_OPTION_GUIDE
+                                       ? sf::Color::Yellow
+                                       : sf::Color::White);
+            aboutText.setFillColor(currentOption == MENU_OPTION_ABOUT
                                        ? sf::Color::Yellow
                                        : sf::Color::White);
             exitText.setFillColor(currentOption == MENU_OPTION_EXIT
@@ -193,6 +206,7 @@ void Menu::render() {
     window.draw(startText);
     window.draw(loadText);
     window.draw(guideText);
+    window.draw(aboutText);
     window.draw(exitText);
     window.display();
 }
@@ -218,41 +232,75 @@ void Menu::load() {
         show();
 }
 
-void Menu::showGuide() {
-    // clang-format off
-    static const std::vector<std::string> lines = {
-        "-- CONTROLS --",
-        "Move: Arrow Keys     Pause: P     Menu: Esc",
-        "",
-        "-- PLAYER --",
-        "Fire: 2 bullets @ 6144 dmg every 0.144s",
-        "Heal: +128 HP every 0.64s",
-        "Lifesteal: +50% enemy HP on normal kill",
-        "           +100% boss HP on boss kill",
-        "Max HP: 1,024,000",
-        "",
-        "-- ENEMIES --",
-        "Enemy I    HP 2048   Speed 128-256   Dmg 512",
-        "Enemy II   HP 16,384 Speed 64-256    Dmg 2048 (sine-wave motion)",
-        "Boss III   HP 320k-640k  Circles top of screen",
-        "           Heal: +512 HP every 1.0s",
-        "           Volley: 9 bullets (6*1365.3 + 3*4096)",
-        "           Missiles: 17,203 dmg each",
-        "           Rockets: 6,553.6 dmg min or up to 18.4% of your current HP",
-        "",
-        "-- GIFTS (every 32s, 64% chance) --",
-        "FullFirePower: +400% fire rate",
-        "CenturyShield: 90% damage reduction",
-        "",
-        "Press Esc to return to menu"
-    };
-    // clang-format on
+// clang-format off
+const std::vector<std::string> Menu::guideLines = {
+    "-- CONTROLS --",
+    "Move: Arrow Keys     Pause: P     Menu: Esc",
+    "",
+    "-- PLAYER --",
+    "Fire: 2 bullets @ 6144 dmg every 0.144s",
+    "Heal: +128 HP every 0.64s",
+    "Lifesteal: +50% enemy HP on normal kill",
+    "           +100% boss HP on boss kill",
+    "Max HP: 1,024,000",
+    "",
+    "-- ENEMIES --",
+    "Enemy I    HP 2048   Speed 128-256   Dmg 512",
+    "Enemy II   HP 16,384 Speed 64-256    Dmg 2048 (sine-wave motion)",
+    "Boss III   HP 320k-640k  Circles top of screen",
+    "           Heal: +512 HP every 1.0s",
+    "           Volley: 9 bullets (6*1365.3 + 3*4096)",
+    "           Missiles: 17,203 dmg each",
+    "           Rockets: 6,553.6 dmg min or up to 18.4% of your current HP",
+    "",
+    "-- GIFTS (every 32s, 64% chance) --",
+    "FullFirePower: +400% fire rate",
+    "CenturyShield: 90% damage reduction",
+    "",
+    "Press Esc to return to menu"
+};
+// clang-format on
 
+void Menu::showGuide() { displayText(guideLines); }
+
+void Menu::exit() {
+    active = false;
+    window.close();
+}
+
+// clang-format off
+const std::vector<std::string> Menu::aboutLines = {
+    "-- ABOUT --",
+    "Thunder_Wings " TW_VERSION, // NOLINT(bugprone-suspicious-missing-comma)
+    "",
+    "-- BUILD INFO --",
+    "Compiler: " TW_COMPILER_OPTIONS, // NOLINT(bugprone-suspicious-missing-comma)
+    "Linker: " TW_LINKER_OPTIONS, // NOLINT(bugprone-suspicious-missing-comma)
+    "",
+    "-- LEGAL --",
+    TW_COPYRIGHT,
+    "Licensed under " TW_LICENSE, // NOLINT(bugprone-suspicious-missing-comma)
+    "",
+    "-- ACKNOWLEDGMENTS --",
+    "Built with SFML (Simple and Fast Multimedia Library)",
+    "Built with Boost C++ Libraries",
+    "Special thanks to the open source community",
+    "",
+    "-- AUTHOR --",
+    "Nuo Shen"
+    "",
+    "Press Esc to return to menu"
+};
+// clang-format on
+
+void Menu::showAbout() { displayText(aboutLines); }
+
+void Menu::displayText(const std::vector<std::string> &lines) {
     std::vector<sf::Text> textItems;
     float y = 8.f;
     for (auto &str : lines) {
         sf::Text t;
-        t.setFont(ResourceManager::gameFont);
+        t.setFont(ResourceManager::pageFont);
         if (str.rfind("--", 0) == 0) {
             // Section header
             t.setCharacterSize(28);
@@ -286,9 +334,4 @@ void Menu::showGuide() {
             window.draw(t);
         window.display();
     }
-}
-
-void Menu::exit() {
-    active = false;
-    window.close();
 }

@@ -17,6 +17,8 @@
 #ifndef __MACROS_H__
 #define __MACROS_H__
 
+#include "config.h" // IWYU pragma: keep
+
 /* clang-format off */
 #define TW_VERSION    "1.0.0"
 #define TW_BUILD_DATE __DATE__ " " __TIME__

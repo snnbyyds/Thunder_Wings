@@ -25,7 +25,9 @@
 #define MENU_OPTION_START 0
 #define MENU_OPTION_LOAD  1
 #define MENU_OPTION_GUIDE 2
-#define MENU_OPTION_EXIT  3
+#define MENU_OPTION_ABOUT 3
+#define MENU_OPTION_EXIT  4
+
 #define MENU_MAX_OPTION   MENU_OPTION_EXIT
 #define MENU_MIN_OPTION   MENU_OPTION_START
 // clang-format on
@@ -46,13 +48,15 @@ private:
     void start();
     void load();
     void showGuide();
+    void showAbout();
     void exit();
 
     void handleInput();
     void render();
 
+    inline void displayText(const std::vector<std::string> &lines);
+
     const char *backgroundPath = "assets/background.png";
-    const char *fontPath = "assets/Morning Routine.otf";
     const char *musicPath = "assets/background.wav";
 
     std::unique_ptr<Game> game;
@@ -63,6 +67,7 @@ private:
     sf::Text loadText;
     sf::Text titleText;
     sf::Text startText;
+    sf::Text aboutText;
     sf::Text exitText;
 
     const float LOGO_DURATION = 3.0f;
@@ -74,4 +79,7 @@ private:
     bool active;
 
     bool musicStarted = false;
+
+    static const std::vector<std::string> guideLines;
+    static const std::vector<std::string> aboutLines;
 };

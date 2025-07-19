@@ -19,6 +19,7 @@
 #include <iostream>
 
 sf::Font ResourceManager::gameFont;
+sf::Font ResourceManager::pageFont;
 sf::Music ResourceManager::gameBackgroundMusic;
 
 std::unordered_map<std::string, sf::Texture> ResourceManager::textures;
@@ -59,11 +60,18 @@ bool ResourceManager::getTextureifExists(const std::string &texturePath) {
     return false;
 }
 
-void ResourceManager::loadFont(const std::string &fontPath) {
+void ResourceManager::loadGameFont(const std::string &fontPath) {
     if (!gameFont.loadFromFile(fontPath))
         throw FontLoadException("Failed to load font: " + fontPath);
     else
         std::cout << "Loaded font: " + fontPath + " as gameFont" << std::endl;
+}
+
+void ResourceManager::loadPageFont(const std::string &fontPath) {
+    if (!pageFont.loadFromFile(fontPath))
+        throw FontLoadException("Failed to load font: " + fontPath);
+    else
+        std::cout << "Loaded font: " + fontPath + " as pageFont" << std::endl;
 }
 
 void ResourceManager::loadBackgroundMusic(const std::string &filePath) {

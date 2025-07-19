@@ -22,8 +22,8 @@
 
 Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
                float damage)
-    : from_player(from_player), damage(damage), speed(speed), id(id),
-      exploding(false) {
+    : from_player(from_player), damage(damage), damageRate(0.0f),
+      exploding(false), speed(speed), id(id) {
     avail = true;
     size_t bullets_path_size = sizeof(bullets_path) / sizeof(*bullets_path);
     id = std::min(id, bullets_path_size - 1);
@@ -31,9 +31,6 @@ Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
     sprite.setPosition(position);
     direction = sf::Vector2f(0.0f, -1.0f);
     timer.restart();
-
-    // By default
-    damageRate = 0.0f;
 }
 
 Bullet::Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,

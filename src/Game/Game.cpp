@@ -25,7 +25,7 @@
 #include <sstream>
 
 Game::Game(sf::RenderWindow &window)
-    : window(window), terminated(false), running(false) {
+    : terminated(false), window(window), running(false) {
     backgroundSprite.setTexture(ResourceManager::getTexture(backgroundPath));
     backgroundSprite.setPosition(0.0f, 0.0f);
 
@@ -197,8 +197,6 @@ void Game::spawnEnemies() {
                                                  Constants::ENEMY3_SPAWN_PROB};
     float spawnInterval = RandomUtils::generateInRange(0.3f, 2.4f);
     if (spawnTimer.hasElapsed(spawnInterval)) {
-        float spawnPositionX =
-            RandomUtils::generateInRange(0.4f, Constants::SCREEN_WIDTH - 0.4f);
         int enemyLevel =
             RandomUtils::generateFromSetWithProb(levelSet, levelProb);
         switch (enemyLevel) {
@@ -544,8 +542,6 @@ void Game::drawGifts() {
     float y = Constants::SCREEN_HEIGHT - iconSize - padding - raiseUp;
 
     auto icon = gift->getSprite();
-    const auto bounds = icon.getLocalBounds();
-    float scale = iconSize / bounds.height;
     gift->render(window);
 
     float remaining = gift->getRemainingTime();

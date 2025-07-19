@@ -27,6 +27,7 @@ public:
     Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
            bool from_player, float speed, float damage);
 
+    using Entity::update;
     virtual void update(float deltaTime, sf::Vector2f hitTarget);
     virtual void render(sf::RenderWindow &window) override;
     virtual void explode();

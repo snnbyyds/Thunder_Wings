@@ -20,11 +20,12 @@
 #include <algorithm>
 
 Player::Player()
-    : current_texture(0), speed(Constants::PLAYER_SPEED), damaged(false),
-      dying(false), current_shot_gap(Constants::PLAYER_SHOT_GAP),
+    : damaged(false), dying(false),
+      current_shot_gap(Constants::PLAYER_SHOT_GAP),
       health(Constants::PLAYER_MAX_HEALTH * 0.64f),
       damage(Constants::PLAYER_DAMAGE),
-      recover_health(Constants::PLAYER_RECOVER_HEALTH) {
+      recover_health(Constants::PLAYER_RECOVER_HEALTH),
+      speed(Constants::PLAYER_SPEED), current_texture(0) {
     avail = true;
 
     for (const auto &image : images)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "config.h" 
+#include "config.h"
 #include "Core/Macros.h"
 #include "Core/ResourceManager.hpp"
 #include "Game/Menu.hpp"
@@ -24,7 +24,8 @@ static inline void printVersion() {
     // clang-format off
     std::cout << "thunder_wings " << TW_VERSION << "\n"
               << "Built on " << TW_BUILD_DATE << "\n"
-              << "Compiled options: " << TW_COMPILED_OPTIONS << "\n"
+              << "Compilation: " << TW_COMPILER_OPTIONS << "\n"
+              << "Linking: " << TW_LINKER_OPTIONS << "\n"
               << TW_COPYRIGHT << "\n"
               << "Licensed under the " << TW_LICENSE << "\n"
               << "See https://www.apache.org/licenses/LICENSE-2.0\n"

@@ -15,96 +15,70 @@
 # Set the minimum required version of CMake
 cmake_minimum_required(VERSION 3.15)
 
-# Project name
-project(Thunder_Wings)
+# Project name and version
+project(Thunder_Wings VERSION 1.0.0)
 
+# Enforce policies
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif()
 
-# Set the build type to Debug if not specified
+# Default build type to Debug
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose build type: Debug or Release" FORCE)
 endif()
 
-# Set C++ standard to C++20 and make it required
+# C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if (MSVC)
-    set(_compiled_options "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_RELEASE}")
-else()
-    set(_compiled_options "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_RELEASE}")
+# Configure flags per compiler and configuration
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Debug flags
+    set(_compiler_options_debug "-O1;-g;-fsanitize=address,undefined;-fno-omit-frame-pointer;-Wall")
+    set(_linker_options_debug "-fsanitize=address,undefined")
+    # Release flags
+    set(_compiler_options_release "-O3;-flto;-Wall")
+    set(_linker_options_release "-flto")
+elseif(MSVC)
+    # Debug flags
+    set(_compiler_options_debug "/O1;/Zi;/fsanitize=address;/Zo;/Wall")
+    set(_linker_options_debug "/DEBUG")
+    # Release flags
+    set(_compiler_options_release "/O2;/GL;/Wall")
+    set(_linker_options_release "/LTCG")
 endif()
 
+# Set current build options for config.h
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    string(REPLACE ";" " " _TW_COMPILER_OPTIONS "${_compiler_options_debug}")
+    string(REPLACE ";" " " _TW_LINKER_OPTIONS "${_linker_options_debug}")
+else()
+    string(REPLACE ";" " " _TW_COMPILER_OPTIONS "${_compiler_options_release}")
+    string(REPLACE ";" " " _TW_LINKER_OPTIONS "${_linker_options_release}")
+endif()
+
+# Configure config.h
 configure_file(
     ${CMAKE_SOURCE_DIR}/config.h.in
     ${CMAKE_BINARY_DIR}/config.h
     @ONLY
 )
-
 include_directories(${CMAKE_BINARY_DIR})
 
-# Add Boost Library
+# Find Boost
 set(Boost_MINIMUM_VERSION 1.75)
 find_package(Boost ${Boost_MINIMUM_VERSION} REQUIRED COMPONENTS json)
-message(STATUS "Boost found: ${Boost_FOUND}")
-message(STATUS "Boost version: ${Boost_VERSION}")
-message(STATUS "Boost include dir: ${Boost_INCLUDE_DIRS}")
-message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 
-# Gather all source files recursively
-file(GLOB_RECURSE SOURCES 
-    "src/*.cpp"
-    "src/*.cxx"
-    "src/*.cc"
-)
+# Gather sources and headers
+file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/*.cxx" "${CMAKE_SOURCE_DIR}/src/*.cc")
+file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/include/*.hpp" "${CMAKE_SOURCE_DIR}/include/*.h" "${CMAKE_SOURCE_DIR}/src/*.hpp" "${CMAKE_SOURCE_DIR}/src/*.h")
 
-# Gather all header files recursively
-file(GLOB_RECURSE HEADERS 
-    "include/*.hpp"
-    "include/*.h"
-    "src/*.hpp"
-    "src/*.h"
-)
-
-# Compiler-specific flags for GNU/Clang (Linux and MinGW on Windows)
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(
-        "$<$<CONFIG:Debug>:-g>"
-        "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
-        "$<$<CONFIG:Release>:-O3>"
-        "$<$<CONFIG:Release>:-flto>"
-    )
-    
-    add_link_options(
-        "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
-        "$<$<CONFIG:Release>:-flto>"
-    )
-    
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_compile_options(-fno-omit-frame-pointer)
-    endif()
-endif()
-
-# Compiler-specific flags for MSVC (Windows)
-if(MSVC)
-    add_compile_options(
-        "$<$<CONFIG:Debug>:/Zi>"
-        "$<$<CONFIG:Debug>:/Od>"
-        "$<$<CONFIG:Release>:/O2>"
-        "$<$<CONFIG:Release>:/GL>"
-    )
-    add_link_options(
-        "$<$<CONFIG:Release>:/LTCG>"
-    )
-endif()
-
-# Find SFML package (version 2.5 or higher)
+# Find SFML
 find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 
-# Add the executable target
+# Executable target
 if(WIN32)
     set(ICON_RESOURCE_FILE "${CMAKE_SOURCE_DIR}/icon.rc")
     add_executable(thunder_wings WIN32 ${SOURCES} ${HEADERS} ${ICON_RESOURCE_FILE})
@@ -112,88 +86,69 @@ else()
     add_executable(thunder_wings ${SOURCES} ${HEADERS})
 endif()
 
-# Include directories for the target
-target_include_directories(thunder_wings PRIVATE
-    ${SFML_INCLUDE_DIR}
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/src
-    ${Boost_INCLUDE_DIRS}
+# Apply compile and linker options using generator expressions
+target_compile_options(thunder_wings PRIVATE 
+    $<$<CONFIG:Debug>:${_compiler_options_debug}>
+    $<$<CONFIG:Release>:${_compiler_options_release}>
+)
+target_link_options(thunder_wings PRIVATE 
+    $<$<CONFIG:Debug>:${_linker_options_debug}>
+    $<$<CONFIG:Release>:${_linker_options_release}>
 )
 
-# Link libraries to the target
+# Include dirs
+target_include_directories(thunder_wings PRIVATE
+    ${SFML_INCLUDE_DIR}
+    ${Boost_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/src
+)
+
+# Link libraries
 target_link_libraries(thunder_wings PRIVATE
     sfml-audio
-    sfml-graphics 
-    sfml-window 
+    sfml-graphics
+    sfml-window
     sfml-system
     Boost::json
 )
-
 if(WIN32)
     target_link_libraries(thunder_wings PRIVATE sfml-main)
 endif()
 
-# Define assets directories
+# Assets directory
 set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)
 
-# Windows-specific: Copy SFML DLLs and assets to executable directory
+# Post-build commands: copy assets and DLLs
 if(WIN32)
-    # Get the directory where the executable is built
     set(EXECUTABLE_DIR $<TARGET_FILE_DIR:thunder_wings>)
-    set(EXECUTABLE_PATH $<TARGET_FILE:thunder_wings>)
-    
-    # Get SFML DLL directory
-    get_filename_component(SFML_DLL_DIR ${SFML_DIR} DIRECTORY)
-    set(SFML_DLL_DIR "${SFML_DLL_DIR}/../../bin")
-    
-    # List of required DLLs (including openal32.dll)
-    set(REQUIRED_DLLS
-        "sfml-graphics-2.dll"
-        "sfml-window-2.dll"
-        "sfml-system-2.dll"
-        "sfml-audio-2.dll"
-        "openal32.dll"
-    )
-    
-    # Copy SFML DLLs to executable directory
+    get_filename_component(SFML_BIN_DIR ${SFML_DIR} DIRECTORY)
+    string(APPEND SFML_BIN_DIR "/../../bin")
+    set(DLLS "sfml-graphics-2.dll" "sfml-window-2.dll" "sfml-system-2.dll" "sfml-audio-2.dll" "openal32.dll")
+    foreach(DLL ${DLLS})
+        add_custom_command(TARGET thunder_wings POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${SFML_BIN_DIR}/${DLL}" "${EXECUTABLE_DIR}"
+        )
+    endforeach()
     add_custom_command(TARGET thunder_wings POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SFML_DLL_DIR}/sfml-graphics-2.dll"
-        "${SFML_DLL_DIR}/sfml-window-2.dll"
-        "${SFML_DLL_DIR}/sfml-system-2.dll"
-        "${SFML_DLL_DIR}/sfml-audio-2.dll"
-        "${SFML_DLL_DIR}/openal32.dll"
-        ${EXECUTABLE_DIR}
-        COMMENT "Copying SFML DLLs and OpenAL to executable directory"
-    )
-    
-    # Copy assets to executable directory (next to executable)
-    set(TARGET_ASSETS_DIR "${EXECUTABLE_DIR}/assets")
-    add_custom_command(TARGET thunder_wings POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSETS_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_DIR}" "${TARGET_ASSETS_DIR}"
-        COMMENT "Copying assets to executable directory"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${ASSETS_DIR} ${EXECUTABLE_DIR}/assets
     )
 else()
-    # For non-Windows platforms, copy assets to build directory
-    set(TARGET_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
     add_custom_command(TARGET thunder_wings POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSETS_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_DIR}" "${TARGET_ASSETS_DIR}"
-        COMMENT "Copying assets to build directory"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${ASSETS_DIR} ${CMAKE_BINARY_DIR}/assets
     )
 endif()
 
-# Optional: Install commands (commented out)
-# install(TARGETS thunder_wings RUNTIME DESTINATION bin)
-# install(DIRECTORY ${ASSETS_DIR} DESTINATION .)
-
-# Print build information
+# Build info
+message(STATUS "Thunder_Wings ${PROJECT_VERSION}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-message(STATUS "Source files: ${SOURCES}")
-message(STATUS "Assets directory: ${ASSETS_DIR} -> ${TARGET_ASSETS_DIR}")
+message(STATUS "Compiler options: ${_TW_COMPILER_OPTIONS}")
+message(STATUS "Linker options:   ${_TW_LINKER_OPTIONS}")
+message(STATUS "Assets directory: ${ASSETS_DIR}")
 if(WIN32)
-    message(STATUS "SFML DLL directory: ${SFML_DLL_DIR}")
+    message(STATUS "SFML DLL directory: ${SFML_BIN_DIR}")
     message(STATUS "Executable directory: ${EXECUTABLE_DIR}")
 endif()

@@ -16,4 +16,5 @@
 
 #pragma once
 
-#define TW_COMPILED_OPTIONS "@_compiled_options@"
+#define TW_COMPILER_OPTIONS "@_TW_COMPILER_OPTIONS@"
+#define TW_LINKER_OPTIONS "@_TW_LINKER_OPTIONS@"

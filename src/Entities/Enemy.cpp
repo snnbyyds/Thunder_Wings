@@ -16,7 +16,7 @@
 
 #include "Entities/Enemy.hpp"
 #include "Core/Constants.hpp"
-#include "Core/Macros.hpp"
+#include "Core/Macros.h"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 #include <cmath>

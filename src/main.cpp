@@ -14,11 +14,31 @@
  * limitations under the License.
  */
 
+#include "config.h" 
+#include "Core/Macros.h"
 #include "Core/ResourceManager.hpp"
 #include "Game/Menu.hpp"
 #include <iostream>
 
-int main() {
+static inline void printVersion() {
+    // clang-format off
+    std::cout << "thunder_wings " << TW_VERSION << "\n"
+              << "Built on " << TW_BUILD_DATE << "\n"
+              << "Compiled options: " << TW_COMPILED_OPTIONS << "\n"
+              << TW_COPYRIGHT << "\n"
+              << "Licensed under the " << TW_LICENSE << "\n"
+              << "See https://www.apache.org/licenses/LICENSE-2.0\n"
+              << std::endl;
+    // clang-format on
+}
+
+int main(int argc, char *argv[]) {
+    printVersion();
+    if (argc > 1) {
+        std::string_view arg = argv[1];
+        if (arg == "--version" || arg == "-v")
+            return EXIT_SUCCESS;
+    }
     try {
         Menu menu;
         menu.playLogo();

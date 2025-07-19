@@ -32,6 +32,20 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if (MSVC)
+    set(_compiled_options "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_RELEASE}")
+else()
+    set(_compiled_options "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_RELEASE}")
+endif()
+
+configure_file(
+    ${CMAKE_SOURCE_DIR}/config.h.in
+    ${CMAKE_BINARY_DIR}/config.h
+    @ONLY
+)
+
+include_directories(${CMAKE_BINARY_DIR})
+
 # Add Boost Library
 set(Boost_MINIMUM_VERSION 1.75)
 find_package(Boost ${Boost_MINIMUM_VERSION} REQUIRED COMPONENTS json)

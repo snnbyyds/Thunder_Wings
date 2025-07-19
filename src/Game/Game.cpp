@@ -359,7 +359,7 @@ void Game::loadFromDisk() {
     // Parse JSON
     try {
         deserialize(boost::json::parse(content).as_object());
-    } catch (const boost::system::system_error& e) {
+    } catch (const boost::system::system_error &e) {
         throw std::runtime_error(std::string("JSON parse error: ") + e.what());
     }
 }

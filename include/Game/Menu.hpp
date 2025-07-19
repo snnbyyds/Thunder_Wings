@@ -24,9 +24,10 @@
 // clang-format off
 #define MENU_OPTION_START 0
 #define MENU_OPTION_LOAD  1
-#define MENU_OPTION_EXIT  2
-#define MENU_MAX_OPTION   2
-#define MENU_MIN_OPTION   0
+#define MENU_OPTION_GUIDE 2
+#define MENU_OPTION_EXIT  3
+#define MENU_MAX_OPTION   MENU_OPTION_EXIT
+#define MENU_MIN_OPTION   MENU_OPTION_START
 // clang-format on
 
 class Menu {
@@ -44,6 +45,7 @@ public:
 private:
     void start();
     void load();
+    void showGuide();
     void exit();
 
     void handleInput();
@@ -57,6 +59,7 @@ private:
     sf::RenderWindow window;
     sf::Sprite backgroundSprite;
 
+    sf::Text guideText;
     sf::Text loadText;
     sf::Text titleText;
     sf::Text startText;

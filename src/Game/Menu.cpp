@@ -57,12 +57,19 @@ Menu::Menu()
     loadText.setPosition(screen_w / 2.0f - loadText.getGlobalBounds().width / 2,
                          400.0f);
 
+    guideText.setFont(ResourceManager::gameFont);
+    guideText.setString("GUIDE");
+    guideText.setCharacterSize(50);
+    guideText.setFillColor(sf::Color::White);
+    guideText.setPosition(
+        screen_w / 2.0f - guideText.getGlobalBounds().width / 2, 500.f);
+
     exitText.setFont(ResourceManager::gameFont);
     exitText.setString("EXIT");
     exitText.setCharacterSize(50);
     exitText.setFillColor(sf::Color::White);
     exitText.setPosition(
-        (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 500);
+        (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 600);
 
     sf::Texture &logoTexture =
         ResourceManager::getTexture("assets/mujianwu.png");
@@ -157,17 +164,21 @@ void Menu::handleInput() {
                     switch (currentOption) {
                         case MENU_OPTION_START: start(); break;
                         case MENU_OPTION_LOAD: load(); break;
+                        case MENU_OPTION_GUIDE: showGuide(); break;
                         case MENU_OPTION_EXIT: exit(); break;
                     }
                     return;
                 default: break;
             }
             startText.setFillColor(currentOption == MENU_OPTION_START
-                                       ? sf::Color::Red
+                                       ? sf::Color::Yellow
                                        : sf::Color::White);
             loadText.setFillColor(currentOption == MENU_OPTION_LOAD
-                                      ? sf::Color::Red
+                                      ? sf::Color::Yellow
                                       : sf::Color::White);
+            guideText.setFillColor(currentOption == MENU_OPTION_GUIDE
+                                       ? sf::Color::Yellow
+                                       : sf::Color::White);
             exitText.setFillColor(currentOption == MENU_OPTION_EXIT
                                       ? sf::Color::Red
                                       : sf::Color::White);
@@ -181,6 +192,7 @@ void Menu::render() {
     window.draw(titleText);
     window.draw(startText);
     window.draw(loadText);
+    window.draw(guideText);
     window.draw(exitText);
     window.display();
 }
@@ -204,6 +216,76 @@ void Menu::load() {
         exit();
     else
         show();
+}
+
+void Menu::showGuide() {
+    // clang-format off
+    static const std::vector<std::string> lines = {
+        "-- CONTROLS --",
+        "Move: Arrow Keys     Pause: P     Menu: Esc",
+        "",
+        "-- PLAYER --",
+        "Fire: 2 bullets @ 6144 dmg every 0.144s",
+        "Heal: +128 HP every 0.64s",
+        "Lifesteal: +50% enemy HP on normal kill",
+        "           +100% boss HP on boss kill",
+        "Max HP: 1,024,000",
+        "",
+        "-- ENEMIES --",
+        "Enemy I    HP 2048   Speed 128–256   Dmg 512",
+        "Enemy II   HP 16,384 Speed 64–256    Dmg 2048 (sine-wave motion)",
+        "Boss III   HP 320k–640k  Circles top of screen",
+        "           Heal: +512 HP every 1.0s",
+        "           Volley: 9 bullets (6×1365.3 + 3×4096)",
+        "           Missiles: 17,203 dmg each",
+        "           Rockets: 6,553.6 dmg min or up to 18.4% of your current HP",
+        "",
+        "-- GIFTS (every 32s, 64% chance) --",
+        "FullFirePower: +400% fire rate",
+        "CenturyShield: 90% damage reduction",
+        "",
+        "Press Esc to return to menu"
+    };
+    // clang-format on
+
+    std::vector<sf::Text> textItems;
+    float y = 8.f;
+    for (auto &str : lines) {
+        sf::Text t;
+        t.setFont(ResourceManager::gameFont);
+        if (str.rfind("--", 0) == 0) {
+            // Section header
+            t.setCharacterSize(28);
+            t.setFillColor(sf::Color::Red);
+            y += 8.f;
+        } else {
+            t.setCharacterSize(24);
+            t.setFillColor(sf::Color::Black);
+        }
+        t.setString(str);
+        t.setPosition(50.f, y);
+        textItems.push_back(t);
+        y += t.getCharacterSize() + (str.rfind("--", 0) == 0 ? 14.f : 10.f);
+    }
+
+    sf::Event event;
+    while (window.isOpen()) {
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::KeyPressed &&
+                event.key.code == sf::Keyboard::Escape) {
+                return;
+            }
+            if (event.type == sf::Event::Closed) {
+                exit();
+                return;
+            }
+        }
+        window.clear();
+        window.draw(backgroundSprite);
+        for (auto &t : textItems)
+            window.draw(t);
+        window.display();
+    }
 }
 
 void Menu::exit() {

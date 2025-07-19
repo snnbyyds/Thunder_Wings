@@ -58,7 +58,6 @@ private:
 
     sf::RenderWindow &window;
 
-    const char *backgroundPath = "assets/background.png";
     sf::Sprite backgroundSprite;
 
     sf::Text gameOverText;

@@ -26,7 +26,8 @@
 
 Game::Game(sf::RenderWindow &window)
     : terminated(false), window(window), running(false) {
-    backgroundSprite.setTexture(ResourceManager::getTexture(backgroundPath));
+    backgroundSprite.setTexture(
+        ResourceManager::getTexture(Constants::BACKGROUND_FILE_NAME));
     backgroundSprite.setPosition(0.0f, 0.0f);
 
     stopwatchText.setFont(ResourceManager::gameFont);

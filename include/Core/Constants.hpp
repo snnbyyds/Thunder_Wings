@@ -20,8 +20,13 @@
 namespace Constants {
 // clang-format off
 
-// File Properties
+// Common Properties
 constexpr const char *SAVE_FILE_NAME = "game_data.json";
+constexpr const char *BACKGROUND_FILE_NAME = "assets/background.png";
+constexpr const char *BGM_FILE_NAME = "assets/background.wav";
+constexpr const char *GAME_FONT = "assets/Morning Routine.otf";
+constexpr const char *PARAGRAPH_FONT = "assets/NotoSans-MediumItalic.ttf";
+constexpr float LOGO_DURATION = 3.0f;
 
 // Screen Properties
 constexpr int SCREEN_WIDTH  = 1440;

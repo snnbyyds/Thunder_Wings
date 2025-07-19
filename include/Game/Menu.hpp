@@ -39,11 +39,6 @@ public:
     void show();
     void playLogo();
 
-    static constexpr int screen_w = Constants::SCREEN_WIDTH;
-    static constexpr int screen_h = Constants::SCREEN_HEIGHT;
-
-    int currentOption = MENU_OPTION_START;
-
 private:
     void start();
     void load();
@@ -56,9 +51,6 @@ private:
 
     inline void displayText(const std::vector<std::string> &lines);
 
-    const char *backgroundPath = "assets/background.png";
-    const char *musicPath = "assets/background.wav";
-
     std::unique_ptr<Game> game;
     sf::RenderWindow window;
     sf::Sprite backgroundSprite;
@@ -70,10 +62,11 @@ private:
     sf::Text aboutText;
     sf::Text exitText;
 
-    const float LOGO_DURATION = 3.0f;
     sf::Sprite logoSprite;
     Timer logoClock;
     bool showingLogo = false;
+
+    int currentOption = MENU_OPTION_START;
 
     bool terminated = false;
     bool active;

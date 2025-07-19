@@ -24,15 +24,17 @@
 #include <SFML/Window.hpp>
 
 Menu::Menu()
-    : window(sf::VideoMode(screen_w, screen_h), "Thunder Wings"),
+    : window(sf::VideoMode(Constants::SCREEN_WIDTH, Constants::SCREEN_HEIGHT),
+             "Thunder Wings"),
       active(false) {
-    backgroundSprite.setTexture(ResourceManager::getTexture(backgroundPath));
+    backgroundSprite.setTexture(
+        ResourceManager::getTexture(Constants::BACKGROUND_FILE_NAME));
     backgroundSprite.setPosition(0.0f, 0.0f);
 
-    ResourceManager::loadGameFont("assets/Morning Routine.otf");
-    ResourceManager::loadPageFont("assets/NotoSans-MediumItalic.ttf");
+    ResourceManager::loadGameFont(Constants::GAME_FONT);
+    ResourceManager::loadPageFont(Constants::PARAGRAPH_FONT);
 
-    ResourceManager::loadBackgroundMusic(musicPath);
+    ResourceManager::loadBackgroundMusic(Constants::BGM_FILE_NAME);
     ResourceManager::gameBackgroundMusic.setVolume(8.0f);
     ResourceManager::gameBackgroundMusic.setLoop(true);
     // ResourceManager::gameBackgroundMusic.play();
@@ -42,43 +44,49 @@ Menu::Menu()
     titleText.setCharacterSize(80);
     titleText.setFillColor(sf::Color(255, 215, 0));
     titleText.setStyle(sf::Text::Bold);
-    titleText.setPosition(
-        screen_w / 2.0f - titleText.getGlobalBounds().width / 2, 100.0f);
+    titleText.setPosition(Constants::SCREEN_WIDTH / 2.0f -
+                              titleText.getGlobalBounds().width / 2,
+                          100.0f);
 
     startText.setFont(ResourceManager::gameFont);
     startText.setString("START");
     startText.setCharacterSize(50);
     startText.setFillColor(sf::Color::Green);
-    startText.setPosition(
-        screen_w / 2.0f - startText.getGlobalBounds().width / 2, 300.0f);
+    startText.setPosition(Constants::SCREEN_WIDTH / 2.0f -
+                              startText.getGlobalBounds().width / 2,
+                          300.0f);
 
     loadText.setFont(ResourceManager::gameFont);
     loadText.setString("LOAD PROGRESS");
     loadText.setCharacterSize(50);
     loadText.setFillColor(sf::Color::White);
-    loadText.setPosition(screen_w / 2.0f - loadText.getGlobalBounds().width / 2,
+    loadText.setPosition(Constants::SCREEN_WIDTH / 2.0f -
+                             loadText.getGlobalBounds().width / 2,
                          400.0f);
 
     guideText.setFont(ResourceManager::gameFont);
     guideText.setString("GUIDE");
     guideText.setCharacterSize(50);
     guideText.setFillColor(sf::Color::White);
-    guideText.setPosition(
-        screen_w / 2.0f - guideText.getGlobalBounds().width / 2, 500.0f);
+    guideText.setPosition(Constants::SCREEN_WIDTH / 2.0f -
+                              guideText.getGlobalBounds().width / 2,
+                          500.0f);
 
     aboutText.setFont(ResourceManager::gameFont);
     aboutText.setString("ABOUT");
     aboutText.setCharacterSize(50);
     aboutText.setFillColor(sf::Color::White);
-    aboutText.setPosition(
-        screen_w / 2.0f - guideText.getGlobalBounds().width / 2, 600.0f);
+    aboutText.setPosition(Constants::SCREEN_WIDTH / 2.0f -
+                              guideText.getGlobalBounds().width / 2,
+                          600.0f);
 
     exitText.setFont(ResourceManager::gameFont);
     exitText.setString("EXIT");
     exitText.setCharacterSize(50);
     exitText.setFillColor(sf::Color::White);
-    exitText.setPosition(
-        (float)screen_w / 2 - exitText.getGlobalBounds().width / 2, 700.0f);
+    exitText.setPosition(Constants::SCREEN_WIDTH / 2.0f -
+                             exitText.getGlobalBounds().width / 2,
+                         700.0f);
 
     sf::Texture &logoTexture =
         ResourceManager::getTexture("assets/mujianwu.png");
@@ -108,7 +116,7 @@ void Menu::playLogo() {
         }
 
         float elapsed = logoClock.getElapsedTime();
-        float progress = elapsed / LOGO_DURATION;
+        float progress = elapsed / Constants::LOGO_DURATION;
 
         if (progress < 1.0f) {
             float alpha;

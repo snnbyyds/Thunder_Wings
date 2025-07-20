@@ -36,4 +36,14 @@
 /* clang-format on */
 #endif
 
+#ifdef _MSC_VER
+    #define GAME_LOG_FUNCTION __FUNCTION__
+    #define GAME_LOG_FILE __FILE__
+    #define GAME_LOG_LINE __LINE__
+#else
+    #define GAME_LOG_FUNCTION __func__
+    #define GAME_LOG_FILE __FILE__
+    #define GAME_LOG_LINE __LINE__
+#endif
+
 #endif /* __MACROS_H__ */

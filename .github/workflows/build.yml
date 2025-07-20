@@ -27,7 +27,7 @@ jobs:
         run: |
           choco install aria2 -y
 
-      - name: Setup vcpkg and install Boost.JSON (Windows)
+      - name: Setup vcpkg and install dependencies (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
@@ -35,8 +35,14 @@ jobs:
           cd vcpkg
           .\bootstrap-vcpkg.bat
           .\vcpkg.exe integrate install
-          # Install static Boost.JSON
+          
+          # Install required Boost components with static linking
           .\vcpkg.exe install boost-json:x64-windows-static-md
+          .\vcpkg.exe install boost-log:x64-windows-static-md
+          .\vcpkg.exe install boost-system:x64-windows-static-md
+          .\vcpkg.exe install boost-filesystem:x64-windows-static-md
+          .\vcpkg.exe install boost-thread:x64-windows-static-md
+          
           cd ..
 
       - name: Download and Setup SFML (Windows)
@@ -45,30 +51,9 @@ jobs:
         run: |
           $url = "https://github.com/SFML/SFML/releases/download/2.6.2/SFML-2.6.2-windows-vc17-64-bit.zip"
           $output = "sfml.zip"
-          $retries = 3
-          $success = $false
-
-          for ($i = 0; $i -lt $retries; $i++) {
-            try {
-              aria2c -x16 -s16 -d . -o $output $url
-              if (Test-Path $output) {
-                $success = $true
-                break
-              }
-            }
-            catch {
-              Write-Host "Download failed. Retrying in 4 seconds..."
-              Start-Sleep -Seconds 4
-            }
-          }
-
-          if (-not $success) {
-            Write-Host "Failed to download SFML after $retries attempts."
-            exit 1
-          }
-
-          unzip -q $output
-          mv SFML-2.6.2 sfml
+          aria2c -x16 -s16 -d . -o $output $url
+          Expand-Archive -Path $output -DestinationPath . -Force
+          Rename-Item -Path "SFML-2.6.2" -NewName "sfml"
 
       - name: Configure and Build
         shell: bash
@@ -77,12 +62,16 @@ jobs:
           cd build
           
           if [ "$RUNNER_OS" == "Windows" ]; then
-            cmake .. \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" \
-              -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake" \
-              -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
-              -DBoost_USE_STATIC_LIBS=ON
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" \
+            -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
+            -DBoost_USE_STATIC_LIBS=ON \
+            -DBoost_USE_STATIC_RUNTIME=OFF \
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL \
+            -DBOOST_LOG_STATIC_LINK=ON \
+            -DBOOST_ALL_NO_LIB=ON
           else
             cmake .. -DCMAKE_BUILD_TYPE=Release
           fi
@@ -97,17 +86,39 @@ jobs:
           
           if [ "$RUNNER_OS" == "Windows" ]; then
             cp "build/Release/thunder_wings.exe" "$RELEASE_DIR/" || cp "build/thunder_wings.exe" "$RELEASE_DIR/"
-            # Copy SFML DLLs from downloaded SFML package
-            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-graphics-2.dll" "$RELEASE_DIR/" || true
-            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-window-2.dll" "$RELEASE_DIR/" || true
-            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-system-2.dll" "$RELEASE_DIR/" || true
-            cp "$GITHUB_WORKSPACE/sfml/bin/sfml-audio-2.dll" "$RELEASE_DIR/" || true
-            cp "$GITHUB_WORKSPACE/sfml/bin/openal32.dll" "$RELEASE_DIR/" || true
+            # Copy SFML DLLs
+            cp "$GITHUB_WORKSPACE/sfml/bin/"*.dll "$RELEASE_DIR/"
           else
             cp "build/thunder_wings" "$RELEASE_DIR/"
           fi
           
           cp -r "$GITHUB_WORKSPACE/assets" "$RELEASE_DIR/" || echo "No assets directory found"
+
+      - name: Test executable (basic check)
+        shell: bash
+        run: |
+          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            # Check if executable exists and has proper dependencies
+            if [ -f "$RELEASE_DIR/thunder_wings.exe" ]; then
+              echo "Executable found and ready"
+              # Try to get file info
+              file "$RELEASE_DIR/thunder_wings.exe" || echo "file command not available"
+            else
+              echo "ERROR: Executable not found in release directory!"
+              exit 1
+            fi
+          else
+            if [ -f "$RELEASE_DIR/thunder_wings" ]; then
+              chmod +x "$RELEASE_DIR/thunder_wings"
+              echo "Executable found and made executable"
+              # Check dependencies on Linux
+              ldd "$RELEASE_DIR/thunder_wings" || echo "ldd check failed"
+            else
+              echo "ERROR: Executable not found in release directory!"
+              exit 1
+            fi
+          fi
 
       - name: Print version
         shell: bash
@@ -125,9 +136,19 @@ jobs:
           RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
           
           if [ "$RUNNER_OS" == "Windows" ]; then
-            7z a "$RELEASE_DIR.zip" "$RELEASE_DIR"
+            # Use PowerShell Compress-Archive instead of 7z
+            powershell -Command "Compress-Archive -Path '$RELEASE_DIR' -DestinationPath '$RELEASE_DIR.zip' -Force"
           else
             zip -r "$RELEASE_DIR.zip" "$RELEASE_DIR"
+          fi
+          
+          # Verify the ZIP was created
+          if [ -f "$RELEASE_DIR.zip" ]; then
+            echo "ZIP package created successfully"
+            ls -lh "$RELEASE_DIR.zip"
+          else
+            echo "ERROR: Failed to create ZIP package!"
+            exit 1
           fi
 
       - name: Upload artifact

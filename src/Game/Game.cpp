@@ -197,7 +197,7 @@ void Game::spawnEnemies() {
     static const std::vector<float> levelProb = {Constants::ENEMY1_SPAWN_PROB,
                                                  Constants::ENEMY2_SPAWN_PROB,
                                                  Constants::ENEMY3_SPAWN_PROB};
-    float spawnInterval = RandomUtils::generateInRange(0.3f, 2.4f);
+    float spawnInterval = currentBoss ? 0.1f : 0.6f;
     if (spawnTimer.hasElapsed(spawnInterval)) {
         int enemyLevel =
             RandomUtils::generateFromSetWithProb(levelSet, levelProb);

@@ -55,7 +55,7 @@ public:
         auto it = std::lower_bound(cumulative_probs.begin(),
                                    cumulative_probs.end(), rand_val);
         size_t index = std::distance(cumulative_probs.begin(), it);
-        return set[index];
+        return set[std::min(set.size() - 1, index)];
     }
 
     static bool chooseWithProb(float probability) {

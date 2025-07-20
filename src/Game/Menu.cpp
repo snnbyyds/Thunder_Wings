@@ -261,7 +261,7 @@ const std::vector<std::string> Menu::guideLines = {
     "           Missiles: 17,203 dmg each",
     "           Rockets: 6,553.6 dmg min or up to 18.4% of your current HP",
     "",
-    "-- GIFTS (every 32s, 64% chance) --",
+    "-- GIFTS (every 32s, 48% chance) --",
     "FullFirePower: +400% fire rate",
     "CenturyShield: 90% damage reduction",
     "",

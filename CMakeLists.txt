@@ -67,9 +67,44 @@ configure_file(
 )
 include_directories(${CMAKE_BINARY_DIR})
 
-# Find Boost
+# Boost configuration
 set(Boost_MINIMUM_VERSION 1.75)
-find_package(Boost ${Boost_MINIMUM_VERSION} REQUIRED COMPONENTS json)
+
+# Set static linking for Windows
+if(WIN32)
+    set(Boost_USE_STATIC_LIBS ON)
+    set(Boost_USE_MULTITHREADED ON)
+    set(Boost_USE_STATIC_RUNTIME OFF)
+    
+    add_definitions(-DBOOST_LOG_STATIC_LINK)
+    add_definitions(-DBOOST_ALL_NO_LIB)
+    
+    # MSVC specific settings
+    if(MSVC)
+        add_definitions(-D_WIN32_WINNT=0x0A00)
+        add_definitions(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+        add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+        add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+    endif()
+else()
+    set(Boost_USE_STATIC_LIBS OFF)
+    set(Boost_USE_MULTITHREADED ON)
+endif()
+
+# Find Boost with required components for logging
+find_package(Boost ${Boost_MINIMUM_VERSION} REQUIRED COMPONENTS 
+    json 
+    log 
+    log_setup 
+    system 
+    filesystem 
+    thread
+)
+
+if(NOT Boost_LOG_FOUND)
+    message(FATAL_ERROR "Boost.Log library not found. Please check your Boost installation.")
+endif()
 
 # Gather sources and headers
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/*.cxx" "${CMAKE_SOURCE_DIR}/src/*.cc")
@@ -104,7 +139,7 @@ target_include_directories(thunder_wings PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )
 
-# Link libraries
+# Link libraries - Core dependencies
 target_link_libraries(thunder_wings PRIVATE
     sfml-audio
     sfml-graphics
@@ -112,8 +147,28 @@ target_link_libraries(thunder_wings PRIVATE
     sfml-system
     Boost::json
 )
+
+# Link Boost.Log and its dependencies
+target_link_libraries(thunder_wings PRIVATE
+    ${Boost_LOG_LIBRARY}
+    ${Boost_LOG_SETUP_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_THREAD_LIBRARY}
+)
+
+# Windows specific libraries
 if(WIN32)
-    target_link_libraries(thunder_wings PRIVATE sfml-main)
+    target_link_libraries(thunder_wings PRIVATE 
+        sfml-main
+        ws2_32     # Required for Boost.Log on Windows
+        advapi32   # Required for Boost.Log on Windows
+        ole32
+        oleaut32
+        uuid
+    )
+else()
+    target_link_libraries(thunder_wings PRIVATE pthread)
 endif()
 
 # Assets directory

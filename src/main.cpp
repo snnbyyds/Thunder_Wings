@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Core/Macros.h"
+#include "Core/Logging.hpp"
 #include "Core/ResourceManager.hpp"
 #include "Game/Menu.hpp"
 #include <iostream>
@@ -39,21 +39,25 @@ int main(int argc, char *argv[]) {
         if (arg == "--version" || arg == "-v")
             return EXIT_SUCCESS;
     }
+
+    logging::init();
+    LOG_INFO("Welcome!");
+
     try {
         Menu menu;
         menu.playLogo();
         menu.show();
     } catch (const TextureLoadException &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        LOG_ERROR("Error: " << e.what());
         std::exit(EXIT_FAILURE);
     } catch (const FontLoadException &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        LOG_ERROR("Error: " << e.what());
         std::exit(EXIT_FAILURE);
     } catch (const AudioLoadException &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        LOG_ERROR("Error: " << e.what());
         std::exit(EXIT_FAILURE);
     } catch (const std::exception &e) {
-        std::cerr << "Unexpected error: " << e.what() << std::endl;
+        LOG_ERROR("Error: " << e.what());
         std::exit(EXIT_FAILURE);
     }
     return EXIT_SUCCESS;

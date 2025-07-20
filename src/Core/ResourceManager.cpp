@@ -15,8 +15,8 @@
  */
 
 #include "Core/ResourceManager.hpp"
+#include "Core/Logging.hpp"
 #include <filesystem>
-#include <iostream>
 
 sf::Font ResourceManager::gameFont;
 sf::Font ResourceManager::pageFont;
@@ -37,7 +37,7 @@ sf::Texture &ResourceManager::getTexture(const std::string &texturePath) {
         textures.erase(texturePath);
         throw TextureLoadException("Failed to load texture: " + texturePath);
     } else {
-        std::cout << "Loaded texture: " + texturePath << std::endl;
+        LOG_INFO("Loaded texture: " + texturePath);
     }
     return texture;
 }
@@ -53,7 +53,7 @@ bool ResourceManager::getTextureifExists(const std::string &texturePath) {
     auto &texture = textures[texturePath];
     bool res = texture.loadFromFile(texturePath);
     if (res) {
-        std::cout << "Loaded texture: " + texturePath << std::endl;
+        LOG_INFO("Loaded texture: " + texturePath);
         return true;
     }
     textures.erase(texturePath);
@@ -64,21 +64,21 @@ void ResourceManager::loadGameFont(const std::string &fontPath) {
     if (!gameFont.loadFromFile(fontPath))
         throw FontLoadException("Failed to load font: " + fontPath);
     else
-        std::cout << "Loaded font: " + fontPath + " as gameFont" << std::endl;
+        LOG_INFO("Loaded font: " + fontPath + " as gameFont");
 }
 
 void ResourceManager::loadPageFont(const std::string &fontPath) {
     if (!pageFont.loadFromFile(fontPath))
         throw FontLoadException("Failed to load font: " + fontPath);
     else
-        std::cout << "Loaded font: " + fontPath + " as pageFont" << std::endl;
+        LOG_INFO("Loaded font: " + fontPath + " as pageFont");
 }
 
 void ResourceManager::loadBackgroundMusic(const std::string &filePath) {
     if (!gameBackgroundMusic.openFromFile(filePath))
         throw AudioLoadException("Failed to load music: " + filePath);
     else
-        std::cout << "Loaded music: " + filePath << std::endl;
+        LOG_INFO("Loaded music: " + filePath);
 }
 
 void ResourceManager::playSound(const std::string &filePath) {

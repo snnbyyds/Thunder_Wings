@@ -16,6 +16,7 @@
 
 #include "Game/Game.hpp"
 #include "Core/Constants.hpp"
+#include "Core/Logging.hpp"
 #include "Core/Macros.h"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
@@ -299,7 +300,7 @@ void Game::deserialize(const boost::json::object &o) {
         else if (type == "Rocket")
             bullets.push_back(std::make_unique<Rocket>(obj));
         else
-            std::cerr << "Unrecognized bullet type: " << type << std::endl;
+            LOG_WARN("Unrecognized bullet type: " << type);
     }
 
     // enemies
@@ -324,9 +325,7 @@ void Game::deserialize(const boost::json::object &o) {
                 enemies.push_back(std::make_unique<Enemy3>(obj));
                 enemyCount[3]++;
                 break;
-            default:
-                std::cerr << "Unrecognized enemy level: " << level << std::endl;
-                break;
+            default: LOG_WARN("Unrecognized enemy level: " << level); break;
         }
     }
 
@@ -345,17 +344,16 @@ void Game::deserialize(const boost::json::object &o) {
         else if (name == "CenturyShield")
             player.gifts.push_back(std::make_unique<CenturyShield>(obj));
         else
-            std::cerr << "Unrecognized gift name: " << name << std::endl;
+            LOG_WARN("Unrecognized gift name: " << name);
     }
 }
 
 void Game::loadFromDisk() {
     // Load file
-    std::cout << "Loading from disk" << std::endl;
+    LOG_INFO("Loading progress from disk");
     std::ifstream ifs(Constants::SAVE_FILE_NAME, std::ios::binary);
     if (!ifs.is_open()) {
-        std::cerr << "Load " << Constants::SAVE_FILE_NAME << " failed!"
-                  << std::endl;
+        LOG_ERROR("Load " << Constants::SAVE_FILE_NAME << " failed!");
         return;
     }
     std::string content((std::istreambuf_iterator<char>(ifs)),
@@ -371,7 +369,7 @@ void Game::loadFromDisk() {
 }
 
 void Game::saveToDisk() {
-    std::cout << "Saving to disk" << std::endl;
+    LOG_INFO("Saving progress to disk");
     std::ofstream ofs(Constants::SAVE_FILE_NAME,
                       std::ios::trunc | std::ios::binary);
     if (!ofs.is_open())

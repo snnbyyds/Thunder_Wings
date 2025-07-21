@@ -22,8 +22,6 @@
 class Bullet : public Entity {
 public:
     Bullet() = default;
-    Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
-           float damage);
     Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
            bool from_player, float speed, float damage);
 
@@ -58,8 +56,6 @@ private:
 class Cannon : public Bullet {
 public:
     Cannon(const boost::json::object &o);
-    Cannon(sf::Vector2f position, size_t id, bool from_player, float speed,
-           float damage);
     Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
            bool from_player, float speed, float damage);
 

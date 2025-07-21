@@ -143,12 +143,14 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     // left
     bullet_pool.push_back(std::make_unique<Cannon>(
         playerCenter + sf::Vector2f(-horizontalOffset, verticalOffset),
-        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage));
+        sf::Vector2f(0.0f, -1.0f), Constants::PLAYER_BULLET_ID, true, 1024.0f,
+        damage));
 
     // right
     bullet_pool.push_back(std::make_unique<Cannon>(
         playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
-        Constants::PLAYER_BULLET_ID, true, 1024.0f, damage));
+        sf::Vector2f(0.0f, -1.0f), Constants::PLAYER_BULLET_ID, true, 1024.0f,
+        damage));
 
     // ResourceManager::playSound("assets/bullet.wav");
 

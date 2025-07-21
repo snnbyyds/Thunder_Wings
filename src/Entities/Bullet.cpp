@@ -20,8 +20,8 @@
 #include "Core/ResourceManager.hpp"
 #include <algorithm>
 
-Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
-               float damage)
+Bullet::Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
+               bool from_player, float speed, float damage)
     : from_player(from_player), damage(damage), damageRate(0.0f),
       exploding(false), speed(speed), id(id) {
     avail = true;
@@ -29,14 +29,8 @@ Bullet::Bullet(sf::Vector2f position, size_t id, bool from_player, float speed,
     id = std::min(id, bullets_path_size - 1);
     sprite.setTexture(ResourceManager::getTexture(bullets_path[id]));
     sprite.setPosition(position);
-    direction = sf::Vector2f(0.0f, -1.0f);
-    timer.restart();
-}
-
-Bullet::Bullet(sf::Vector2f position, sf::Vector2f direction, size_t id,
-               bool from_player, float speed, float damage)
-    : Bullet(position, id, from_player, speed, damage) {
     this->direction = Math::normalize(direction);
+    timer.restart();
 }
 
 void Bullet::updateRotation() {
@@ -92,11 +86,10 @@ void Bullet::deserialize(const boost::json::object &o) {
 
 // Cannon
 
-Cannon::Cannon(const boost::json::object &o) { deserialize(o); }
-
-Cannon::Cannon(sf::Vector2f position, size_t id, bool from_player, float speed,
-               float damage)
-    : Bullet(position, id, from_player, speed, damage) {}
+Cannon::Cannon(const boost::json::object &o) {
+    deserialize(o);
+    sprite.setTexture(ResourceManager::getTexture(bullets_path[id]));
+}
 
 Cannon::Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage)

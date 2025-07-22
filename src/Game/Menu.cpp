@@ -254,7 +254,7 @@ const std::vector<std::string> Menu::guideLines = {
     "",
     "-- ENEMIES --",
     "Enemy I    HP 2048   Speed 128-256   Dmg 512",
-    "Enemy II   HP 16,384 Speed 64-256    Dmg 2048 (sine-wave motion)",
+    "Enemy II   HP 16,384 Speed 64-256    Dmg 512 (sine-wave motion)",
     "Boss III   HP 320k-640k  Circles top of screen",
     "           Heal: +512 HP every 1.0s",
     "           Volley: 9 bullets (6*1365.3 + 3*4096)",

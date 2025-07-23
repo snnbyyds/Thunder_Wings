@@ -32,7 +32,8 @@
 
 Before building the project, ensure you have the following installed:
 
-- **CMake** (version 3.10 or higher)
+- **CMake** (version 3.15 or higher)
+- **Boost C++ Libraries**
 - **SFML** (version 2.5 ~ 2.6)
 - **C++20** compatible compiler (e.g., GCC, MSVC)
 
@@ -42,14 +43,8 @@ Install dependencies:
 
 ```bash
 sudo apt update
-sudo apt install libsfml-dev cmake g++
+sudo apt install libboost-all-dev libsfml-dev cmake g++
 ```
-
-### Windows
-
-- Install [CMake](https://cmake.org/download/).
-- Install [SFML](https://www.sfml-dev.org/download.php).
-- Install a `C++` compiler (e.g., MSVC via Visual Studio).
 
 ## Building from Source
 
@@ -72,25 +67,7 @@ sudo apt install libsfml-dev cmake g++
 
 ### Windows
 
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/snnbyyds/Thunder_Wings.git
-   cd Thunder_Wings
-   ```
-
-2. **Install SFML**:
-
-   - [Download SFML 2.6.2](https://www.sfml-dev.org/download/sfml/2.6.2/)
-
-
-3. **Build the project**:
-
-   ```bash
-   mkdir build && cd build
-   cmake .. -DCMAKE_BUILD_TYPE=Release -DSFML_DIR="[full-path-to-sfml]/lib/cmake/SFML"
-   cmake --build . --config Release
-   ```
+The developer is not familiar with Windows, so refer to `.github/workflows/build.yml`.
 
 ## Controls
 

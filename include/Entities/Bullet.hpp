@@ -79,6 +79,7 @@ public:
 private:
     float tracking;
     sf::RectangleShape whiteFlash;
+    sf::Sprite explodeSprite;
     Timer explodeTimer;
 };
 
@@ -98,5 +99,6 @@ public:
 private:
     float tracking;
     sf::RectangleShape redFlash;
+    sf::Sprite explodeSprite;
     Timer explodeTimer;
 };

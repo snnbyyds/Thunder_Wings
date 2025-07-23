@@ -184,10 +184,12 @@ void Missile::update(float deltaTime, sf::Vector2f hitTarget) {
 void Missile::render(sf::RenderWindow &window) {
     if (exploding) {
         avail = false;
-        if (explodeTimer.hasElapsed(0.16f)) {
+        if (explodeTimer.hasElapsed(0.6f)) {
             exploding = false;
         } else {
-            window.draw(whiteFlash);
+            if (!explodeTimer.hasElapsed(0.3f))
+                window.draw(whiteFlash);
+            window.draw(explodeSprite);
         }
     }
     if (avail)
@@ -196,6 +198,7 @@ void Missile::render(sf::RenderWindow &window) {
 
 void Missile::explode() {
     ResourceManager::playSound("assets/explode.wav");
+    explodeSprite.setTexture(ResourceManager::getTexture("assets/explode.png"));
     exploding = true;
     explodeTimer.restart();
 }
@@ -291,10 +294,12 @@ void Rocket::update(float deltaTime, sf::Vector2f hitTarget) {
 void Rocket::render(sf::RenderWindow &window) {
     if (exploding) {
         avail = false;
-        if (explodeTimer.hasElapsed(0.08f)) {
+        if (explodeTimer.hasElapsed(0.6f)) {
             exploding = false;
         } else {
-            window.draw(redFlash);
+            if (!explodeTimer.hasElapsed(0.3f))
+                window.draw(redFlash);
+            window.draw(explodeSprite);
         }
     }
     if (avail)
@@ -303,6 +308,8 @@ void Rocket::render(sf::RenderWindow &window) {
 
 void Rocket::explode() {
     ResourceManager::playSound("assets/explode.wav");
+    explodeSprite.setTexture(
+        ResourceManager::getTexture("assets/explode2.png"));
     exploding = true;
     explodeTimer.restart();
 }

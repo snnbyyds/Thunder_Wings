@@ -41,6 +41,7 @@ public:
     void deserialize(const boost::json::object &o) override;
 
     const float max_health = Constants::PLAYER_MAX_HEALTH;
+    bool charming = false;
     bool damaged;
     bool dying;
     float current_shot_gap;

@@ -101,7 +101,12 @@ void Enemy::move(float deltaTime) {
     if (!avail)
         return;
 
-    sprite.move(0, speed * deltaTime);
+    if (confused)
+        sprite.setRotation(180.0f);
+    else
+        sprite.setRotation(0.0f);
+
+    sprite.move(0, speed * deltaTime * (confused ? -1 : 1));
     auto [x, y] = sprite.getPosition();
     avail = (x >= 0 && x < Constants::SCREEN_WIDTH && y >= 0 &&
              y <= Constants::SCREEN_HEIGHT);
@@ -118,8 +123,15 @@ void Enemy::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     sf::Vector2f spawnPosition(bounds.left + bounds.width / 2.0f,
                                bounds.top + bounds.height + 8.0f);
     sf::Vector2f direction = {0.0f, 1.0f};
+    if (confused) {
+        spawnPosition = {
+            bounds.left + bounds.width  / 2.0f,
+            bounds.top           - 8.0f
+        };
+        direction = { 0.0f, -1.0f };
+    }
     bullet_pool.push_back(std::make_unique<Cannon>(spawnPosition, direction,
-                                                   Constants::ENEMY_BULLET_ID,
+                                                   (confused ? Constants::PLAYER_BULLET_ID : Constants::ENEMY_BULLET_ID),
                                                    false, bulletspeed, damage));
 
     lastShotTimer.restart();
@@ -160,14 +172,20 @@ void Enemy::deserialize(const boost::json::object &o) {
 }
 
 void Enemy::updateBulletCollisions(
-    std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
+    std::vector<std::unique_ptr<Bullet>> &bullet_pool, Player &player) {
     if (!avail || health <= 0.0f)
         return;
 
     const auto bounds = getBounds();
     for (auto &bullet : bullet_pool) {
-        if (bullet->isAvailable() && bullet->from_player &&
-            bounds.intersects(bullet->getBounds())) {
+        if (!bullet->isAvailable() || !bounds.intersects(bullet->getBounds()))
+            continue;
+        if (!confused && bullet->from_player && player.charming && level < 3) {
+            confused = true;
+            health *= 128.0f;
+            current_shot_gap /= 2.0f;
+            bullet->setAvailable(false);
+        } else if ((!bullet->from_player && confused) || (bullet->from_player && !confused)){
             takeDamage(bullet->damage);
             bullet->setAvailable(false);
         }
@@ -201,10 +219,15 @@ void Enemy2::move(float deltaTime) {
     if (!avail)
         return;
 
+    if (confused)
+        sprite.setRotation(180.0f);
+    else
+        sprite.setRotation(0.0f);
+
     float verticalOffset =
         std::sin(timer.getElapsedTime() * verticalFrequency) *
         verticalAmplitude;
-    sprite.move(0, speed * deltaTime);
+    sprite.move(0, speed * deltaTime * (confused ? -1 : 1));
     auto [x, y] = sprite.getPosition();
     sprite.setPosition(verticalCenter + verticalOffset, y);
     avail = (y >= 0 && y <= Constants::SCREEN_HEIGHT);

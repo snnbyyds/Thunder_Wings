@@ -84,6 +84,15 @@ void Player::update(float deltaTime) {
         sprite.setTexture(ResourceManager::getTexture(deathImages[0]));
         deathTimer.restart();
     }
+
+    bool ischarming = false;
+    for (auto &gift : gifts) {
+        if (gift->charming) {
+            ischarming = true;
+            break;
+        }
+    }
+    charming = ischarming;
 }
 
 void Player::move(float deltaTime) {

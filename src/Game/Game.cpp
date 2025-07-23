@@ -173,18 +173,22 @@ void Game::run() {
 void Game::bringGifts() {
     if (!player.gifts.empty())
         return;
-    if (giftTimer.hasElapsed(Constants::GIFT_SPAWN_INTERVAL)) {
+    if (giftTimer.hasElapsed(2)) {
         if (!RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)) {
             giftTimer.restart();
             return;
         }
-        int choice = rand() & 1;
+        int choice = rand() % 3;
+        choice = 2;
         switch (choice) {
             case 0:
                 player.gifts.push_back(std::make_unique<FullFirePower>());
                 break;
             case 1:
                 player.gifts.push_back(std::make_unique<CenturyShield>());
+                break;
+            case 2:
+                player.gifts.push_back(std::make_unique<AllMyPeople>());
                 break;
             default: __unreachable(); break;
         }
@@ -343,6 +347,8 @@ void Game::deserialize(const boost::json::object &o) {
             player.gifts.push_back(std::make_unique<FullFirePower>(obj));
         else if (name == "CenturyShield")
             player.gifts.push_back(std::make_unique<CenturyShield>(obj));
+        else if (name == "AllMyPeople")
+            player.gifts.push_back(std::make_unique<AllMyPeople>(obj));
         else
             LOG_WARN("Unrecognized gift name: " << name);
     }
@@ -454,7 +460,7 @@ bool Game::update(float deltaTime) {
         if ((*it)->isAvailable()) {
             (*it)->update(deltaTime);
             (*it)->shoot(bullets);
-            (*it)->updateBulletCollisions(bullets);
+            (*it)->updateBulletCollisions(bullets, player);
             if ((*it)->level == 3 && (*it)->health > 0.0f)
                 currentBoss = it->get();
             ++it;

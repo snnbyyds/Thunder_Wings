@@ -17,7 +17,7 @@
 #pragma once
 #include "../Core/Timer.hpp"
 #include "Bullet.hpp"
-#include "Entity.hpp"
+#include "Player.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
@@ -40,12 +40,15 @@ public:
     virtual void deserialize(const boost::json::object &o) override;
 
     void
-    updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
+    updateBulletCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool, Player &player);
 
     float health;
     float maxHealth;
     float killBonus;
     int level;
+
+    // Enemies can be confused when player gets "AllMyPeople" gift
+    bool confused = false;
 
 protected:
     float speed;

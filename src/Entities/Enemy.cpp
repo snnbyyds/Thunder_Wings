@@ -58,6 +58,9 @@ Enemy::Enemy(int level, sf::Vector2f position)
     sprite.setTexture(ResourceManager::getTexture(
         std::string("assets/enemy") + std::to_string(level) + ".png"));
     sprite.setPosition(position);
+
+    bonusTaken = false;
+    charmed = false;
 }
 
 Enemy::Enemy(const boost::json::object &o) {
@@ -69,6 +72,9 @@ Enemy::Enemy(const boost::json::object &o) {
 void Enemy::update(float deltaTime) {
     if (!avail)
         return;
+
+    if (charmed)
+        sprite.setColor(sf::Color(200, 100, 200));
 
     move(deltaTime);
     recover(deltaTime);
@@ -101,7 +107,9 @@ void Enemy::move(float deltaTime) {
     if (!avail)
         return;
 
-    sprite.move(0, speed * deltaTime);
+    sprite.setRotation(charmed ? 180.0f : 0.0f);
+
+    sprite.move(0, speed * deltaTime * (charmed ? -1 : 1));
     auto [x, y] = sprite.getPosition();
     avail = (x >= 0 && x < Constants::SCREEN_WIDTH && y >= 0 &&
              y <= Constants::SCREEN_HEIGHT);
@@ -118,9 +126,14 @@ void Enemy::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     sf::Vector2f spawnPosition(bounds.left + bounds.width / 2.0f,
                                bounds.top + bounds.height + 8.0f);
     sf::Vector2f direction = {0.0f, 1.0f};
-    bullet_pool.push_back(std::make_unique<Cannon>(spawnPosition, direction,
-                                                   Constants::ENEMY_BULLET_ID,
-                                                   false, bulletspeed, damage));
+    if (charmed) {
+        spawnPosition = {bounds.left + bounds.width / 2.0f, bounds.top - 8.0f};
+        direction = {0.0f, -1.0f};
+    }
+    bullet_pool.push_back(std::make_unique<Cannon>(
+        spawnPosition, direction,
+        charmed ? Constants::PLAYER_BULLET_ID : Constants::ENEMY_BULLET_ID,
+        charmed, bulletspeed, damage, false));
 
     lastShotTimer.restart();
 }
@@ -144,6 +157,8 @@ boost::json::object Enemy::serialize() const {
     o["current_shot_gap"] = current_shot_gap;
     o["damage"] = damage;
     o["avail"] = avail && !dying;
+    o["charmed"] = charmed;
+    o["bonusTaken"] = bonusTaken;
     return o;
 }
 
@@ -157,6 +172,8 @@ void Enemy::deserialize(const boost::json::object &o) {
     bulletspeed = (float)o.at("bulletspeed").as_double();
     current_shot_gap = (float)o.at("current_shot_gap").as_double();
     damage = (float)o.at("damage").as_double();
+    charmed = o.at("charmed").as_bool();
+    bonusTaken = o.at("bonusTaken").as_bool();
 }
 
 void Enemy::updateBulletCollisions(
@@ -166,9 +183,17 @@ void Enemy::updateBulletCollisions(
 
     const auto bounds = getBounds();
     for (auto &bullet : bullet_pool) {
-        if (bullet->isAvailable() && bullet->from_player &&
-            bounds.intersects(bullet->getBounds())) {
+        if (!bullet->isAvailable() || !bounds.intersects(bullet->getBounds()))
+            continue;
+        if (!charmed && bullet->charming && level < 3) {
+            charmed = true;
+            speed /= 128.0f;
+            bullet->setAvailable(false);
+            ResourceManager::playSound("assets/AllMyPeople.wav");
+        } else if ((!bullet->from_player && charmed) ||
+                   (bullet->from_player && !charmed)) {
             takeDamage(bullet->damage);
+            bullet->explodeSoundOnly();
             bullet->setAvailable(false);
         }
     }
@@ -201,10 +226,12 @@ void Enemy2::move(float deltaTime) {
     if (!avail)
         return;
 
+    sprite.setRotation(charmed ? 180.0f : 0.0f);
+
     float verticalOffset =
         std::sin(timer.getElapsedTime() * verticalFrequency) *
         verticalAmplitude;
-    sprite.move(0, speed * deltaTime);
+    sprite.move(0, speed * deltaTime * (charmed ? -1 : 1));
     auto [x, y] = sprite.getPosition();
     sprite.setPosition(verticalCenter + verticalOffset, y);
     avail = (y >= 0 && y <= Constants::SCREEN_HEIGHT);
@@ -280,7 +307,8 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
 
             bullet_pool.push_back(std::make_unique<Cannon>(
                 spawnPosition, sf::Vector2f(0.0f, 1.0f),
-                Constants::ENEMY_BULLET_ID, false, bulletspeed, bulletDamage));
+                Constants::ENEMY_BULLET_ID, false, bulletspeed, bulletDamage,
+                false));
         }
     }
 

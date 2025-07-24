@@ -32,8 +32,9 @@ public:
     boost::json::object serialize() const override;
     void deserialize(const boost::json::object &o) override;
 
-    float damageReduction;
-    float attackSpeedIncrease;
+    float damageReduction = 0.0f;
+    float attackSpeedIncrease = 0.0f;
+    bool charming = false;
 
 protected:
     std::string name;
@@ -58,4 +59,11 @@ public:
     CenturyShield();
 
     CenturyShield(const boost::json::object &o) : Gift(o) {}
+};
+
+class AllMyPeople : public Gift {
+public:
+    AllMyPeople();
+
+    AllMyPeople(const boost::json::object &o) : Gift(o) {}
 };

@@ -29,6 +29,7 @@ public:
     virtual void update(float deltaTime, sf::Vector2f hitTarget);
     virtual void render(sf::RenderWindow &window) override;
     virtual void explode();
+    virtual void explodeSoundOnly();
 
     virtual boost::json::object serialize() const override;
     virtual void deserialize(const boost::json::object &o) override;
@@ -38,6 +39,7 @@ public:
     float damageRate;
     Timer timer;
     bool exploding = false;
+    bool charming = false;
 
 protected:
     void updateRotation();
@@ -57,7 +59,7 @@ class Cannon : public Bullet {
 public:
     Cannon(const boost::json::object &o);
     Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
-           bool from_player, float speed, float damage);
+           bool from_player, float speed, float damage, bool charming);
 
     boost::json::object serialize() const override;
     void deserialize(const boost::json::object &o) override;
@@ -72,6 +74,7 @@ public:
     void update(float deltaTime, sf::Vector2f hitTarget) override;
     void render(sf::RenderWindow &window) override;
     void explode() override;
+    void explodeSoundOnly() override;
 
     boost::json::object serialize() const override;
     void deserialize(const boost::json::object &o) override;
@@ -92,6 +95,7 @@ public:
     void update(float deltaTime, sf::Vector2f hitTarget) override;
     void render(sf::RenderWindow &window) override;
     void explode() override;
+    void explodeSoundOnly() override;
 
     boost::json::object serialize() const override;
     void deserialize(const boost::json::object &o) override;

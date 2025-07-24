@@ -45,6 +45,8 @@ public:
     float health;
     float maxHealth;
     float killBonus;
+    bool bonusTaken;
+    bool charmed;
     int level;
 
 protected:

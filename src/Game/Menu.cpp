@@ -264,6 +264,7 @@ const std::vector<std::string> Menu::guideLines = {
     "-- GIFTS (every 32s, 48% chance) --",
     "FullFirePower: +400% fire rate",
     "CenturyShield: 90% damage reduction",
+    "AllMyPeople: Make your enemies fight for you",
     "",
     "Press Esc to return to menu"
 };
@@ -295,7 +296,7 @@ const std::vector<std::string> Menu::aboutLines = {
     "Special thanks to the open source community",
     "",
     "-- AUTHOR --",
-    "Nuo Shen"
+    "Nuo Shen",
     "",
     "Press Esc to return to menu"
 };
@@ -313,7 +314,7 @@ void Menu::displayText(const std::vector<std::string> &lines) {
             // Section header
             t.setCharacterSize(28);
             t.setFillColor(sf::Color::Red);
-            y += 8.f;
+            y += 4.f;
         } else {
             t.setCharacterSize(24);
             t.setFillColor(sf::Color::Black);

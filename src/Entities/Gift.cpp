@@ -36,6 +36,8 @@ Gift::Gift(const boost::json::object &o) {
 Gift::Gift(const std::string &name) : name(name) {
     avail = true;
     remainingTime = (float)RandomUtils::generateInRange(7, 10);
+    if (name == "AllMyPeople")
+        remainingTime += 10.0f; // Extra time for AllMyPeople
     sprite.setTexture(ResourceManager::getTexture("assets/" + name + ".png"));
 
     constexpr float padding = 10.0f;
@@ -83,6 +85,7 @@ boost::json::object Gift::serialize() const {
     boost::json::object o = Entity::serialize();
     o["damageReduction"] = damageReduction;
     o["attackSpeedIncrease"] = attackSpeedIncrease;
+    o["charming"] = charming;
     o["name"] = name;
     o["remainingTime"] = remainingTime;
     o["disappearingTime"] = disappearingTimer.getElapsedTime();
@@ -96,6 +99,7 @@ void Gift::deserialize(const boost::json::object &o) {
     Entity::deserialize(o);
     damageReduction = (float)o.at("damageReduction").as_double();
     attackSpeedIncrease = (float)o.at("attackSpeedIncrease").as_double();
+    charming = o.at("charming").as_bool();
     name = o.at("name").as_string();
     remainingTime = (float)o.at("remainingTime").as_double();
     disappearingTimer.setElapsedTime(
@@ -108,9 +112,17 @@ void Gift::deserialize(const boost::json::object &o) {
 FullFirePower::FullFirePower() : Gift("FullFirePower") {
     attackSpeedIncrease = 4.0f; // +400%
     damageReduction = 0.0f;
+    charming = false;
 }
 
 CenturyShield::CenturyShield() : Gift("CenturyShield") {
     attackSpeedIncrease = 0.0f;
     damageReduction = 0.9f; // -90%
+    charming = false;
+}
+
+AllMyPeople::AllMyPeople() : Gift("AllMyPeople") {
+    attackSpeedIncrease = 0.0f;
+    damageReduction = 0.0f;
+    charming = true;
 }

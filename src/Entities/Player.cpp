@@ -20,7 +20,7 @@
 #include <algorithm>
 
 Player::Player()
-    : damaged(false), dying(false),
+    : damaged(false), dying(false), charming(false),
       current_shot_gap(Constants::PLAYER_SHOT_GAP),
       health(Constants::PLAYER_MAX_HEALTH * 0.64f),
       damage(Constants::PLAYER_DAMAGE),
@@ -84,6 +84,16 @@ void Player::update(float deltaTime) {
         sprite.setTexture(ResourceManager::getTexture(deathImages[0]));
         deathTimer.restart();
     }
+
+    // Check if we are charming
+    bool isCharming = false;
+    for (const auto &gift : gifts) {
+        if (gift->charming) {
+            isCharming = true;
+            break;
+        }
+    }
+    charming = isCharming;
 }
 
 void Player::move(float deltaTime) {
@@ -144,13 +154,13 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     bullet_pool.push_back(std::make_unique<Cannon>(
         playerCenter + sf::Vector2f(-horizontalOffset, verticalOffset),
         sf::Vector2f(0.0f, -1.0f), Constants::PLAYER_BULLET_ID, true, 1024.0f,
-        damage));
+        damage, charming));
 
     // right
     bullet_pool.push_back(std::make_unique<Cannon>(
         playerCenter + sf::Vector2f(horizontalOffset, verticalOffset),
         sf::Vector2f(0.0f, -1.0f), Constants::PLAYER_BULLET_ID, true, 1024.0f,
-        damage));
+        damage, charming));
 
     // ResourceManager::playSound("assets/bullet.wav");
 

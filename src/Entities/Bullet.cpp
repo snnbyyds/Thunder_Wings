@@ -56,6 +56,8 @@ void Bullet::render(sf::RenderWindow &window) {
 
 void Bullet::explode() {}
 
+void Bullet::explodeSoundOnly() {}
+
 boost::json::object Bullet::serialize() const {
     boost::json::object o = Entity::serialize();
     o["from_player"] = from_player;
@@ -92,8 +94,10 @@ Cannon::Cannon(const boost::json::object &o) {
 }
 
 Cannon::Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
-               bool from_player, float speed, float damage)
-    : Bullet(position, direction, id, from_player, speed, damage) {}
+               bool from_player, float speed, float damage, bool charming)
+    : Bullet(position, direction, id, from_player, speed, damage) {
+    this->charming = charming;
+}
 
 boost::json::object Cannon::serialize() const {
     boost::json::object o = Bullet::serialize();
@@ -197,10 +201,14 @@ void Missile::render(sf::RenderWindow &window) {
 }
 
 void Missile::explode() {
-    ResourceManager::playSound("assets/explode.wav");
+    explodeSoundOnly();
     explodeSprite.setTexture(ResourceManager::getTexture("assets/explode.png"));
     exploding = true;
     explodeTimer.restart();
+}
+
+void Missile::explodeSoundOnly() {
+    ResourceManager::playSound("assets/explode.wav");
 }
 
 boost::json::object Missile::serialize() const {
@@ -307,11 +315,15 @@ void Rocket::render(sf::RenderWindow &window) {
 }
 
 void Rocket::explode() {
-    ResourceManager::playSound("assets/explode.wav");
+    explodeSoundOnly();
     explodeSprite.setTexture(
         ResourceManager::getTexture("assets/explode2.png"));
     exploding = true;
     explodeTimer.restart();
+}
+
+void Rocket::explodeSoundOnly() {
+    ResourceManager::playSound("assets/explode.wav");
 }
 
 boost::json::object Rocket::serialize() const {

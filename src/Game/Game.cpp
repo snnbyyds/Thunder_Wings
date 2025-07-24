@@ -178,13 +178,16 @@ void Game::bringGifts() {
             giftTimer.restart();
             return;
         }
-        int choice = rand() & 1;
+        int choice = RandomUtils::generateFromSet(std::vector<int>{0, 1, 2});
         switch (choice) {
             case 0:
                 player.gifts.push_back(std::make_unique<FullFirePower>());
                 break;
             case 1:
                 player.gifts.push_back(std::make_unique<CenturyShield>());
+                break;
+            case 2:
+                player.gifts.push_back(std::make_unique<AllMyPeople>());
                 break;
             default: __unreachable(); break;
         }
@@ -343,6 +346,8 @@ void Game::deserialize(const boost::json::object &o) {
             player.gifts.push_back(std::make_unique<FullFirePower>(obj));
         else if (name == "CenturyShield")
             player.gifts.push_back(std::make_unique<CenturyShield>(obj));
+        else if (name == "AllMyPeople")
+            player.gifts.push_back(std::make_unique<AllMyPeople>(obj));
         else
             LOG_WARN("Unrecognized gift name: " << name);
     }
@@ -426,9 +431,19 @@ bool Game::update(float deltaTime) {
         player.shoot(bullets);
 
     // Update bullets
+    sf::Vector2f hitTarget = player.getPosition();
+    // Hit the strongest charmed enemy
+    float maxCharmedHealth = 0.0f;
+    for (const auto &enemy : enemies) {
+        if (enemy->isAvailable() && enemy->charmed &&
+            enemy->health > maxCharmedHealth) {
+            hitTarget = enemy->getPosition();
+            maxCharmedHealth = enemy->health;
+        }
+    }
     for (auto it = bullets.begin(); it != bullets.end();) {
         if ((*it)->isAvailable()) {
-            (*it)->update(deltaTime, player.getPosition());
+            (*it)->update(deltaTime, hitTarget);
             ++it;
         } else {
             if (!(*it)->exploding)
@@ -455,14 +470,19 @@ bool Game::update(float deltaTime) {
             (*it)->update(deltaTime);
             (*it)->shoot(bullets);
             (*it)->updateBulletCollisions(bullets);
-            if ((*it)->level == 3 && (*it)->health > 0.0f)
+            if (!(*it)->bonusTaken && (*it)->charmed) {
+                player.health += (*it)->killBonus;
+                killed++;
+                (*it)->bonusTaken = true;
+            } else if ((*it)->level == 3 && (*it)->health > 0.0f)
                 currentBoss = it->get();
             ++it;
         } else {
             int level = (*it)->level;
-            if ((*it)->health <= 0.0f) {
+            if (!(*it)->bonusTaken && (*it)->health <= 0.0f) {
                 player.health += (*it)->killBonus;
                 killed++;
+                (*it)->bonusTaken = true;
             }
             enemyCount[level] = std::max(0, enemyCount[level] - 1);
             enemies.erase(it);

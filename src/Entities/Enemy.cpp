@@ -40,12 +40,12 @@ Enemy::Enemy(int level, sf::Vector2f position)
             speed = RandomUtils::generateInRange(64.0f, 256.0f);
             bulletspeed = speed * 4.0f;
             current_shot_gap = 0.1f;
-            damage = 512.0f;
+            damage = 728.0f;
             killBonus = 8192.0f;
             break;
         case 3:
             maxHealth = health =
-                RandomUtils::generateInRange(320000.0f, 640000.0f);
+                RandomUtils::generateInRange(840000.0f, 1200000.0f);
             speed = RandomUtils::generateInRange(16.0f, 32.0f);
             bulletspeed = RandomUtils::generateInRange(1024.0f, 2048.f);
             current_shot_gap = RandomUtils::generateInRange(0.2f, 0.28f);

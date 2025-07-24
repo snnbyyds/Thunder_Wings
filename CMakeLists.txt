@@ -207,3 +207,12 @@ if(WIN32)
     message(STATUS "SFML DLL directory: ${SFML_BIN_DIR}")
     message(STATUS "Executable directory: ${EXECUTABLE_DIR}")
 endif()
+
+# Installation rules
+install(TARGETS thunder_wings
+    RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY ${ASSETS_DIR}/
+    DESTINATION assets
+)

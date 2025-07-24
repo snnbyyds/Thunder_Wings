@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Thunder Wings
+Comment=2D Action Game
+Exec=/opt/sn/thunder_wings/bin/thunder_wings
+Icon=thunder-wings
+Terminal=false
+Type=Application
+Categories=Game;ArcadeGame;
+StartupNotify=true
+Path=/opt/sn/thunder_wings

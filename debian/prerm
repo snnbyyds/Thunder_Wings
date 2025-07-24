@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+# Update icon cache on removal
+if which update-icon-caches >/dev/null 2>&1; then
+    update-icon-caches /usr/share/icons/hicolor
+fi
+
+# Update desktop database
+if which update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database /usr/share/applications
+fi
+
+exit 0

@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sn/thunder_wings
+
+override_dh_auto_install:
+	dh_auto_install
+	# Create directory structure
+	mkdir -p debian/thunder-wings/opt/sn/thunder_wings/bin
+	mkdir -p debian/thunder-wings/opt/sn/thunder_wings/assets
+	mkdir -p debian/thunder-wings/usr/share/applications
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/16x16/apps
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/22x22/apps
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/24x24/apps
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/32x32/apps
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/48x48/apps
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/64x64/apps
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/128x128/apps
+	mkdir -p debian/thunder-wings/usr/share/icons/hicolor/256x256/apps
+	
+	# Install executable
+	cp build/thunder_wings debian/thunder-wings/opt/sn/thunder_wings/bin/
+	
+	# Install assets
+	cp -r assets/* debian/thunder-wings/opt/sn/thunder_wings/assets/
+	
+	# Install desktop file
+	cp debian/thunder-wings.desktop debian/thunder-wings/usr/share/applications/
+	
+	# Install icons
+	cp icons/thunder-wings-16.png debian/thunder-wings/usr/share/icons/hicolor/16x16/apps/thunder-wings.png
+	cp icons/thunder-wings-22.png debian/thunder-wings/usr/share/icons/hicolor/22x22/apps/thunder-wings.png
+	cp icons/thunder-wings-24.png debian/thunder-wings/usr/share/icons/hicolor/24x24/apps/thunder-wings.png
+	cp icons/thunder-wings-32.png debian/thunder-wings/usr/share/icons/hicolor/32x32/apps/thunder-wings.png
+	cp icons/thunder-wings-48.png debian/thunder-wings/usr/share/icons/hicolor/48x48/apps/thunder-wings.png
+	cp icons/thunder-wings-64.png debian/thunder-wings/usr/share/icons/hicolor/64x64/apps/thunder-wings.png
+	cp icons/thunder-wings-128.png debian/thunder-wings/usr/share/icons/hicolor/128x128/apps/thunder-wings.png
+	cp icons/thunder-wings-256.png debian/thunder-wings/usr/share/icons/hicolor/256x256/apps/thunder-wings.png

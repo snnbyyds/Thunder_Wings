@@ -1,0 +1,16 @@
+Source: thunder-wings
+Section: games
+Priority: optional
+Maintainer: snnbyyds <snnbyyds@egmail.com>
+Build-Depends: debhelper (>= 12), cmake (>= 3.15), libsfml-dev (>= 2.6.2), libboost-all-dev (>= 1.75), pkg-config
+Standards-Version: 4.5.1
+Homepage: https://github.com/yourusername/Thunder_Wings
+
+Package: thunder-wings
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         libsfml-graphics2.6 (>= 2.6.2), libsfml-window2.6 (>= 2.6.2),
+         libsfml-system2.6 (>= 2.6.2), libsfml-audio2.6 (>= 2.6.2)
+Description: Thunder Wings - 2D Action Game
+ Thunder Wings is an exciting 2D action game built with SFML and C++.
+ Features include dynamic gameplay, stunning graphics, and immersive audio.

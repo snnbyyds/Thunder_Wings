@@ -78,9 +78,6 @@ void Enemy::update(float deltaTime) {
     if (charmed)
         sprite.setColor(sf::Color::Cyan);
 
-    move(deltaTime);
-    recover(deltaTime);
-
     if (health <= 0.0f) {
         if (!dying) {
             dying = true;
@@ -102,6 +99,9 @@ void Enemy::update(float deltaTime) {
         } else {
             avail = false;
         }
+    } else {
+        recover(deltaTime);
+        move(deltaTime);
     }
 }
 

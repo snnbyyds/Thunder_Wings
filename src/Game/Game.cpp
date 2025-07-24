@@ -504,7 +504,13 @@ bool Game::update(float deltaTime) {
 
 void Game::render() {
     window.clear();
+
+    if (player.charming)
+        backgroundSprite.setColor(sf::Color(244, 154, 240, 232));
+    else
+        backgroundSprite.setColor(sf::Color::White);
     window.draw(backgroundSprite);
+
     player.render(window);
 
     for (auto &bullet : bullets)

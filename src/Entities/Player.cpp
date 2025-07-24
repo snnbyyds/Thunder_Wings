@@ -34,6 +34,7 @@ Player::Player()
     sprite.setTexture(ResourceManager::getTexture(images[0]));
     sprite.setPosition(400.0f, 500.0f);
     sprite.setScale(0.64f, 0.64f);
+    sprite.setColor(sf::Color::Cyan);
 }
 
 void Player::update(float deltaTime) {

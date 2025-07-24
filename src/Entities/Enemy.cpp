@@ -58,6 +58,7 @@ Enemy::Enemy(int level, sf::Vector2f position)
     sprite.setTexture(ResourceManager::getTexture(
         std::string("assets/enemy") + std::to_string(level) + ".png"));
     sprite.setPosition(position);
+    sprite.setColor(sf::Color::Yellow);
 
     bonusTaken = false;
     charmed = false;
@@ -67,6 +68,7 @@ Enemy::Enemy(const boost::json::object &o) {
     deserialize(o);
     sprite.setTexture(ResourceManager::getTexture(
         std::string("assets/enemy") + std::to_string(level) + ".png"));
+    sprite.setColor(sf::Color::Yellow);
 }
 
 void Enemy::update(float deltaTime) {
@@ -74,7 +76,7 @@ void Enemy::update(float deltaTime) {
         return;
 
     if (charmed)
-        sprite.setColor(sf::Color(200, 100, 200));
+        sprite.setColor(sf::Color::Cyan);
 
     move(deltaTime);
     recover(deltaTime);

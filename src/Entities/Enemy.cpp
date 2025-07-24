@@ -191,7 +191,7 @@ void Enemy::updateBulletCollisions(
         if (!charmed && bullet->charming && level < 3) {
             charmed = true;
             speed /= 128.0f;
-            health *= 16.0f;
+            health *= 1.2f;
             bullet->setAvailable(false);
             ResourceManager::playSound("assets/AllMyPeople.wav");
         } else if ((!bullet->from_player && charmed) ||

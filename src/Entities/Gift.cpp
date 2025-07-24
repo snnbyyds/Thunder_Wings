@@ -31,7 +31,7 @@ Gift::Gift(const std::string &name) : name(name) {
     avail = true;
     remainingTime = (float)RandomUtils::generateInRange(7, 10);
     if (name == "AllMyPeople")
-        remainingTime += 10.0f; // Extra time for AllMyPeople
+        remainingTime += 4.0f; // Extra time for AllMyPeople
     maxTime = remainingTime;
     sprite.setTexture(ResourceManager::getTexture("assets/" + name + ".png"));
     ResourceManager::playSound("assets/" + name + ".wav");

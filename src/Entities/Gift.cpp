@@ -15,22 +15,16 @@
  */
 
 #include "Entities/Gift.hpp"
-#include "Core/Constants.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 
 Gift::Gift(const boost::json::object &o) {
     deserialize(o);
     sprite.setTexture(ResourceManager::getTexture("assets/" + name + ".png"));
-    constexpr float padding = 10.0f;
-    constexpr float iconSize = 64.0f;
-    constexpr float raiseUp = 32.0f;
-    float x = padding;
-    float y = Constants::SCREEN_HEIGHT - iconSize - padding - raiseUp;
-    const auto bounds = sprite.getLocalBounds();
+    constexpr float iconSize = 80.0f;
+    auto bounds = sprite.getLocalBounds();
     float scale = iconSize / bounds.height;
     sprite.setScale(scale, scale);
-    sprite.setPosition(x, y);
 }
 
 Gift::Gift(const std::string &name) : name(name) {
@@ -38,19 +32,13 @@ Gift::Gift(const std::string &name) : name(name) {
     remainingTime = (float)RandomUtils::generateInRange(7, 10);
     if (name == "AllMyPeople")
         remainingTime += 10.0f; // Extra time for AllMyPeople
+    maxTime = remainingTime;
     sprite.setTexture(ResourceManager::getTexture("assets/" + name + ".png"));
-
-    constexpr float padding = 10.0f;
-    constexpr float iconSize = 64.0f;
-    constexpr float raiseUp = 32.0f;
-    float x = padding;
-    float y = Constants::SCREEN_HEIGHT - iconSize - padding - raiseUp;
-    const auto bounds = sprite.getLocalBounds();
+    ResourceManager::playSound("assets/" + name + ".wav");
+    constexpr float iconSize = 80.0f;
+    auto bounds = sprite.getLocalBounds();
     float scale = iconSize / bounds.height;
     sprite.setScale(scale, scale);
-    sprite.setPosition(x, y);
-
-    ResourceManager::playSound("assets/" + name + ".wav");
 }
 
 void Gift::update(float deltaTime) {
@@ -88,6 +76,7 @@ boost::json::object Gift::serialize() const {
     o["charming"] = charming;
     o["name"] = name;
     o["remainingTime"] = remainingTime;
+    o["maxTime"] = maxTime;
     o["disappearingTime"] = disappearingTimer.getElapsedTime();
     o["disappearing"] = disappearing;
     o["disappearingSound1Played"] = disappearingSound1Played;
@@ -102,6 +91,7 @@ void Gift::deserialize(const boost::json::object &o) {
     charming = o.at("charming").as_bool();
     name = o.at("name").as_string();
     remainingTime = (float)o.at("remainingTime").as_double();
+    maxTime = (float)o.at("maxTime").as_double();
     disappearingTimer.setElapsedTime(
         (float)o.at("disappearingTime").as_double());
     disappearing = o.at("disappearing").as_bool();

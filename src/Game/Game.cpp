@@ -173,23 +173,31 @@ void Game::run() {
 void Game::bringGifts() {
     if (!player.gifts.empty())
         return;
-    if (giftTimer.hasElapsed(Constants::GIFT_SPAWN_INTERVAL)) {
-        if (!RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)) {
-            giftTimer.restart();
-            return;
-        }
-        int choice = RandomUtils::generateFromSet(std::vector<int>{0, 1, 2});
-        switch (choice) {
-            case 0:
-                player.gifts.push_back(std::make_unique<FullFirePower>());
-                break;
-            case 1:
-                player.gifts.push_back(std::make_unique<CenturyShield>());
-                break;
-            case 2:
-                player.gifts.push_back(std::make_unique<AllMyPeople>());
-                break;
-            default: __unreachable(); break;
+
+    if (giftTimer.hasElapsed(Constants::GIFT_SPAWN_INTERVAL) &&
+        RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)) {
+        int count = RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY) ? 2 : 1;
+        std::vector<int> choices = {0, 1, 2};
+        for (int i = 0; i < count; i++) {
+            int choice = RandomUtils::generateFromSet(choices);
+            switch (choice) {
+                case 0:
+                    player.gifts.push_back(std::make_unique<FullFirePower>());
+                    break;
+                case 1:
+                    player.gifts.push_back(std::make_unique<CenturyShield>());
+                    break;
+                case 2:
+                    player.gifts.push_back(std::make_unique<AllMyPeople>());
+                    break;
+                default: __unreachable(); break;
+            }
+            for (auto it = choices.begin(); it != choices.end(); ++it) {
+                if (*it == choice) {
+                    choices.erase(it);
+                    break;
+                }
+            }
         }
         giftTimer.restart();
     }
@@ -558,33 +566,93 @@ void Game::drawGifts() {
     if (player.gifts.empty())
         return;
 
-    auto &gift = player.gifts.front();
+    constexpr float padding = 20.0f;
+    constexpr float iconSize = 80.0f;
+    constexpr float spacing = 15.0f;
+    constexpr float textGap = 8.0f;
 
-    constexpr float padding = 10.0f;
-    constexpr float iconSize = 64.0f;
-    constexpr float raiseUp = 32.0f;
-    float x = padding;
-    float y = Constants::SCREEN_HEIGHT - iconSize - padding - raiseUp;
+    float startX = padding;
+    float baseY = Constants::SCREEN_HEIGHT - iconSize - padding - 40;
 
-    auto icon = gift->getSprite();
-    gift->render(window);
+    for (size_t i = 0; i < player.gifts.size(); ++i) {
+        auto &gift = player.gifts[i];
+        
+        float x = startX + i * (iconSize + spacing);
+        float y = baseY;
+        sf::RectangleShape background;
+        background.setSize(sf::Vector2f(iconSize + 8, iconSize + 40 + 8));
+        background.setPosition(x - 4, y - 4);
+        background.setFillColor(sf::Color(0, 0, 0, 120));
+        background.setOutlineThickness(2.0f);
+        background.setOutlineColor(sf::Color(255, 255, 255, 180));
+        window.draw(background);
 
-    float remaining = gift->getRemainingTime();
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(3) << remaining << "s";
+        // Icon
+        sf::Sprite icon = gift->getSprite();
+        icon.setPosition(x, y);
+        window.draw(icon);
 
-    sf::Text text;
-    text.setFont(ResourceManager::gameFont);
-    text.setString(oss.str());
-    text.setCharacterSize(34);
-    if (remaining < 2.6f)
-        text.setFillColor(sf::Color::Red);
-    else
-        text.setFillColor(sf::Color(4, 133, 255, 255));
-
-    float textWidth = text.getLocalBounds().width;
-    float iconW = icon.getGlobalBounds().width;
-    text.setPosition(x + (iconW - textWidth) / 2.0f,
-                     y + icon.getGlobalBounds().height + 4.0f);
-    window.draw(text);
+        // Timer
+        float remaining = gift->getRemainingTime();
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(1) << remaining << "s";
+        
+        sf::Text text;
+        text.setFont(ResourceManager::gameFont);
+        text.setString(oss.str());
+        text.setCharacterSize(26);
+        
+        if (remaining < 2.0f) {
+            text.setFillColor(sf::Color::Red);
+        } else if (remaining < 5.0f) {
+            text.setFillColor(sf::Color::Yellow);
+        } else {
+            text.setFillColor(sf::Color::Green);
+        }
+        
+        sf::FloatRect textBounds = text.getLocalBounds();
+        float textX = x + (iconSize - textBounds.width) / 2.0f;
+        float textY = y + iconSize + textGap;
+        text.setPosition(textX, textY);
+        window.draw(text);
+        
+        // Flash
+        if (remaining < 3.0f) {
+            static sf::Clock blinkClock;
+            float blinkTime = blinkClock.getElapsedTime().asSeconds();
+            float blinkSpeed = (remaining < 1.0f) ? 4.0f : 2.0f;
+            
+            if (std::fmod(blinkTime * blinkSpeed, 2.0f) < 1.0f) {
+                sf::RectangleShape alertOverlay;
+                alertOverlay.setSize(sf::Vector2f(iconSize, iconSize));
+                alertOverlay.setPosition(x, y);
+                alertOverlay.setFillColor(sf::Color(255, 100, 100, 80));
+                window.draw(alertOverlay);
+            }
+        }
+        
+        float maxTime = gift->maxTime;
+        if (maxTime > 0) {
+            float progress = remaining / maxTime;
+            
+            sf::RectangleShape progressBg;
+            progressBg.setSize(sf::Vector2f(iconSize, 4));
+            progressBg.setPosition(x, y + iconSize + 2);
+            progressBg.setFillColor(sf::Color(50, 50, 50, 200));
+            window.draw(progressBg);
+            
+            sf::RectangleShape progressBar;
+            progressBar.setSize(sf::Vector2f(iconSize * progress, 4));
+            progressBar.setPosition(x, y + iconSize + 2);
+            
+            if (progress < 0.2f) {
+                progressBar.setFillColor(sf::Color::Red);
+            } else if (progress < 0.5f) {
+                progressBar.setFillColor(sf::Color::Yellow);
+            } else {
+                progressBar.setFillColor(sf::Color::Green);
+            }
+            window.draw(progressBar);
+        }
+    }
 }

@@ -35,6 +35,7 @@ public:
     float damageReduction = 0.0f;
     float attackSpeedIncrease = 0.0f;
     bool charming = false;
+    float maxTime;
 
 protected:
     std::string name;

@@ -31,6 +31,7 @@ public:
     Player();
 
     void update(float deltaTime) override;
+    void render(sf::RenderWindow &window) override;
 
     void move(float deltaTime);
     void updateCollisions(std::vector<std::unique_ptr<Bullet>> &bullet_pool);
@@ -42,7 +43,8 @@ public:
 
     const float max_health = Constants::PLAYER_MAX_HEALTH;
     bool dying;
-    bool charming;
+    bool charming = false;
+    bool hasShield = false;
     float current_shot_gap;
     float health;
     float damage;
@@ -63,4 +65,6 @@ private:
     Timer animationTimer;
     Timer recoverTimer;
     size_t destroyFrameIdx;
+
+    sf::Sprite shieldSprite;
 };

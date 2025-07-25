@@ -333,22 +333,16 @@ void Game::deserialize(const boost::json::object &o) {
             continue;
         int level = (int)obj.at("level").as_int64();
         switch (level) {
-            case 1:
-                enemies.push_back(std::make_unique<Enemy1>(obj));
-                break;
-            case 2:
-                enemies.push_back(std::make_unique<Enemy2>(obj));
-                break;
-            case 3:
-                enemies.push_back(std::make_unique<Enemy3>(obj));
-                break;
+            case 1: enemies.push_back(std::make_unique<Enemy1>(obj)); break;
+            case 2: enemies.push_back(std::make_unique<Enemy2>(obj)); break;
+            case 3: enemies.push_back(std::make_unique<Enemy3>(obj)); break;
             default: LOG_WARN("Unrecognized enemy level: " << level); break;
         }
     }
     for (const auto &enemy : enemies)
         if (enemy->isAvailable() && !enemy->charmed)
             enemyCount[enemy->level]++;
-    
+
     // player
     player.deserialize(o.at("player").as_object());
 

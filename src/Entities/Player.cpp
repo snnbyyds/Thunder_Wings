@@ -32,9 +32,19 @@ Player::Player()
         ResourceManager::getTexture(image).setSmooth(true);
 
     sprite.setTexture(ResourceManager::getTexture(images[0]));
+    sf::Vector2u playerSize = sprite.getTexture()->getSize();
+    sprite.setOrigin(playerSize.x / 2.0f, playerSize.y / 2.0f);
     sprite.setPosition(400.0f, 500.0f);
     sprite.setScale(0.64f, 0.64f);
     sprite.setColor(sf::Color::Cyan);
+
+    // Configure the shield sprite
+    shieldSprite.setTexture(
+        ResourceManager::getTexture("assets/PlayerShield.png"));
+    sf::Vector2u shieldSize = shieldSprite.getTexture()->getSize();
+    shieldSprite.setOrigin(shieldSize.x / 2.0f, shieldSize.y / 2.0f);
+    shieldSprite.setScale(0.64f, 0.64f);
+    shieldSprite.setPosition(sprite.getPosition());
 }
 
 void Player::update(float deltaTime) {
@@ -83,15 +93,27 @@ void Player::update(float deltaTime) {
         deathTimer.restart();
     }
 
-    // Check if we are charming
-    bool isCharming = false;
+    // Check if we are charming and if we have a shield
+    bool isCharming = false, hasShield = false;
     for (const auto &gift : gifts) {
-        if (gift->charming) {
+        if (gift->charming)
             isCharming = true;
-            break;
-        }
+        else if (gift->damageReduction > 0.0f)
+            hasShield = true;
     }
     charming = isCharming;
+    this->hasShield = hasShield;
+
+    if (hasShield)
+        shieldSprite.rotate(90.0f * deltaTime);
+}
+
+void Player::render(sf::RenderWindow &window) {
+    Entity::render(window);
+    if (hasShield) {
+        shieldSprite.setPosition(sprite.getPosition());
+        window.draw(shieldSprite);
+    }
 }
 
 void Player::move(float deltaTime) {
@@ -114,7 +136,8 @@ void Player::updateCollisions(
     if (!avail || dying)
         return;
 
-    const auto bounds = getBounds();
+    const auto bounds =
+        hasShield ? shieldSprite.getGlobalBounds() : getBounds();
 
     // Bullet collisions
     for (auto &bullet : bullet_pool) {
@@ -141,12 +164,9 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
             return;
     }
 
-    const sf::Vector2f playerCenter =
-        sprite.getPosition() +
-        sf::Vector2f(sprite.getGlobalBounds().width / 2.0f, 0.0f);
-
+    const sf::Vector2f playerCenter = sprite.getPosition();
     const float horizontalOffset = 20.0f;
-    const float verticalOffset = -8.0f;
+    const float verticalOffset = -16.0f;
 
     // left
     bullet_pool.push_back(std::make_unique<Cannon>(

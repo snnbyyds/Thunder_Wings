@@ -150,7 +150,10 @@ void Enemy::takeDamage(float damage) {
         std::string("assets/enemy") + std::to_string(level) + "_hit.png"));
 }
 
-void Enemy::recover(float deltaTime) {}
+void Enemy::recover(float deltaTime) {
+    if (avail && charmed)
+        health = std::min(maxHealth * 15.0f, deltaTime * 240.0f + health);
+}
 
 boost::json::object Enemy::serialize() const {
     boost::json::object o = Entity::serialize();

@@ -335,20 +335,20 @@ void Game::deserialize(const boost::json::object &o) {
         switch (level) {
             case 1:
                 enemies.push_back(std::make_unique<Enemy1>(obj));
-                enemyCount[1]++;
                 break;
             case 2:
                 enemies.push_back(std::make_unique<Enemy2>(obj));
-                enemyCount[2]++;
                 break;
             case 3:
                 enemies.push_back(std::make_unique<Enemy3>(obj));
-                enemyCount[3]++;
                 break;
             default: LOG_WARN("Unrecognized enemy level: " << level); break;
         }
     }
-
+    for (const auto &enemy : enemies)
+        if (enemy->isAvailable() && !enemy->charmed)
+            enemyCount[enemy->level]++;
+    
     // player
     player.deserialize(o.at("player").as_object());
 
@@ -482,6 +482,7 @@ bool Game::update(float deltaTime) {
     // Update enemies
     currentBoss = nullptr;
     for (auto it = enemies.begin(); it != enemies.end();) {
+        int level = (*it)->level;
         if ((*it)->isAvailable()) {
             (*it)->update(deltaTime);
             (*it)->shoot(bullets);
@@ -489,12 +490,12 @@ bool Game::update(float deltaTime) {
             if (!(*it)->bonusTaken && (*it)->charmed) {
                 player.health += (*it)->killBonus;
                 killed++;
+                enemyCount[level] = std::max(0, enemyCount[level] - 1);
                 (*it)->bonusTaken = true;
             } else if ((*it)->level == 3 && (*it)->health > 0.0f)
                 currentBoss = it->get();
             ++it;
         } else {
-            int level = (*it)->level;
             if (!(*it)->bonusTaken && (*it)->health <= 0.0f) {
                 player.health += (*it)->killBonus;
                 killed++;

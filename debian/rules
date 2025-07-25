@@ -7,7 +7,8 @@ override_dh_dwz:
 	# no-op
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sn/thunder_wings
+	mkdir -p build
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/sn/thunder_wings -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(CURDIR)/build
 
 override_dh_auto_install:
 	dh_auto_install

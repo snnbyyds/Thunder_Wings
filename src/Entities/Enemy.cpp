@@ -111,6 +111,9 @@ void Enemy::move(float deltaTime) {
         return;
 
     sprite.setRotation(charmed ? 180.0f : 0.0f);
+    if (charmed &&
+        sprite.getPosition().y >= Constants::SCREEN_HEIGHT * 2.0f / 3.0f)
+        speed = 0.0f;
 
     sprite.move(0, speed * deltaTime * (charmed ? -1 : 1));
     auto [x, y] = sprite.getPosition();
@@ -190,8 +193,9 @@ void Enemy::updateBulletCollisions(
             continue;
         if (!charmed && bullet->charming && level < 3) {
             charmed = true;
-            speed /= 128.0f;
-            health *= 1.2f;
+            speed /= -2.0f;
+            health *= 10.0f;
+            damage *= 1.6f;
             bullet->setAvailable(false);
             ResourceManager::playSound("assets/AllMyPeople.wav");
         } else if ((!bullet->from_player && charmed) ||
@@ -231,6 +235,9 @@ void Enemy2::move(float deltaTime) {
         return;
 
     sprite.setRotation(charmed ? 180.0f : 0.0f);
+    if (charmed &&
+        sprite.getPosition().y >= Constants::SCREEN_HEIGHT * 4.0f / 5.0f)
+        speed = 0.0f;
 
     float verticalOffset =
         std::sin(timer.getElapsedTime() * verticalFrequency) *

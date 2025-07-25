@@ -21,6 +21,7 @@
 #include "../Entities/Bullet.hpp"
 #include "../Entities/Enemy.hpp"
 #include "../Entities/Player.hpp"
+#include "../Platform/save_path.h"
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <memory>
@@ -90,4 +91,7 @@ private:
     int currentPauseOption = PAUSE_OPTION_RESUME;
 
     size_t killed = 0ul;
+
+    // for saved progress
+    std::string save_file;
 };

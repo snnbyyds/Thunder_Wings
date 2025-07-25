@@ -98,6 +98,12 @@ Game::Game(sf::RenderWindow &window)
                          saveText.getPosition().y + 80);
 
     std::fill(enemyCount.begin(), enemyCount.end(), 0);
+
+    // Determine file for saved progress
+    static char path[SAVE_PATH_MAX];
+    if (get_save_file_path(path))
+        throw std::runtime_error("Cannot determine save path");
+    save_file = path;
 }
 
 void Game::run() {
@@ -176,7 +182,9 @@ void Game::bringGifts() {
 
     if (giftTimer.hasElapsed(Constants::GIFT_SPAWN_INTERVAL) &&
         RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)) {
-        int count = RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY) ? 2 : 1;
+        int count =
+            RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY) ? 2
+                                                                           : 1;
         std::vector<int> choices = {0, 1, 2};
         for (int i = 0; i < count; i++) {
             int choice = RandomUtils::generateFromSet(choices);
@@ -363,10 +371,10 @@ void Game::deserialize(const boost::json::object &o) {
 
 void Game::loadFromDisk() {
     // Load file
-    LOG_INFO("Loading progress from disk");
-    std::ifstream ifs(Constants::SAVE_FILE_NAME, std::ios::binary);
+    LOG_INFO("Loading progress from " << save_file);
+    std::ifstream ifs(save_file, std::ios::binary);
     if (!ifs.is_open()) {
-        LOG_ERROR("Load " << Constants::SAVE_FILE_NAME << " failed!");
+        LOG_ERROR("Load " << save_file << " failed!");
         return;
     }
     std::string content((std::istreambuf_iterator<char>(ifs)),
@@ -383,11 +391,10 @@ void Game::loadFromDisk() {
 
 void Game::saveToDisk() {
     LOG_INFO("Saving progress to disk");
-    std::ofstream ofs(Constants::SAVE_FILE_NAME,
-                      std::ios::trunc | std::ios::binary);
+    std::ofstream ofs(save_file, std::ios::trunc | std::ios::binary);
     if (!ofs.is_open())
         throw std::runtime_error("Cannot open file for writing: " +
-                                 std::string(Constants::SAVE_FILE_NAME));
+                                 std::string(save_file));
     ofs << boost::json::serialize(serialize());
     ofs.close();
 }
@@ -576,7 +583,7 @@ void Game::drawGifts() {
 
     for (size_t i = 0; i < player.gifts.size(); ++i) {
         auto &gift = player.gifts[i];
-        
+
         float x = startX + i * (iconSize + spacing);
         float y = baseY;
         sf::RectangleShape background;
@@ -596,12 +603,12 @@ void Game::drawGifts() {
         float remaining = gift->getRemainingTime();
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(1) << remaining << "s";
-        
+
         sf::Text text;
         text.setFont(ResourceManager::gameFont);
         text.setString(oss.str());
         text.setCharacterSize(26);
-        
+
         if (remaining < 2.0f) {
             text.setFillColor(sf::Color::Red);
         } else if (remaining < 5.0f) {
@@ -609,19 +616,19 @@ void Game::drawGifts() {
         } else {
             text.setFillColor(sf::Color::Green);
         }
-        
+
         sf::FloatRect textBounds = text.getLocalBounds();
         float textX = x + (iconSize - textBounds.width) / 2.0f;
         float textY = y + iconSize + textGap;
         text.setPosition(textX, textY);
         window.draw(text);
-        
+
         // Flash
         if (remaining < 3.0f) {
             static sf::Clock blinkClock;
             float blinkTime = blinkClock.getElapsedTime().asSeconds();
             float blinkSpeed = (remaining < 1.0f) ? 4.0f : 2.0f;
-            
+
             if (std::fmod(blinkTime * blinkSpeed, 2.0f) < 1.0f) {
                 sf::RectangleShape alertOverlay;
                 alertOverlay.setSize(sf::Vector2f(iconSize, iconSize));
@@ -630,21 +637,21 @@ void Game::drawGifts() {
                 window.draw(alertOverlay);
             }
         }
-        
+
         float maxTime = gift->maxTime;
         if (maxTime > 0) {
             float progress = remaining / maxTime;
-            
+
             sf::RectangleShape progressBg;
             progressBg.setSize(sf::Vector2f(iconSize, 4));
             progressBg.setPosition(x, y + iconSize + 2);
             progressBg.setFillColor(sf::Color(50, 50, 50, 200));
             window.draw(progressBg);
-            
+
             sf::RectangleShape progressBar;
             progressBar.setSize(sf::Vector2f(iconSize * progress, 4));
             progressBar.setPosition(x, y + iconSize + 2);
-            
+
             if (progress < 0.2f) {
                 progressBar.setFillColor(sf::Color::Red);
             } else if (progress < 0.5f) {

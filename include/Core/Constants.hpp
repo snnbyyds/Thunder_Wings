@@ -21,7 +21,6 @@ namespace Constants {
 // clang-format off
 
 // Common Properties
-constexpr const char *SAVE_FILE_NAME = "game_data.json";
 constexpr const char *BACKGROUND_FILE_NAME = "assets/background.png";
 constexpr const char *BGM_FILE_NAME = "assets/background.wav";
 constexpr const char *GAME_FONT = "assets/Morning Routine.otf";

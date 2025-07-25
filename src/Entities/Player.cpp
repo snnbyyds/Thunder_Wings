@@ -20,11 +20,10 @@
 #include <algorithm>
 
 Player::Player()
-    : dying(false), charming(false),
-      current_shot_gap(Constants::PLAYER_SHOT_GAP),
+    : dying(false), current_shot_gap(Constants::PLAYER_SHOT_GAP),
       health(Constants::PLAYER_MAX_HEALTH * 0.64f),
       damage(Constants::PLAYER_DAMAGE),
-      recover_health(Constants::PLAYER_RECOVER_HEALTH),
+      recover_health(Constants::PLAYER_RECOVER_HEALTH), charming(false),
       speed(Constants::PLAYER_SPEED), current_texture(0) {
     avail = true;
 
@@ -93,9 +92,11 @@ void Player::update(float deltaTime) {
         deathTimer.restart();
     }
 
-    // Check if we are charming and if we have a shield
+    // Check gifts
     bool isCharming = false, hasShield = false;
+    speedIncrease = 0.0f;
     for (const auto &gift : gifts) {
+        speedIncrease += gift->speedIncrease;
         if (gift->charming)
             isCharming = true;
         else if (gift->damageReduction > 0.0f)
@@ -119,16 +120,17 @@ void Player::render(sf::RenderWindow &window) {
 void Player::move(float deltaTime) {
     auto [x, y] = sprite.getPosition();
 
+    float realSpeed = speed * (1.0f + speedIncrease);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && x > 0)
-        sprite.move(-speed * deltaTime, 0);
+        sprite.move(-realSpeed * deltaTime, 0);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
         x < Constants::SCREEN_WIDTH - sprite.getGlobalBounds().width)
-        sprite.move(speed * deltaTime, 0);
+        sprite.move(realSpeed * deltaTime, 0);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && y > 0)
-        sprite.move(0, -speed * deltaTime);
+        sprite.move(0, -realSpeed * deltaTime);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) &&
         y < Constants::SCREEN_HEIGHT - sprite.getGlobalBounds().height)
-        sprite.move(0, speed * deltaTime);
+        sprite.move(0, realSpeed * deltaTime);
 }
 
 void Player::updateCollisions(

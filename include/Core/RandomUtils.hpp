@@ -58,6 +58,25 @@ public:
         return set[std::min(set.size() - 1, index)];
     }
 
+    template <typename T>
+    static T generateFromSetWithRatio(const std::vector<T> &set,
+                                      const std::vector<float> &ratios) {
+        if (set.size() != ratios.size() || set.empty())
+            throw std::invalid_argument(
+                "Set and ratios must have the same size and cannot be empty");
+
+        float total = std::accumulate(ratios.begin(), ratios.end(), 0.0f);
+        if (total <= 0.0f)
+            throw std::invalid_argument("Sum of ratios must be positive");
+
+        std::vector<float> probabilities;
+        probabilities.reserve(ratios.size());
+        for (auto r : ratios)
+            probabilities.push_back(r / total);
+
+        return generateFromSetWithProb(set, probabilities);
+    }
+
     static bool chooseWithProb(float probability) {
         if (probability < 0.0f || probability > 1.0f)
             throw std::invalid_argument(

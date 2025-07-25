@@ -43,12 +43,15 @@ public:
 
     const float max_health = Constants::PLAYER_MAX_HEALTH;
     bool dying;
-    bool charming = false;
-    bool hasShield = false;
     float current_shot_gap;
     float health;
     float damage;
     float recover_health;
+
+    // gifts
+    bool charming = false;
+    bool hasShield = false;
+    float speedIncrease = 0.0f;
     std::vector<std::unique_ptr<Gift>> gifts;
 
 private:

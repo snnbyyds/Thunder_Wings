@@ -182,13 +182,14 @@ void Game::bringGifts() {
 
     if (giftTimer.hasElapsed(Constants::GIFT_SPAWN_INTERVAL) &&
         RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)) {
-        int count =
-            RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)
-                ? (currentBoss ? 3 : 2)
-                : 1;
-        std::vector<int> choices = {0, 1, 2};
+        int count = RandomUtils::chooseWithProb(
+                        Constants::GIFT_SPAWN_PROBABILITY / 2.0f)
+                        ? (currentBoss ? 3 : 2)
+                        : 1;
+        std::vector<int> choices = {0, 1, 2, 3};
+        std::vector<float> ratios = {20.0f, 25.0f, 15.0f, 40.0f};
         for (int i = 0; i < count; i++) {
-            int choice = RandomUtils::generateFromSet(choices);
+            int choice = RandomUtils::generateFromSetWithRatio(choices, ratios);
             switch (choice) {
                 case 0:
                     player.gifts.push_back(std::make_unique<FullFirePower>());
@@ -199,14 +200,14 @@ void Game::bringGifts() {
                 case 2:
                     player.gifts.push_back(std::make_unique<AllMyPeople>());
                     break;
+                case 3:
+                    player.gifts.push_back(std::make_unique<SpeedStorm>());
+                    break;
                 default: __unreachable(); break;
             }
-            for (auto it = choices.begin(); it != choices.end(); ++it) {
-                if (*it == choice) {
-                    choices.erase(it);
-                    break;
-                }
-            }
+            for (int i = 0; i < choices.size(); i++)
+                if (choice == choices[i])
+                    ratios[i] = 0.0f;
         }
         giftTimer.restart();
     }
@@ -359,6 +360,8 @@ void Game::deserialize(const boost::json::object &o) {
             player.gifts.push_back(std::make_unique<CenturyShield>(obj));
         else if (name == "AllMyPeople")
             player.gifts.push_back(std::make_unique<AllMyPeople>(obj));
+        else if (name == "SpeedStorm")
+            player.gifts.push_back(std::make_unique<SpeedStorm>(obj));
         else
             LOG_WARN("Unrecognized gift name: " << name);
     }

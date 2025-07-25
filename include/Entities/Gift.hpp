@@ -34,6 +34,7 @@ public:
 
     float damageReduction = 0.0f;
     float attackSpeedIncrease = 0.0f;
+    float speedIncrease = 0.0f;
     bool charming = false;
     float maxTime;
 
@@ -67,4 +68,11 @@ public:
     AllMyPeople();
 
     AllMyPeople(const boost::json::object &o) : Gift(o) {}
+};
+
+class SpeedStorm : public Gift {
+public:
+    SpeedStorm();
+
+    SpeedStorm(const boost::json::object &o) : Gift(o) {}
 };

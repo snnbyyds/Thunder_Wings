@@ -177,14 +177,15 @@ void Game::run() {
 }
 
 void Game::bringGifts() {
-    if (!player.gifts.empty())
+    if (player.gifts.size() >= 3ul)
         return;
 
     if (giftTimer.hasElapsed(Constants::GIFT_SPAWN_INTERVAL) &&
         RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)) {
         int count =
-            RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY) ? 2
-                                                                           : 1;
+            RandomUtils::chooseWithProb(Constants::GIFT_SPAWN_PROBABILITY)
+                ? (currentBoss ? 3 : 2)
+                : 1;
         std::vector<int> choices = {0, 1, 2};
         for (int i = 0; i < count; i++) {
             int choice = RandomUtils::generateFromSet(choices);

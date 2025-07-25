@@ -122,6 +122,13 @@ void Game::run() {
                 if (event.key.code == sf::Keyboard::P) {
                     paused = !paused;
                     currentPauseOption = PAUSE_OPTION_RESUME;
+                    if (paused) {
+                        ResourceManager::gameBackgroundMusic.pause();
+                        ResourceManager::playSound("assets/pause.wav");
+                    } else if (ResourceManager::gameBackgroundMusic
+                                   .getStatus() != sf::SoundSource::Playing) {
+                        ResourceManager::gameBackgroundMusic.play();
+                    }
                     deltaTimer.restart();
                 } else if (event.key.code == sf::Keyboard::Escape) {
                     running = false;

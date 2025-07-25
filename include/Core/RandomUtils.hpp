@@ -1,4 +1,5 @@
 #include <ctime>
+#include <numeric>
 #include <random>
 #include <stdexcept>
 #include <type_traits>

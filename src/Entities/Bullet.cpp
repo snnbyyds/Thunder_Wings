@@ -91,12 +91,16 @@ void Bullet::deserialize(const boost::json::object &o) {
 Cannon::Cannon(const boost::json::object &o) {
     deserialize(o);
     sprite.setTexture(ResourceManager::getTexture(bullets_path[id]));
+    sprite.setOrigin(sprite.getLocalBounds().width / 2,
+                     sprite.getLocalBounds().height / 2);
 }
 
 Cannon::Cannon(sf::Vector2f position, sf::Vector2f direction, size_t id,
                bool from_player, float speed, float damage, bool charming)
     : Bullet(position, direction, id, from_player, speed, damage) {
     this->charming = charming;
+    sprite.setOrigin(sprite.getLocalBounds().width / 2,
+                     sprite.getLocalBounds().height / 2);
 }
 
 boost::json::object Cannon::serialize() const {

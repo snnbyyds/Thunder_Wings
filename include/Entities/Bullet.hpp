@@ -44,8 +44,9 @@ public:
 protected:
     void updateRotation();
 
-    const char *bullets_path[4] = {"assets/bullet1.png", "assets/bullet2.png",
-                                   "assets/missle.png", "assets/rocket.png"};
+    const char *bullets_path[5] = {"assets/bullet1.png", "assets/bullet2.png",
+                                   "assets/missle.png", "assets/rocket.png",
+                                   "assets/bullet3.png"};
     sf::Vector2f direction;
     float speed;
     size_t id;

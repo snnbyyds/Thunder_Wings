@@ -16,6 +16,8 @@
 
 #include "Entities/Player.hpp"
 #include "Core/Constants.hpp"
+#include "Core/Math.hpp"
+#include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 #include <algorithm>
 
@@ -156,12 +158,16 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     if (!avail)
         return;
 
+    bool shotSpeedIncreased = false;
     if (current_shot_gap > 0.0f) {
         float shot_gap = current_shot_gap;
         float multiplier = 1.0f;
         for (auto &gift : gifts)
             multiplier *= (1.0f + gift->attackSpeedIncrease);
-        shot_gap = current_shot_gap / multiplier;
+        if (multiplier > 1.0f) {
+            shot_gap = current_shot_gap / multiplier;
+            shotSpeedIncreased = true;
+        }
         if (!lastShotTimer.hasElapsed(shot_gap))
             return;
     }
@@ -182,7 +188,21 @@ void Player::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
         sf::Vector2f(0.0f, -1.0f), Constants::PLAYER_BULLET_ID, true, 1024.0f,
         damage, charming));
 
-    // ResourceManager::playSound("assets/bullet.wav");
+    static size_t counter = 0ul;
+    if (shotSpeedIncreased) {
+        if (counter % 2 == 0)
+            ResourceManager::playSound("assets/bullet3.wav");
+        for (int i = 0; i < 6; i++) {
+            sf::Vector2f shootDirection =
+                sf::Vector2f(RandomUtils::generateInRange(-0.4f, 0.4f), -1.0f);
+            shootDirection = Math::normalize(shootDirection);
+            bullet_pool.push_back(std::make_unique<Cannon>(
+                playerCenter + sf::Vector2f(0.0f, verticalOffset * 2.0f),
+                shootDirection, Constants::PLAYER_SUPER_BULLET_ID, true,
+                1600.0f, damage, charming));
+        }
+    }
+    counter++;
 
     lastShotTimer.restart();
 }

@@ -17,6 +17,7 @@
 #include "Entities/Enemy.hpp"
 #include "Core/Constants.hpp"
 #include "Core/Macros.h"
+#include "Core/Math.hpp"
 #include "Core/RandomUtils.hpp"
 #include "Core/ResourceManager.hpp"
 #include <cmath>
@@ -306,24 +307,14 @@ void Enemy3::shoot(std::vector<std::unique_ptr<Bullet>> &bullet_pool) {
     const sf::FloatRect bounds = sprite.getGlobalBounds();
     const float centerX = bounds.left + bounds.width / 2.0f;
     const float bottomY = bounds.top + bounds.height + 8.0f;
-    const float spacing = 20.0f; // Spacing for bullets
 
-    for (int row = 0; row < 3; row++) {
-        for (int col = 0; col < 3; col++) {
-            const float offsetX = (col - 1) * spacing;
-            const float offsetY = (row - 1) * spacing;
-
-            sf::Vector2f spawnPosition(centerX + offsetX, bottomY + offsetY);
-
-            float bulletDamage = damage;
-            if (col == 0 || col == 2)
-                bulletDamage = damage * 0.333f;
-
-            bullet_pool.push_back(std::make_unique<Cannon>(
-                spawnPosition, sf::Vector2f(0.0f, 1.0f),
-                Constants::ENEMY_BULLET_ID, false, bulletspeed, bulletDamage,
-                false));
-        }
+    for (int i = 0; i < 6; i++) {
+        sf::Vector2f shootDirection =
+            sf::Vector2f(RandomUtils::generateInRange(-0.32f, 0.32f), 1.0f);
+        shootDirection = Math::normalize(shootDirection);
+        bullet_pool.push_back(std::make_unique<Cannon>(
+            sf::Vector2f(centerX, bottomY), shootDirection,
+            Constants::ENEMY3_BULLET_ID, false, bulletspeed, damage, false));
     }
 
     shootCounter = (shootCounter + 1) % 16;

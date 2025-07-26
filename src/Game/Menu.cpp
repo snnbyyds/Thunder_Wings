@@ -257,7 +257,7 @@ const std::vector<std::string> Menu::guideLines = {
     "Enemy II   HP 16,384 Speed 64-256    Dmg 728 (sine-wave motion)",
     "Boss III   HP 840k-1200k  Circles top of screen",
     "           Heal: +2100 HP every 1.0s",
-    "           Volley: 9 bullets (6*1365.3 + 3*4096)",
+    "           Volley: 6 bullets (6*4096)",
     "           Missiles: 17,203 dmg each",
     "           Rockets: 6,553.6 dmg min or up to 18.4% of your current HP",
     "",

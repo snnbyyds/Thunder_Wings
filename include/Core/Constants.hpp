@@ -34,7 +34,7 @@ constexpr int SCREEN_HEIGHT = 900;
 // Player Properties
 constexpr size_t PLAYER_BULLET_ID        = 1ul;
 constexpr size_t PLAYER_SUPER_BULLET_ID  = 4ul;
-constexpr float PLAYER_SPEED             = 512.0f;
+constexpr float PLAYER_SPEED             = 700.0f;
 constexpr float PLAYER_MAX_HEALTH        = 1024000.0f;
 constexpr float PLAYER_DAMAGE            = 6144.0f;
 constexpr float PLAYER_SHOT_GAP          = 0.144f;
@@ -44,6 +44,7 @@ constexpr float PLAYER_RECOVER_HEALTH    = 128.0f;
 constexpr size_t ENEMY_BULLET_ID         = 0ul;
 constexpr size_t ENEMY_MISSILE_ID        = 2ul;
 constexpr size_t ENEMY_ROCKET_ID         = 3ul;
+constexpr size_t ENEMY3_BULLET_ID        = 5ul;
 constexpr float ENEMY_SPAWN_INTERVAL_MIN = 0.32f;
 constexpr float ENEMY_SPAWN_INTERVAL_MAX = 1.28f;
 constexpr float ENEMY1_SPAWN_PROB        = 0.6f;

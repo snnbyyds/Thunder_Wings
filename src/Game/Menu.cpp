@@ -250,7 +250,7 @@ const std::vector<std::string> Menu::guideLines = {
     "Heal: +128 HP every 0.64s",
     "Lifesteal: +50% enemy HP on normal kill",
     "           +100% boss HP on boss kill",
-    "Max HP: 4,096,000",
+    "Max HP: 1,024,000",
     "",
     "-- ENEMIES --",
     "Enemy I    HP 2048   Speed 128-256   Dmg 512",

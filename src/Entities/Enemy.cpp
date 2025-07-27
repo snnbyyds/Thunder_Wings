@@ -34,7 +34,7 @@ Enemy::Enemy(int level, sf::Vector2f position)
             bulletspeed = speed * 3.2f;
             current_shot_gap = 0.2f;
             damage = 512.0f;
-            killBonus = 1024.8f;
+            killBonus = 5000.0f;
             break;
         case 2:
             maxHealth = health = 16384.0f;
@@ -42,7 +42,7 @@ Enemy::Enemy(int level, sf::Vector2f position)
             bulletspeed = speed * 4.0f;
             current_shot_gap = 0.1f;
             damage = 728.0f;
-            killBonus = 8192.0f;
+            killBonus = 10000.0f;
             break;
         case 3:
             maxHealth = health =

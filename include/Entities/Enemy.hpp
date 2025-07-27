@@ -102,6 +102,6 @@ private:
     float verticalAmplitude; // Random amplitude for vertical movement
     float verticalFrequency; // Random frequency for the oscillation
     float verticalCenter;
-    float recoverRate = 2100.0f;
+    float recoverRate = 1000.0f;
     Timer timer;
 };

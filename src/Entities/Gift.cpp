@@ -124,7 +124,7 @@ AllMyPeople::AllMyPeople() : Gift("AllMyPeople") {
 
 SpeedStorm::SpeedStorm() : Gift("SpeedStorm") {
     attackSpeedIncrease = 0.0f;
-    speedIncrease = 1.0f; // +100%
+    speedIncrease = 0.3f; // +30%
     damageReduction = 0.0f;
     charming = false;
 }

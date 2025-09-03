@@ -176,7 +176,7 @@ void Missile::update(float deltaTime, sf::Vector2f hitTarget) {
         direction = Math::angleToVector(newAngle);
 
         updateRotation();
-        if (timer.hasElapsed(2.5f))
+        if (timer.hasElapsed(4.2f))
             tracking = 0.0f;
     } else {
         speed += deltaTime * 220.0f;

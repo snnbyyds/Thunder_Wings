@@ -97,7 +97,6 @@ find_package(Boost ${Boost_MINIMUM_VERSION} REQUIRED COMPONENTS
     json 
     log 
     log_setup 
-    system 
     filesystem 
     thread
 )
@@ -152,7 +151,6 @@ target_link_libraries(thunder_wings PRIVATE
 target_link_libraries(thunder_wings PRIVATE
     ${Boost_LOG_LIBRARY}
     ${Boost_LOG_SETUP_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
 )

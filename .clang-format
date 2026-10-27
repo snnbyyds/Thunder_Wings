@@ -1,12 +1,14 @@
-# .clang-format
 BasedOnStyle: LLVM
-IndentWidth:   4
-TabWidth:      4
-UseTab:        Never
-
-IndentCaseLabels: true 
+Standard: c++20
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+IndentCaseLabels: true
 AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Empty
 SeparateDefinitionBlocks: Always
 AccessModifierOffset: -4
-# ColumnLimit:     0
+PointerAlignment: Right
+SortIncludes: CaseSensitive

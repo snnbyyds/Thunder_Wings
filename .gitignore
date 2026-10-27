@@ -368,10 +368,9 @@ time.txt
 
 2048pvp
 dist
-build/*
-*.substvars
-debian/files
-debian/debhelper*
-debian/.debhelper
-debian/thunder-wings/*
+build/
+build-*/
+out/
+.cache/
+CMakeUserPresets.json
 obj-*/*

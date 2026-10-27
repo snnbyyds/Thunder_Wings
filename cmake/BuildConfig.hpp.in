@@ -1,0 +1,17 @@
+#pragma once
+
+#include <string_view>
+
+namespace thunder::build {
+
+inline constexpr std::string_view kProjectName = "Thunder Wings";
+inline constexpr std::string_view kVersion = "@PROJECT_VERSION@";
+inline constexpr std::string_view kBuildType = "@CMAKE_BUILD_TYPE@";
+inline constexpr std::string_view kCompiler =
+    "@CMAKE_CXX_COMPILER_ID@ @CMAKE_CXX_COMPILER_VERSION@";
+inline constexpr std::string_view kSourceAssetsDir = "@TW_SOURCE_ASSETS@";
+inline constexpr std::string_view kCopyright =
+    "Copyright 2025 Nuo Shen, Nanjing University";
+inline constexpr std::string_view kLicense = "Apache License 2.0";
+
+} // namespace thunder::build

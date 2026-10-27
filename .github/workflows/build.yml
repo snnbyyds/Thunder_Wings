@@ -1,158 +1,127 @@
-name: Build and Package Thunder Wings
+name: Build, Test and Package
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main, dev]
+  pull_request:
   workflow_dispatch:
 
-jobs:
-  build-package:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+permissions:
+  contents: read
 
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
+jobs:
+  linux:
+    name: Linux (SFML 3)
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsfml-dev libboost-all-dev
+          sudo apt-get install -y \
+            cmake ninja-build g++ \
+            libsfml-dev nlohmann-json3-dev libgtest-dev xvfb libgl1-mesa-dri zip
 
-      - name: Install aria2 (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install aria2 -y
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DTW_BUILD_TESTS=ON
 
-      - name: Setup vcpkg and install dependencies (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          .\bootstrap-vcpkg.bat
-          .\vcpkg.exe integrate install
-          
-          # Install required Boost components with static linking
-          .\vcpkg.exe install boost-json:x64-windows-static-md
-          .\vcpkg.exe install boost-log:x64-windows-static-md
-          .\vcpkg.exe install boost-system:x64-windows-static-md
-          .\vcpkg.exe install boost-filesystem:x64-windows-static-md
-          .\vcpkg.exe install boost-thread:x64-windows-static-md
-          
-          cd ..
+      - name: Build
+        run: cmake --build build --parallel
 
-      - name: Download and Setup SFML (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $url = "https://github.com/SFML/SFML/releases/download/2.6.2/SFML-2.6.2-windows-vc17-64-bit.zip"
-          $output = "sfml.zip"
-          aria2c -x16 -s16 -d . -o $output $url
-          Expand-Archive -Path $output -DestinationPath . -Force
-          Rename-Item -Path "SFML-2.6.2" -NewName "sfml"
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
 
-      - name: Configure and Build
-        shell: bash
-        run: |
-          mkdir -p build
-          cd build
-          
-          if [ "$RUNNER_OS" == "Windows" ]; then
-          cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DSFML_DIR="$GITHUB_WORKSPACE/sfml/lib/cmake/SFML" \
-            -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake" \
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
-            -DBoost_USE_STATIC_LIBS=ON \
-            -DBoost_USE_STATIC_RUNTIME=OFF \
-            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL \
-            -DBOOST_LOG_STATIC_LINK=ON \
-            -DBOOST_ALL_NO_LIB=ON
-          else
-            cmake .. -DCMAKE_BUILD_TYPE=Release
-          fi
-          
-          cmake --build . --config Release --parallel
+      - name: Headless smoke test
+        run: xvfb-run -a -s "-screen 0 1600x1000x24" timeout 30 ./build/thunder_wings --smoke-test --no-audio
 
-      - name: Prepare release files
-        shell: bash
+      - name: Package
         run: |
-          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
-          mkdir -p "$RELEASE_DIR"
-          
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            cp "build/Release/thunder_wings.exe" "$RELEASE_DIR/" || cp "build/thunder_wings.exe" "$RELEASE_DIR/"
-            # Copy SFML DLLs
-            cp "$GITHUB_WORKSPACE/sfml/bin/"*.dll "$RELEASE_DIR/"
-          else
-            cp "build/thunder_wings" "$RELEASE_DIR/"
-          fi
-          
-          cp -r "$GITHUB_WORKSPACE/assets" "$RELEASE_DIR/" || echo "No assets directory found"
-
-      - name: Test executable (basic check)
-        shell: bash
-        run: |
-          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            # Check if executable exists and has proper dependencies
-            if [ -f "$RELEASE_DIR/thunder_wings.exe" ]; then
-              echo "Executable found and ready"
-              # Try to get file info
-              file "$RELEASE_DIR/thunder_wings.exe" || echo "file command not available"
-            else
-              echo "ERROR: Executable not found in release directory!"
-              exit 1
-            fi
-          else
-            if [ -f "$RELEASE_DIR/thunder_wings" ]; then
-              chmod +x "$RELEASE_DIR/thunder_wings"
-              echo "Executable found and made executable"
-              # Check dependencies on Linux
-              ldd "$RELEASE_DIR/thunder_wings" || echo "ldd check failed"
-            else
-              echo "ERROR: Executable not found in release directory!"
-              exit 1
-            fi
-          fi
-
-      - name: Print version
-        shell: bash
-        run: |
-          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            "$RELEASE_DIR/thunder_wings.exe" --version
-          else
-            "$RELEASE_DIR/thunder_wings" --version
-          fi
-
-      - name: Create final ZIP package
-        shell: bash
-        run: |
-          RELEASE_DIR="Thunder_Wings_${{ runner.os }}"
-          
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            # Use PowerShell Compress-Archive instead of 7z
-            powershell -Command "Compress-Archive -Path '$RELEASE_DIR' -DestinationPath '$RELEASE_DIR.zip' -Force"
-          else
-            zip -r "$RELEASE_DIR.zip" "$RELEASE_DIR"
-          fi
-          
-          # Verify the ZIP was created
-          if [ -f "$RELEASE_DIR.zip" ]; then
-            echo "ZIP package created successfully"
-            ls -lh "$RELEASE_DIR.zip"
-          else
-            echo "ERROR: Failed to create ZIP package!"
-            exit 1
-          fi
+          mkdir -p "Thunder_Wings_Linux"
+          cp build/thunder_wings "Thunder_Wings_Linux/"
+          cp -r assets "Thunder_Wings_Linux/"
+          cp README.md LICENSE "Thunder_Wings_Linux/"
+          zip -r Thunder_Wings_Linux.zip Thunder_Wings_Linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Thunder_Wings_${{ runner.os }}
-          path: Thunder_Wings_${{ runner.os }}.zip
+          name: Thunder_Wings_Linux
+          path: Thunder_Wings_Linux.zip
+
+  windows:
+    name: Windows (SFML 3)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download SFML 3.1.0
+        shell: pwsh
+        run: |
+          $url = "https://github.com/SFML/SFML/releases/download/3.1.0/SFML-3.1.0-windows-vc17-64-bit.zip"
+          Invoke-WebRequest -Uri $url -OutFile sfml.zip
+          Expand-Archive -Path sfml.zip -DestinationPath . -Force
+          Rename-Item -Path "SFML-3.1.0" -NewName "sfml"
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake -S . -B build -A x64 `
+            -DSFML_DIR="$env:GITHUB_WORKSPACE/sfml/lib/cmake/SFML" `
+            -DTW_BUILD_TESTS=ON
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build build --config Release --parallel
+
+      - name: Test
+        shell: pwsh
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $release = "Thunder_Wings_Windows"
+          New-Item -ItemType Directory -Force -Path $release | Out-Null
+          $exe = Get-ChildItem -Path build -Recurse -Filter thunder_wings.exe | Select-Object -First 1
+          if (-not $exe) { throw "thunder_wings.exe was not produced" }
+          Copy-Item $exe.FullName "$release/thunder_wings.exe"
+          Copy-Item "sfml/bin/*.dll" "$release/"
+          Copy-Item assets "$release/assets" -Recurse
+          Copy-Item README.md, LICENSE "$release/"
+          Compress-Archive -Path "$release/*" -DestinationPath "$release.zip" -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Thunder_Wings_Windows
+          path: Thunder_Wings_Windows.zip
+
+  sanitizers:
+    name: Linux Debug (ASan/UBSan)
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake ninja-build g++ \
+            libsfml-dev nlohmann-json3-dev libgtest-dev
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DTW_BUILD_TESTS=ON \
+            -DTW_ENABLE_SANITIZERS=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ctest --test-dir build --output-on-failure

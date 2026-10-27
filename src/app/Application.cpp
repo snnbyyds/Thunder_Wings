@@ -385,7 +385,7 @@ std::span<const std::string> Application::guideLines() const {
             "-- GIFTS (every 32s, 36% chance) --",
             "FullFirePower: +400% fire rate",
             "CenturyShield: 90% damage reduction",
-            "AllMyPeople: 16s, 16 allies/s advance and fight for you",
+            "AllMyPeople: 16s, 256 allies/s advance and fight for you",
             "",
             "Press Esc to return to menu",
         };
@@ -438,7 +438,7 @@ void Application::runSmokeTest() {
     screen_ = Screen::Playing;
     render();
 
-    if (world_->alliesSummoned() < 32U || world_->allies().empty())
+    if (world_->alliesSummoned() < 512U || world_->allies().empty())
         throw std::runtime_error("Smoke test failed: AllMyPeople did not summon allies");
 
     TW_LOG_INFO("Smoke test passed: {} allies summoned, {} allies on screen",

@@ -179,21 +179,21 @@ TEST(GameWorldTest, KillingEnemyRewardsPlayerAndCountsKill) {
     EXPECT_FLOAT_EQ(world.player().health, before + 5000.0f);
 }
 
-TEST(GameWorldTest, AllMyPeopleSpawnsSixteenAlliesPerSecondForSixteenSeconds) {
+TEST(GameWorldTest, AllMyPeopleSpawns256AlliesPerSecondForSixteenSeconds) {
     GameWorld world(12345);
     world.grantGift(GiftKind::AllMyPeople);
     advance(world, thunder::config::kFixedTimeStep);
-    EXPECT_EQ(world.alliesSummoned(), 16U);
+    EXPECT_EQ(world.alliesSummoned(), 256U);
     ASSERT_EQ(world.gifts().size(), 1U);
     EXPECT_EQ(world.gifts()[0].summonsRemaining, 15);
 
     const float firstY = world.allies()[0].position.y;
     advance(world, 1.0f);
     EXPECT_LT(world.allies()[0].position.y, firstY);
-    EXPECT_EQ(world.alliesSummoned(), 32U);
+    EXPECT_EQ(world.alliesSummoned(), 512U);
 
     advance(world, 15.1f);
-    EXPECT_EQ(world.alliesSummoned(), 256U);
+    EXPECT_EQ(world.alliesSummoned(), 4096U);
     EXPECT_TRUE(world.gifts().empty());
     EXPECT_FALSE(world.allMyPeopleActive());
 }

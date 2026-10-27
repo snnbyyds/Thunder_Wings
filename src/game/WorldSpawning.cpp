@@ -178,15 +178,19 @@ void GameWorld::addGift(GiftKind kind) {
 
 void GameWorld::spawnAllyWave() {
     constexpr int count = config::kAllMyPeoplePerWave;
-    const float slot = static_cast<float>(config::kScreenWidth) / static_cast<float>(count);
+    const float columnWidth =
+        static_cast<float>(config::kScreenWidth) / static_cast<float>(config::kAllMyPeopleColumns);
     for (int i = 0; i < count; ++i) {
-        const float baseX = (static_cast<float>(i) + 0.5f) * slot;
+        const int row = i / config::kAllMyPeopleColumns;
+        const int column = i % config::kAllMyPeopleColumns;
+        const float baseX = (static_cast<float>(column) + 0.5f) * columnWidth;
         const float x = clamp(
             baseX + random_.uniform(-config::kAllyHorizontalJitter, config::kAllyHorizontalJitter),
             0.0f, static_cast<float>(config::kScreenWidth) - 1.0f);
+        const float y = static_cast<float>(config::kScreenHeight) + config::kAllySpawnBelowScreen +
+                        static_cast<float>(row) * config::kAllyRowSpacing;
         Ally ally;
-        ally.position = {x,
-                         static_cast<float>(config::kScreenHeight) + config::kAllySpawnBelowScreen};
+        ally.position = {x, y};
         ally.health = config::kAllyHealth;
         ally.fireCooldown = random_.uniform(0.05f, 0.9f);
         allies_.push_back(ally);

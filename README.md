@@ -13,7 +13,7 @@ save system, build setup and test coverage.
   application flow live in the executable.
 - **Deterministic simulation** — fixed 120 Hz updates, serializable RNG state, no wall-clock timers.
 - **Reliable saves** — versioned JSON, strict validation, atomic replace, automatic `.bak` recovery.
-- **AllMyPeople rework** — 16 seconds, 16 friendly units per second, persistently advancing and fighting.
+- **AllMyPeople rework** — 16 seconds, 256 friendly units per second, persistently advancing and fighting.
 - **No startup splash** — the game opens directly on the main menu.
 - **Unit and smoke tests** — GoogleTest suite plus a CI-rendered smoke run under Xvfb.
 
@@ -138,8 +138,8 @@ detection is attempted.
 The old “charm on bullet hit” behaviour was replaced with a timed summoning effect:
 
 - lasts **16 seconds**;
-- produces **16 allies per second** (one wave of 16 immediately, then once per second, 16 waves,
-  256 allies total);
+- produces **256 allies per second** (one wave of 256 immediately, then once per second, 16 waves,
+  4096 allies total);
 - allies spawn just below the screen, advance upward at **90 px/s** (they never stop at the bottom
   edge) and leave the screen at the top;
 - each ally has 2048 HP, targets the nearest enemy and fires a 512-damage bullet every 0.8 s;
